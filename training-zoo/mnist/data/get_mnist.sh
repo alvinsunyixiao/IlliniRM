@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # This scripts downloads the mnist data and unzips it.
 
-DIR="$( cd "$0" ; pwd -P )"
+DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 cd "$DIR"
 
 echo "Downloading..."
