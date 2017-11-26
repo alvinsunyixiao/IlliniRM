@@ -1,17 +1,14 @@
-# How to train built model (For Mac User)
-
-  Let's use Alvin's model as example.
+# How to Build Caffe DL Framework (For Mac User)
   
 ## Prerequisites 
-* Homebrew (If you don't have it, just follow the instruction on [Homebrew's webpage](https://brew.sh/))
-* Python (If you don't have it, install the homebrew first, then input `brew install python2 python3` in your terminal)
+* [Homebrew](https://brew.sh/)
+* Python (Recommend to use python2 installed from [Homebrew](https://brew.sh/): `brew install python2`)
 
 ## Come to Caffe
 
-### Installation
+### Dependencies
 
 * General dependencies
-	* Assume you have already installed brew, input the following commands in your terminal:
 
 ```
 brew install -vd snappy leveldb gflags glog szip lmdb
@@ -19,34 +16,46 @@ brew tap homebrew/science
 brew install hdf5
 brew install opencv --with-python --with-python3
 ```
+
 * Remaining dependencies
-	* still in the terminal, input:
 
 ```
-sudo pip2 install numpy
+sudo -H pip2 install numpy
 brew install --build-from-source --with-python -vd protobuf
 brew install --build-from-source -vd boost boost-python
 brew install openblas    
 ```
 
-### Checking and Setting up 
+### Build Caffe 
 
-* Make sure you are in the `caffe` directory.
+* Make sure you are in the `IlliniRM/caffe` directory.
 * Then, input the following commands:
 
 ```
 make all 
 make pycaffe
-export  <pythonpass>
+cd python && sudo -H pip2 install -r requirements.txt
+```
+### Setup PYTHONPATH
+* Make sure to replace `<path to IlliniRM/caffe/python>` with your **Absolute Path**
+* For bash user
+
+```
+(For bash users): echo "export PYTHONPATH=<path to IlliniRM/caffe/python>:\$PYTHONPATH" >> ~/.bash_profile
+```
+* For zsh user
+
+```
+(For zsh users): echo "export PYTHONPATH=<path to IlliniRM/caffe/python>:\$PYTHONPATH" >> ~/.zshrc
 ```
 
-### Application
-* Download two files from the [Google Drive](https://github.com/alvinsunyixiao/IlliniRM/tree/master/training-zoo/mnist/demo) to `training-zoo/minist/demo`.
-* Input `python2 demo.py` to demo.
+### Run Digit Recognition Demo
+* Download two files from the [Google Drive](https://drive.google.com/drive/u/1/folders/151dvJA-1cIoJ5kNKNFrwGojRCTCMHgle) to `training-zoo/minist/demo`.
+* Run `python2 demo.py` to demo.
 
-## References and more Links
+## References and More Links (For Windows & Linux Users)
 * [Caffe's OS X Installation](http://caffe.berkeleyvision.org/install_osx.html)
-* [Alvin's model](https://github.com/alvinsunyixiao/IlliniRM)
+* [Trained Model](https://drive.google.com/drive/u/1/folders/1Za_5X8DBD2OeAjottFdYQ94skK8arM-T)
 
 
 ---  
