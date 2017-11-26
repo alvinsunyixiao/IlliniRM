@@ -1,3 +1,62 @@
+# How to train built model (For Mac User)
+
+  Let's use Alvin's model as example.
+  
+## Prerequisites 
+* Homebrew (If you don't have it, just follow the instruction on [Homebrew's webpage](https://brew.sh/))
+* Python (If you don't have it, install the homebrew first, then input `brew install python2 python3` in your terminal)
+
+## Come to Caffe
+
+### Installation
+
+* General dependencies
+	* Assume you have already installed brew, input the following commands in your terminal:
+
+```
+brew install -vd snappy leveldb gflags glog szip lmdb
+brew tap homebrew/science
+brew install hdf5
+brew install opencv --with-python --with-python3
+```
+* Remaining dependencies
+	* still in the terminal, input:
+
+```
+sudo pip2 install numpy
+brew install --build-from-source --with-python -vd protobuf
+brew install --build-from-source -vd boost boost-python
+brew install openblas    
+```
+
+### Checking and Setting up 
+
+* Make sure you are in the `caffe` directory.
+* Then, input the following commands:
+
+```
+make all 
+make pycaffe
+export  <pythonpass>
+```
+
+### Application
+* Download two files from the [Google Drive](https://github.com/alvinsunyixiao/IlliniRM/tree/master/training-zoo/mnist/demo) to `training-zoo/minist/demo`.
+* Input `python2 demo.py` to demo.
+
+## References and more Links
+* [Caffe's OS X Installation](http://caffe.berkeleyvision.org/install_osx.html)
+* [Alvin's model](https://github.com/alvinsunyixiao/IlliniRM)
+
+
+---  
+---  
+---
+---
+___
+
+# The official README.md (provided by Caffe)
+---
 # Caffe
 
 [![Build Status](https://travis-ci.org/BVLC/caffe.svg?branch=master)](https://travis-ci.org/BVLC/caffe)
