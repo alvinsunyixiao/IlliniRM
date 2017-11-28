@@ -62,9 +62,9 @@ def main():
                 current_round_image.paste(number_image, box)
         show(ax, current_round_image)
         print(answer)
-        raw_input('Press anykey to continue...')
-        show(ax, pause_white_background)
-        plt.pause(2)
+        #raw_input('Press anykey to continue...')
+        #show(ax, pause_white_background)
+        plt.pause(5)
 
 
 def show(ax, image_object): #take a ax and an image object (can be numpy, image, plt_image, image...)
