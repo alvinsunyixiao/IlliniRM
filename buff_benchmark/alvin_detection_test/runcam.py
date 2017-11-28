@@ -87,7 +87,7 @@ while True:
                     (int(contours[i][0,0]), int(contours[i][0,1]-20)),
                     cv2.FONT_HERSHEY_SIMPLEX,
                     0.9,
-                   (255,0,0),
+                   (0,255,255),
                    2,cv2.LINE_AA)
 
     cv2.imshow('go', img)
