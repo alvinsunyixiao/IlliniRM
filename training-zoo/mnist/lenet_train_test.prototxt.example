@@ -41,6 +41,7 @@ layer {
   python_param {
     module: "mnist_aug"
     layer: "MnistAugmentationLayer"
+    param_str: '{"min_rotation":-15,"max_rotation":15,"min_scale":0.6,"max_scale":1.4,"min_translation":-3,"max_translation":3,"invert_probability":0.5,"max_contrast":0.6,"max_noise":0.08}'
   }
 }
 layer {

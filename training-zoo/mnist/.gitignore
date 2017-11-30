@@ -3,3 +3,4 @@ snapshot
 .DS_Store
 .ipynb*
 mnist_aug*
+lenet_train_test.prototxt
