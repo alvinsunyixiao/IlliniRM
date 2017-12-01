@@ -3,19 +3,20 @@ import cv2
 import caffe
 from IPython import embed
 import os
+import sys
 
 caffe.set_mode_cpu()
 
 net = caffe.Net('./lenet.prototxt',
-                './lenet_iter_50000.caffemodel',
+                sys.argv[1],
                 caffe.TEST)
 
 net.blobs['data'].reshape(1,1,28,28)
 
-path = '/Users/alvin/Desktop/number/'
+path = '../../buff_benchmark/2016_img'
 
 for i in range(1,10):
-    ip = os.path.join(path, '{}_'.format(i))
+    ip = os.path.join(path, '{}'.format(i))
     for fn in os.listdir(ip):
         img = cv2.imread(os.path.join(ip,fn))
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2GRAY)
