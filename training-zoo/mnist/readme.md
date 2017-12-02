@@ -33,6 +33,8 @@ This directory includes official LeNet CNN structure file `lenet_train_test.prot
 * Modify `lenet_train_test.prototxt` to
 	* Change default LeNet CNN structure
 	* Change data augmentation parameters
+		* [python notebook](https://github.com/alvinsunyixiao/IlliniRM/blob/master/training-zoo/mnist/mnist_augmentation.ipynb)
+		* [caffe python layer](https://github.com/alvinsunyixiao/IlliniRM/blob/master/training-zoo/mnist/pylayer/mnist_aug.py)
 * Modify `lenet_solver.prototxt` to cusomize:
 	* base learning rate
 	* learning rate decay policy
