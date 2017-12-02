@@ -104,10 +104,10 @@ def rank(dig_ids, contours_array): #input contours array and correseponding dig_
 while True:
     ret, img = cam.read()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #ret3, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    otsu_threshold, dump = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    offsetted_threshold = otsu_threshold + (255 - otsu_threshold) * 0.08
-    ret3, thresh = cv2.threshold(gray, offsetted_threshold, 255, cv2.THRESH_BINARY)
+    ret3, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    #otsu_threshold, dump = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
+    #offsetted_threshold = otsu_threshold + (255 - otsu_threshold) * 0.08
+    #ret3, thresh = cv2.threshold(gray, offsetted_threshold, 255, cv2.THRESH_BINARY)
     im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 120*60 and cv2.contourArea(cnt) <= 300*150]
     tmp = []
@@ -115,27 +115,12 @@ while True:
         epsilon = 0.05*cv2.arcLength(cnt, True)
         new_cnt = cv2.approxPolyDP(cnt,epsilon,True)
         if len(new_cnt) == 4 and cv2.isContourConvex(new_cnt):
+            #sorted_pts = sort_points(new_cnt)
             tmp.append(new_cnt)
     if len(tmp) == 0:
         continue
     contours = np.array(tmp)[:,:,0,:]
-    '''
-    rects = [cv2.boundingRect(cnt) for cnt in contours]
-    new_rects = []
-    for rect in rects:
-        scale = rect[2] * 1.0 / rect[3];
-        if scale >= 2.3 or scale <= 1.6 or rect[2] <= 40 or rect[2] >= 250:
-            continue
-        new_rects.append(rect)
-    if len(new_rects) < 9:
-        continue
-    new_rects = np.array(new_rects)
-    height = np.median(new_rects[:,3])
-    rects = [rect for rect in new_rects if rect[3] >= .95 * height]
-    for rect in rects:
-        cv2.rectangle(img, (rect[0], rect[1]), (rect[0] + rect[2], rect[1] + rect[3]), (0, 255, 0), 3)
-        gray = cv2.GaussianBlur(gray, (5,5), 0)
-    '''
+
     BOX_LEN = 32
     offset = (BOX_LEN - 28) / 2
 

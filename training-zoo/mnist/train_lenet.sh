@@ -3,4 +3,4 @@ set -e
 
 export PYTHONPATH=$(pwd -P)/pylayer:$PYTHONPATH
 mkdir -p snapshot
-../../caffe/build/tools/caffe train --solver=./lenet_solver.prototxt 
+../../caffe/build/tools/caffe train -log_dir ./snapshot --solver=./lenet_solver.prototxt 
