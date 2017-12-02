@@ -19,8 +19,9 @@ $BUILD/convert_mnist_data.bin $DATA/train-images-idx3-ubyte \
 $BUILD/convert_mnist_data.bin $DATA/t10k-images-idx3-ubyte \
   $DATA/t10k-labels-idx1-ubyte $EXAMPLE/mnist_test_${BACKEND} --backend=${BACKEND}
 
-echo "Copying lenet_train_test.prototxt"
+echo "Copying example configuration"
 
 cp ./lenet_train_test.prototxt.example ./lenet_train_test.prototxt
+cp ./lenet_solver.prototxt.example ./lenet_solver.prototxt
 
 echo "Done."

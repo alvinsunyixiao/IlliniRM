@@ -4,3 +4,4 @@ snapshot
 .ipynb*
 mnist_aug*
 lenet_train_test.prototxt
+lenet_solver.prototxt
