@@ -1,10 +1,13 @@
 from PIL import Image
 from copy import deepcopy
 
+_HARDCODED_BOARD_WIDTH = 540
+_HARDCODED_BOARD_HEIGHT = 160
+
 class board:
-    def __init__(self, board_width, board_height):
-        self.board_width = board_width
-        self.board_height = board_height
+    def __init__(self, scale = 1):
+        self.board_width = int(scale * _HARDCODED_BOARD_WIDTH)
+        self.board_height = int(scale * _HARDCODED_BOARD_HEIGHT)
         self.digit_width = (self.board_width / 5)
         self.digit_height = self.board_height
         self.black_background = Image.new("RGB", (self.board_width, self.board_height), "black")
@@ -18,11 +21,11 @@ class board:
         for i in range(5):
             self.digit_list[i].digit_update(sequence[i])
             digit_image = self.digit_list[i].generate()
-            box = location_tuple_calculator(digit_image, i)
+            box = self.location_tuple_calculator(digit_image, i)
             self.current_display.paste(digit_image, box)
         return self.current_display
 
-    def location_tuple_calculator(PILimg_object, num_of_digit): #example: image_tuple_calculator(1, 1); starts from upper left corner
+    def location_tuple_calculator(self, PILimg_object, num_of_digit): #example: image_tuple_calculator(1, 1); starts from upper left corner
         pic_width, pic_height = PILimg_object.size
         assert pic_height <= self.board_height
         left = num_of_digit * self.digit_width
@@ -35,7 +38,7 @@ class digit:
     def __init__(self, digit_width, digit_height):
         self.digit_width = digit_width
         self.digit_height = digit_height
-        self.tube_width = digit_height / 10
+        self.tube_width = digit_height / 15
         self.tube_length = self.tube_width * 4
         self.tube_lower_bound = self.tube_width * 2
         self.tube_upper_bound = self.digit_height - self.tube_lower_bound
@@ -53,7 +56,7 @@ class digit:
             self.tube_list[3].red_on()
         elif desired_digit == 2:
             self.tube_list[4].red_on()
-            self.tube_list[3].red_on()
+            self.tube_list[2].red_on()
             self.tube_list[5].red_on()
             self.tube_list[1].red_on()
             self.tube_list[6].red_on()
@@ -112,23 +115,24 @@ class digit:
             if i < 2: #left
                 left = self.tube_left_bound
                 right = left + width
-                lower = i * self.tube_length + self.tube_lower_bound + (i + 1) * self.tube_width
-                upper = lower + height
-                digit_display.paste(tube_image, (left, lower, right, upper))
+                upper = i * self.tube_length + self.tube_lower_bound + (i + 1) * self.tube_width
+                lower = upper + height
+                digit_display.paste(tube_image, (left, upper, right, lower))
             elif i < 4: #right
                 right = self.tube_right_bound
                 left = right - width
-                lower = (i - 2) * self.tube_length + self.tube_lower_bound + (i - 1) * self.tube_width
-                upper = lower + height
-                digit_display.paste(tube_image, (left, lower, right, upper))
+                upper = (i - 2) * self.tube_length + self.tube_lower_bound + (i - 1) * self.tube_width
+                lower = upper + height
+                digit_display.paste(tube_image, (left, upper, right, lower))
             else: #middle
-                tube_image = tube_image.rotate(90)
+                tube_image = tube_image.transpose(Image.ROTATE_90)
                 width, height = tube_image.size
-                left = self.tube_left_bound + self.tube_width
+                left = int(self.tube_right_bound - self.tube_left_bound - self.tube_width * 2 - self.tube_length) / 2 + self.tube_left_bound + self.tube_width
                 right = left + width
-                lower = (i - 4) * self.tube_length + self.tube_lower_bound
-                upper = lower + height
-                digit_display.paste(tube_image, (left, lower, right, upper))
+                #rough approx for upper; may cause unwanted shifts when operating on small scale
+                upper = (i - 4) * self.tube_length + self.tube_lower_bound + (i - 3) * int(self.tube_width * 0.5)
+                lower = upper + height
+                digit_display.paste(tube_image, (left, upper, right, lower))
         return digit_display
 
 class tube:

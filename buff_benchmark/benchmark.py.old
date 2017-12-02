@@ -6,6 +6,10 @@ from copy import deepcopy
 import random
 import time
 
+'''
+Old benchmark without little red hat
+'''
+
 all_image_dir = '2016_img/'
 
 #variables transform constants hardwired to 3x3

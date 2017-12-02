@@ -5,18 +5,24 @@ from PIL import Image
 from copy import deepcopy
 import random
 import time
+import digit_displayer
 
 all_image_dir = '2016_img/'
 
-#variables transform constants hardwired to 3x3
+#variables transform constants hardcoded for 3x3
 _resolution_width = 1920
-_resolution_height = 1080
+_final_resolution_height = 1080
+_digit_board_height = 160
+
+#_digit_board_height = int(0.1455 * _final_resolution_height)
+_resolution_height = _final_resolution_height - _digit_board_height
 _image_width = int((3 / 13.0) * _resolution_width)
 _image_height = int((1 / 4.6) * _resolution_height)
 _horizon_black_strip_width = int(0.4 * _image_height)
 _vertical_black_strip_width = int(_image_width / 3.0)
 black_background = Image.new("RGB", (_resolution_width, _resolution_height), "black")
 pause_white_background = Image.new("RGB", (_resolution_width, _resolution_height), "white")
+all_white_background = Image.new("RGB", (_resolution_width, _final_resolution_height), "white")
 
 def image_tuple_calculator(PILimg_object, row, col): #example: image_tuple_calculator(1, 1); starts from upper left corner
     width, height = PILimg_object.size
@@ -48,6 +54,7 @@ def main():
     #fig.canvas.window().statusBar().setVisible(False)
     plt.ion()
     plt.show()
+    sequence_board = digit_displayer.board(scale = 1)
     while True:
         available_number = range(1, 10)
         current_round_image = deepcopy(black_background)
@@ -60,8 +67,17 @@ def main():
                 number_image = random_image_selector(jackpot_number, desire_width = _image_width, desire_height = _image_height)
                 box = image_tuple_calculator(number_image, cur_row, cur_col)
                 current_round_image.paste(number_image, box)
-        show(ax, current_round_image)
+        current_round_buff_displayer_image = deepcopy(all_white_background)
+        current_round_buff_displayer_image.paste(current_round_image, (0, _digit_board_height, _resolution_width, _final_resolution_height))
+        red_board_sequence = [random.randrange(1, 10) for i in range(5)]
+        current_round_board_image = sequence_board.generate(red_board_sequence)
+        board_width, board_height = current_round_board_image.size
+        board_left_bound = (_resolution_width - board_width) / 2
+        current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
+        #show(ax, current_round_image)
+        show(ax, current_round_buff_displayer_image)
         print(answer)
+        print(red_board_sequence)
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
         plt.pause(5)

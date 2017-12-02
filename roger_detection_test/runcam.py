@@ -48,7 +48,7 @@ while True:
     ret3, thresh = cv2.threshold(gray, offsetted_threshold, 255, cv2.THRESH_BINARY)
     im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     extracted_hierarchy = hierarchy[0]
-    holder_frame = treeprocessor.contour_with_n_contour_inside(extracted_hierarchy, 9)
+    #holder_frame = treeprocessor.contour_with_n_contour_inside(extracted_hierarchy, 9)
     contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 120*60 and cv2.contourArea(cnt) <= 300*150]
     tmp = []
     for cnt in contours:
