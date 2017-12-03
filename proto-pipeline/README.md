@@ -1,18 +1,18 @@
-#How to run a model with Jupyter
+# How to run a model with Jupyter
 
-##Prerequisites
+## Prerequisites
 * Homebrew installed python
 * pip2 (included in the Homebrew installed python)
 
-##Come to Jupyter
-###Prepare the needed files
+## Come to Jupyter
+### Prepare the needed files
 * After `git pull`ed in the `IlliniRM` directory, input `mkdir model` to creat a new directory and downlowd files in [Google Drive](https://drive.google.com/drive/u/1/folders/151dvJA-1cIoJ5kNKNFrwGojRCTCMHgle) into the just-created directory.
 
-###Install Jupyter
+### Install Jupyter
 * Make sure you are in the `IlliniRM` directory, then `cd proto-pipeline`.
 * input `sudo pip2 install jupyter` to install jupyter.
 
-###Run Jupyter
+### Run Jupyter
 * Make sure you are in the `IlliniRM/proto-pipeline` directory, input `jupyter notebook`.
 * A webpage will pop-up, which webpage should look like this![Jupyter_example_0](/Users/mingdama/Desktop/Screen Shot 2017-12-03 at 4.10.52 PM.png)
 * Click the `grid-detect.ipynb`.
@@ -25,5 +25,5 @@
 * Run through all the blocks.
 * (To exit in the terminal, press `Ctrl+C`, then input  `y`)
 
-##More link
+## More link
 * [Main page of Project Jupyter](http://jupyter.org/)
