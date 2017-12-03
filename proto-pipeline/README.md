@@ -14,13 +14,13 @@
 
 ### Run Jupyter
 * Make sure you are in the `IlliniRM/proto-pipeline` directory, input `jupyter notebook`.
-* A webpage will pop-up, which webpage should look like this![Jupyter_example_0](/Users/mingdama/Desktop/Screen Shot 2017-12-03 at 4.10.52 PM.png)
+* A webpage will pop-up, which webpage should look like this![Jupyter_example_0](/Users/mingdama/IlliniRM/proto-pipeline/ImageSource_README/S0.png)
 * Click the `grid-detect.ipynb`.
-* The new webpage should look like this ![Jupyter_example_1](/Users/mingdama/Desktop/Screen Shot 2017-12-03 at 4.14.11 PM.png)
+* The new webpage should look like this ![Jupyter_example_1](/Users/mingdama/IlliniRM/proto-pipeline/ImageSource_README/S1.png)
 * You can see that the codes are separated into several blocks, click on one of them to select the block you want to run, in this case we choose the first block.
 * Click on `Run`.
-* The number after the `In` should turn into a `*`, just like: ![Jupyter_example_2](/Users/mingdama/Desktop/Screen Shot 2017-12-03 at 4.18.13 PM.png)
-* The running is completed when the `*` turns back to a number,like: ![Jupyter_example_3](/Users/mingdama/Desktop/Screen Shot 2017-12-03 at 4.18.17 PM.png)
+* The number after the `In` should turn into a `*`, just like: ![Jupyter_example_2](/Users/mingdama/IlliniRM/proto-pipeline/ImageSource_README/S2.png)
+* The running is completed when the `*` turns back to a number,like: ![Jupyter_example_3](/Users/mingdama/IlliniRM/proto-pipeline/ImageSource_README/S3.png)
 * Run the blocks one by one, take care of the bottom of each block after you run them, an error message might pop-up.
 * Run through all the blocks.
 * (To exit in the terminal, press `Ctrl+C`, then input  `y`)
