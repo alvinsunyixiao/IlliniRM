@@ -38,12 +38,12 @@ class digit:
     def __init__(self, digit_width, digit_height):
         self.digit_width = digit_width
         self.digit_height = digit_height
-        self.tube_width = digit_height / 15
-        self.tube_length = self.tube_width * 4
-        self.tube_lower_bound = self.tube_width * 2
+        self.tube_width = int(digit_height / 10.0)
+        self.tube_lower_bound = self.tube_width * 1
         self.tube_upper_bound = self.digit_height - self.tube_lower_bound
-        self.tube_left_bound = self.tube_width * 2
+        self.tube_left_bound = self.tube_width * 1
         self.tube_right_bound = self.digit_width - self.tube_left_bound
+        self.tube_length = self.tube_right_bound - self.tube_left_bound - 2 * self.tube_width
         self.black_background = Image.new("RGB", (self.digit_width, self.digit_height), "black")
         self.tube_list = [] #0left1, 1left2, 2right1, 3right2, 4middle1, 5middle2, 6middle3
         for i in range(7):
@@ -143,10 +143,11 @@ class tube:
         self.current_color = "gray"
 
     def red_on(self):
-        self.current_color = "red"
+        #self.current_color = "red"
+        self.current_color = (255, 40, 40)
 
     def gray_off(self):
-        self.current_color = "gray"
+        self.current_color = (50, 50, 50)
 
     def generate(self):
         return Image.new("RGB", (self.tube_width, self.tube_length), self.current_color)
