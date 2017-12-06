@@ -2,8 +2,9 @@ import digit_displayer
 from PIL import Image
 import cv2
 import os
+import numpy as np
 
-directo = 'red_number/'
+directo = 'red_number_new/'
 
 def main(desired_scale):
     for i in range(10):
@@ -18,9 +19,18 @@ def main(desired_scale):
         #os.remove(filename + '.png')
         gray = cv2.cvtColor(cur_img_numpy, cv2.COLOR_BGR2GRAY)
         ret3, thresh = cv2.threshold(gray,60,255,cv2.THRESH_BINARY)
-        print ret3
+        #print ret3
         cv2.imwrite(filename + '.jpg', thresh)
 
+        #Added snippet: dilation transform
+        original = cv2.imread(filename + '.jpg', 0)
+        for i in range(1, 4):
+            for j in range(1, 6):
+                kernel = np.ones((i, j), np.uint8)
+                dilation_transformed = cv2.dilate(original, kernel, iterations = 1)
+                transformed_filename = filename + '_' + str(i) + '_' + str(j) + '.jpg'
+                cv2.imwrite(transformed_filename, dilation_transformed)
+
 if __name__ == '__main__':
-    for i in range(5, 40):
+    for i in range(9, 25):
         main(i)

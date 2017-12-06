@@ -35,10 +35,10 @@ class board:
         return (left, upper, right, lower)
 
 class digit:
-    def __init__(self, digit_width, digit_height):
+    def __init__(self, digit_width, digit_height, width_scale = 10):
         self.digit_width = digit_width
         self.digit_height = digit_height
-        self.tube_width = int(digit_height / 10.0)
+        self.tube_width = int(digit_height / width_scale)
         self.tube_lower_bound = self.tube_width * 1
         self.tube_upper_bound = self.digit_height - self.tube_lower_bound
         self.tube_left_bound = self.tube_width * 1
@@ -109,6 +109,7 @@ class digit:
 
     def generate(self):
         digit_display = deepcopy(self.black_background)
+        lower_end = 0
         for i in range(7):
             tube_image = self.tube_list[i].generate()
             width, height = tube_image.size
@@ -118,6 +119,7 @@ class digit:
                 upper = i * self.tube_length + self.tube_lower_bound + (i + 1) * self.tube_width
                 lower = upper + height
                 digit_display.paste(tube_image, (left, upper, right, lower))
+                if i == 1: lower_end = lower
             elif i < 4: #right
                 right = self.tube_right_bound
                 left = right - width
@@ -130,7 +132,11 @@ class digit:
                 left = int(self.tube_right_bound - self.tube_left_bound - self.tube_width * 2 - self.tube_length) / 2 + self.tube_left_bound + self.tube_width
                 right = left + width
                 #rough approx for upper; may cause unwanted shifts when operating on small scale
-                upper = (i - 4) * self.tube_length + self.tube_lower_bound + (i - 3) * int(self.tube_width * 0.5)
+                if i != 6:
+                    upper = (i - 4) * self.tube_length + self.tube_lower_bound + (i - 3) * int(self.tube_width * 0.5)
+                else:
+                    upper = self.tube_upper_bound - height + 1
+                    #upper = lower_end - self.tube_width / 2 - 1
                 lower = upper + height
                 digit_display.paste(tube_image, (left, upper, right, lower))
         return digit_display
