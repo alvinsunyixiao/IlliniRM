@@ -7,7 +7,7 @@ import numpy as np
 directo = 'red_number_new/'
 
 def main(desired_scale):
-    for i in range(10):
+    for i in range(2, 10):
         cur_digit = digit_displayer.digit(16, 24, width_scale = desired_scale)
         cur_digit.digit_update(i)
         cur_digit_img = cur_digit.generate()
