@@ -65,6 +65,7 @@ def main():
     plt.ion()
     plt.show()
     sequence_board = digit_displayer.board(scale = 1)
+    round_count = 0
     while True:
         available_number = range(1, 10)
         current_round_image = deepcopy(black_background)
@@ -79,7 +80,7 @@ def main():
                 current_round_image.paste(number_image, box)
         current_round_buff_displayer_image = deepcopy(all_white_background)
         current_round_buff_displayer_image.paste(current_round_image, (0, _digit_board_height, _resolution_width, _final_resolution_height))
-        red_board_sequence = random_sequence_generator(1, 10, 5)
+        if round_count % 5 == 0: red_board_sequence = random_sequence_generator(1, 10, 5)
         current_round_board_image = sequence_board.generate(red_board_sequence)
         board_width, board_height = current_round_board_image.size
         board_left_bound = (_resolution_width - board_width) / 2
@@ -88,6 +89,7 @@ def main():
         show(ax, current_round_buff_displayer_image)
         print(answer)
         print(red_board_sequence)
+        round_count += 1
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
         plt.pause(5)
