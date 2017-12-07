@@ -96,11 +96,11 @@ def process(img, pos = -1):
 
     org_img = img_cp.copy()
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
-    lower_red = np.array([0,30,40])
-    upper_red = np.array([25,255,255])
+    lower_red = np.array([0,90,70])
+    upper_red = np.array([15,255,255])
     mask = cv2.inRange(hsv_img, lower_red, upper_red)
     mask1 = cv2.inRange(hsv_img, lower_red, upper_red)
-    lower_red = np.array([155,30,40])
+    lower_red = np.array([165,90,70])
     upper_red = np.array([179,255,255])
     mask2 = cv2.inRange(hsv_img, lower_red, upper_red)
     mask = np.bitwise_or(mask1, mask2)
@@ -111,11 +111,11 @@ def process(img, pos = -1):
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
 
-    y_min = min(contours,key=lambda cnt: cnt[0,1])[0,1]
+    y_min = min(points,key=lambda cnt: cnt[0,1])[0,1]
     y_min = int(y_min)
-    x_min1 = min(contours, key=lambda cnt: cnt[1,0])[1,0]
+    x_min1 = min(points, key=lambda cnt: cnt[1,0])[1,0]
     x_min1 = int(x_min1)
-    x_min2 = max(contours, key=lambda cnt: cnt[0,0])[0,0]
+    x_min2 = max(points, key=lambda cnt: cnt[0,0])[0,0]
     x_min2 = int(x_min2)
     ftr = np.ones(img.shape[0:2],np.uint8)
     ftr[y_min:-1,:] = 0
@@ -130,9 +130,15 @@ def process(img, pos = -1):
         return img
 
     rects = sorted(rects, key=lambda x: x[0])
+    y = sorted(rects, key=lambda x: x[1])
+    y = y[len(y)/2][1]
+    rects = [rect for rect in rects if rect[1] >= y*0.9 and rect[1] <= y*1.1]
 
-    for rect in rects:
-        cv2.rectangle(img, (rect[0], rect[1]),(rect[0]+rect[2], rect[1]+rect[3]),(0,255,0),3)
+
+    if pos != -1 and pos < len(rects):
+        cv2.rectangle(img, (rects[pos][0], rects[pos][1]),
+                           (rects[pos][0]+rects[pos][2], rects[pos][1]+rects[pos][3]),
+                           (0,255,0),3)
 
     res = cv2.bitwise_and(gray, gray, mask=mask)
 
@@ -160,7 +166,7 @@ def process(img, pos = -1):
         if idx.shape[0] == 0:
             return img
         idx = idx[0]
-        cv2.drawContours(img, contours, idx, (255,0,0), 3)
+        cv2.drawContours(img, contours, idx, (0,0,255), 3)
 
 
     return img
@@ -168,18 +174,24 @@ def process(img, pos = -1):
 
 cap = cv2.VideoCapture(0)
 
+fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
 while True:
     for i in range(5):
-        for j in range(7):
+        for j in range(4):
             ret, img = cap.read()
             img = process(img,i)
             cv2.imshow('go', img)
+            vout.write(img)
+            vout.write(img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-        for j in range(7):
+        for j in range(4):
             ret, img = cap.read()
             img = process(img)
             cv2.imshow('go', img)
+            vout.write(img)
+            vout.write(img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
