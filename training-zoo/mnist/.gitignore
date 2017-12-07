@@ -1,5 +1,6 @@
 *lmdb
 snapshot
+.ipynb*
 .DS_Store
 lenet_train_test.prototxt
 lenet_solver.prototxt
