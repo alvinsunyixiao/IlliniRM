@@ -39,11 +39,11 @@ class digit:
         self.digit_width = digit_width
         self.digit_height = digit_height
         self.tube_width = int(digit_height / width_scale)
-        self.tube_lower_bound = self.tube_width * 1
-        self.tube_upper_bound = self.digit_height - self.tube_lower_bound
-        self.tube_left_bound = self.tube_width * 1
-        self.tube_right_bound = self.digit_width - self.tube_left_bound
-        self.tube_length = self.tube_right_bound - self.tube_left_bound - 2 * self.tube_width
+        self.tube_lower_bound = self.tube_width * 1 +1
+        self.tube_upper_bound = self.digit_height - self.tube_lower_bound +1
+        self.tube_left_bound = self.tube_width * 1 - 1
+        self.tube_right_bound = self.digit_width - self.tube_left_bound - 2
+        self.tube_length = (self.tube_right_bound + 1) - (self.tube_left_bound + 1) - 2 * self.tube_width
         self.black_background = Image.new("RGB", (self.digit_width, self.digit_height), "black")
         self.tube_list = [] #0left1, 1left2, 2right1, 3right2, 4middle1, 5middle2, 6middle3
         for i in range(7):
@@ -109,7 +109,7 @@ class digit:
 
     def generate(self):
         digit_display = deepcopy(self.black_background)
-        lower_end = 0
+        self.lower_end = 0
         for i in range(7):
             tube_image = self.tube_list[i].generate()
             width, height = tube_image.size
@@ -118,8 +118,12 @@ class digit:
                 right = left + width
                 upper = i * self.tube_length + self.tube_lower_bound + (i + 1) * self.tube_width
                 lower = upper + height
+                if i == 0:
+                    self.middle_ground = int(lower + 1 * self.tube_length + self.tube_lower_bound + 2 * self.tube_width) / 2
+                    self.interval = (self.middle_ground - lower) / 3
+                    self.middle_start_point = lower - self.interval
                 digit_display.paste(tube_image, (left, upper, right, lower))
-                if i == 1: lower_end = lower
+                if i == 1: self.lower_end = lower
             elif i < 4: #right
                 right = self.tube_right_bound
                 left = right - width
@@ -132,12 +136,26 @@ class digit:
                 left = int(self.tube_right_bound - self.tube_left_bound - self.tube_width * 2 - self.tube_length) / 2 + self.tube_left_bound + self.tube_width
                 right = left + width
                 #rough approx for upper; may cause unwanted shifts when operating on small scale
+                '''
                 if i != 6:
                     upper = (i - 4) * self.tube_length + self.tube_lower_bound + (i - 3) * int(self.tube_width * 0.5)
                 else:
                     upper = self.tube_upper_bound - height + 1
                     #upper = lower_end - self.tube_width / 2 - 1
                 lower = upper + height
+                '''
+                if i == 4:
+                    lower = self.middle_start_point + (i - 5) * (self.tube_length - self.tube_width / 2)
+                    upper = lower - height
+                elif i == 5:
+                    upper = self.middle_start_point
+                    lower = upper + height
+                elif i == 6:
+                    lower = min(self.digit_height, self.lower_end + self.tube_width / 2)
+                    #lower = self.lower_end + self.tube_width / 2
+                    upper = lower - height
+                    #upper = self.middle_start_point + height + (i - 5) * (self.tube_length) - int(0.5 * self.interval) - 10
+                    #lower = upper + height
                 digit_display.paste(tube_image, (left, upper, right, lower))
         return digit_display
 

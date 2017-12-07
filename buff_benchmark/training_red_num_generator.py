@@ -6,7 +6,7 @@ import numpy as np
 
 directo = 'red_number_new/'
 
-def main(desired_scale):
+def main(desired_scale, dia = False):
     for i in range(10):
         cur_digit = digit_displayer.digit(16, 24, width_scale = desired_scale)
         cur_digit.digit_update(i)
@@ -24,13 +24,14 @@ def main(desired_scale):
 
         #Added snippet: dilation transform
         original = cv2.imread(filename + '.jpg', 0)
-        for i in range(1, 4):
-            for j in range(1, 6):
-                kernel = np.ones((i, j), np.uint8)
-                dilation_transformed = cv2.dilate(original, kernel, iterations = 1)
-                transformed_filename = filename + '_' + str(i) + '_' + str(j) + '.jpg'
-                cv2.imwrite(transformed_filename, dilation_transformed)
+        if dia:
+            for i in range(1, 4):
+                for j in range(1, 6):
+                    kernel = np.ones((i, j), np.uint8)
+                    dilation_transformed = cv2.dilate(original, kernel, iterations = 1)
+                    transformed_filename = filename + '_' + str(i) + '_' + str(j) + '.jpg'
+                    cv2.imwrite(transformed_filename, dilation_transformed)
 
 if __name__ == '__main__':
-    for i in range(9, 25):
-        main(i)
+    for i in range(7, 25):
+        main(i, dia = True)
