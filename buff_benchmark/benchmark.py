@@ -41,6 +41,16 @@ def random_image_selector(desired_number, desire_width, desire_height):
     im = im.resize((desire_width, desire_height))
     return im
 
+def random_sequence_generator(start, end, desired_length):
+    assert desired_length <= end - start
+    available_num = range(start, end)
+    ret = []
+    for i in range(desired_length):
+        selected_number = random.choice(available_num)
+        available_num.remove(selected_number)
+        ret.append(selected_number)
+    return ret
+
 def main():
     mpl.rcParams['toolbar'] = 'None'
     fig = plt.figure()
@@ -69,7 +79,7 @@ def main():
                 current_round_image.paste(number_image, box)
         current_round_buff_displayer_image = deepcopy(all_white_background)
         current_round_buff_displayer_image.paste(current_round_image, (0, _digit_board_height, _resolution_width, _final_resolution_height))
-        red_board_sequence = [random.randrange(1, 10) for i in range(5)]
+        red_board_sequence = random_sequence_generator(1, 10, 5)
         current_round_board_image = sequence_board.generate(red_board_sequence)
         board_width, board_height = current_round_board_image.size
         board_left_bound = (_resolution_width - board_width) / 2
