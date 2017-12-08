@@ -17,9 +17,15 @@ Python 2 大符模拟器。采用[辣鸡官方大符模拟器](http://bbs.roboma
 2. 调整程序开头的参数，比如分辨率等等
 3. python benchmark.py
 
+##使用 socket 来提交结果
+1. 修改 buff_benchmark_comm.py 的头部 constants，要啥填啥，注意区分内外部地址
+2. 修改 benchmark.py 头部，将 \_USE\_SOCKET 设为 True
+3. import buff_benchmark_comm
+4. client = buff_benchmark_comm.client()
+5. client.update([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
 ## TODO
 - 扩大数据集（自己手写？）
 - 添加干扰（包括但不限于旋转，噪声等等）
-- 和被测试者的通信方式
 - 根据规则调整程序，使时间间隔、图片和黑条等参数更贴近实际情况
 - 返回正确率和错题集
