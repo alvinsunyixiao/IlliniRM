@@ -6,8 +6,10 @@ from copy import deepcopy
 import random
 import time
 import digit_displayer
+import buff_benchmark_comm
 
 all_image_dir = '2016_img/'
+_USE_SOCKET = True
 
 #variables transform constants hardcoded for 3x3
 _resolution_width = 1920
@@ -52,6 +54,9 @@ def random_sequence_generator(start, end, desired_length):
     return ret
 
 def main():
+    if _USE_SOCKET:
+        print "Waiting for incoming connection to start..."
+        benchmark_server = buff_benchmark_comm.server()
     mpl.rcParams['toolbar'] = 'None'
     fig = plt.figure()
     #fig.canvas.toolbar.pack_forget()
@@ -87,12 +92,14 @@ def main():
         current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
         #show(ax, current_round_image)
         show(ax, current_round_buff_displayer_image)
+        if _USE_SOCKET:
+            benchmark_server.update(answer, red_board_sequence)
         print(answer)
         print(red_board_sequence)
         round_count += 1
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
-        plt.pause(5)
+        plt.pause(1.5)
 
 
 def show(ax, image_object): #take a ax and an image object (can be numpy, image, plt_image, image...)

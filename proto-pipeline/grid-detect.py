@@ -5,13 +5,13 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
-
+import buff_benchmark_comm
 
 # Load caffe model
 caffe.set_mode_cpu()
 
 net = caffe.Net('./model/lenet.prototxt',
-                './model/mnist_iter_20000.caffemodel',
+                './model/lenet_iter_50000.caffemodel',
                caffe.TEST)
 
 
@@ -26,6 +26,18 @@ Output: [pt1, pt2, pt3, pt4]
 Satifying the following spatial condition: |pt1 pt2|
                                            |pt3 pt4|
 '''
+def rank(dig_ids, contours_array):
+    assert len(contours_array) == 9
+    unranked_list = [[], [], []]
+    for n in range(9):
+        unranked_list[2 - (n / 3)].append([int(contours_array[n][0, 0]), int(contours_array[n][0, 1]), dig_ids[n]])
+    ranked_list = [sorted(i, key = lambda x: x[0]) for i in unranked_list]
+    ret = []
+    for i in ranked_list:
+        for j in i:
+            ret.append(j[2])
+    return ret
+
 def sort_points(rect):
     x_sort = np.array(sorted(rect, key=lambda x: x[1]))
     if x_sort[0,0] > x_sort[1,0]:
@@ -35,7 +47,7 @@ def sort_points(rect):
     return x_sort
 
 # Load image and compute its threshold binary map
-def process(img, pos = -1):
+def process(img, client1 = None, pos = -1):
     #img = cv2.resize(img, (800,600))
     img_cp = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -93,6 +105,10 @@ def process(img, pos = -1):
                     0.9,
                    (0,255,255),
                    2,cv2.LINE_AA)
+
+    if len(contours) == 9:
+        output_sequence = rank(dig_ids, contours)
+        client1.update(output_sequence)
 
     org_img = img_cp.copy()
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
@@ -158,7 +174,7 @@ def process(img, pos = -1):
     net.blobs['data'].data[...] = secrets
     out = net.forward()
     secret_ids = out['prob'].argmax(axis = 1)
-    print dig_ids
+    #print dig_ids
 
     if pos != -1 and pos < len(secret_ids):
         num = secret_ids[pos]
@@ -174,24 +190,26 @@ def process(img, pos = -1):
 
 cap = cv2.VideoCapture(0)
 
-fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
+#fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+#vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
+client = buff_benchmark_comm.client()
+
 while True:
     for i in range(5):
         for j in range(4):
             ret, img = cap.read()
-            img = process(img,i)
+            img = process(img, client1 = client, pos =  i)
             cv2.imshow('go', img)
-            vout.write(img)
-            vout.write(img)
+            #vout.write(img)
+            #vout.write(img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
         for j in range(4):
             ret, img = cap.read()
-            img = process(img)
+            img = process(img, client1 = client)
             cv2.imshow('go', img)
-            vout.write(img)
-            vout.write(img)
+            #vout.write(img)
+            #vout.write(img)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
