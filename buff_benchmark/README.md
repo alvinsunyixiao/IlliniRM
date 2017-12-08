@@ -17,7 +17,7 @@ Python 2 大符模拟器。采用[辣鸡官方大符模拟器](http://bbs.roboma
 2. 调整程序开头的参数，比如分辨率等等
 3. python benchmark.py
 
-##使用 socket 来提交结果
+## 使用 socket 来提交结果
 1. 修改 buff_benchmark_comm.py 的头部 constants，要啥填啥，注意区分内外部地址
 2. 修改 benchmark.py 头部，将 \_USE\_SOCKET 设为 True
 3. import buff_benchmark_comm
