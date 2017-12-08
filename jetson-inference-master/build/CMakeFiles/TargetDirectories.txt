@@ -1,0 +1,14 @@
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/rebuild_cache.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/install.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/list_install_components.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/jetson-inference.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/install/strip.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/install/local.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/CMakeFiles/edit_cache.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/install.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/list_install_components.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/rebuild_cache.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/imagenet-console.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/install/strip.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/install/local.dir
+/home/nvidia/Documents/rm/jetson-inference-master/build/imagenet-console/CMakeFiles/edit_cache.dir
