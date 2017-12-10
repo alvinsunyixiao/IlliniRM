@@ -102,7 +102,7 @@ def findTargets (rects, blackconts):
             xmid = int((x1 + x2) / 2)
             ymid = int((y1 + y2) / 2)
 
-            a1 = w1 * w2
+            a1 = w1 * h2
             a2 = w2 * h2
 
             wavg = (w1 + w2) / 2
