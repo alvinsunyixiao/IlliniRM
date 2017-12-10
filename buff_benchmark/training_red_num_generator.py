@@ -33,5 +33,5 @@ def main(desired_scale, dia = False):
                     cv2.imwrite(transformed_filename, dilation_transformed)
 
 if __name__ == '__main__':
-    for i in range(7, 25):
+    for i in range(9, 25):
         main(i, dia = True)
