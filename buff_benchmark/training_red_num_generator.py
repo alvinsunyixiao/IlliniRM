@@ -6,13 +6,8 @@ import numpy as np
 
 directo = 'red_number_new/'
 
-<<<<<<< HEAD
 def main(desired_scale, dia = False):
-    for i in range(10):
-=======
-def main(desired_scale):
     for i in range(2, 10):
->>>>>>> 551b92682fcfcd0288b972f8d80e0062e74020ab
         cur_digit = digit_displayer.digit(16, 24, width_scale = desired_scale)
         cur_digit.digit_update(i)
         cur_digit_img = cur_digit.generate()
