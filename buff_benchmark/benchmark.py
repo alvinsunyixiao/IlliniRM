@@ -71,6 +71,8 @@ def main():
     plt.show()
     sequence_board = digit_displayer.board(scale = 1)
     round_count = 0
+    show(ax, all_white_background)
+    raw_input("Press anykey to start")
     while True:
         available_number = range(1, 10)
         current_round_image = deepcopy(black_background)

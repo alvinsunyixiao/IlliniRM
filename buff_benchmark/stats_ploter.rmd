@@ -1,0 +1,40 @@
+---
+title: "Grid-Detection Stats"
+author: "Roger"
+output: html_document
+---
+
+## Detection Code Used: roger_detection_test/grid-detect.py
+
+## Model Used: mnist_iter_200000.caffemodel
+
+```{r ctime, echo = FALSE}
+paste("Generated at", date(), sep = " ")
+```
+
+## White Correction Plot
+
+```{r wplot, echo = FALSE}
+white <- read.table("/tmp/white_correct.txt")
+plot(white$V1, main = "White Correction Rate", ylab = "Correction Rate", xlab = "Number of input received")
+lines(white$V1, col = 2)
+```
+
+## Red Correction Plot
+
+```{r rplot, echo = FALSE}
+red <- read.table("/tmp/red_correct.txt")
+plot(red$V1, main = "Red Correction Rate", ylab = "Correction Rate", xlab = "Number of input received")
+lines(red$V1, col = 2)
+```
+
+## FPS Plot
+
+```{r fplot, echo = FALSE}
+fps <- read.table("/tmp/fps.txt")
+plot(fps$V1, main = "FPS Rate", ylab = "FPS", xlab = "Time Elapsed")
+lines(fps$V1, col = 2)
+fps$time <- 1:length(fps$V1)
+fit <- lm(V1 ~ time, data = fps)
+abline(fit, col = "blue")
+```

@@ -8,14 +8,17 @@ import time
 try:
     os.remove('/tmp/white_correct.txt')
     os.remove('/tmp/red_correct.txt')
+    os.remove("/tmp/fps.txt")
 except:
     pass
 
 _SERVER_REMOTE_ADDRESS = "127.0.0.1"
 _SERVER_LOCAL_ADDRESS = "127.0.0.1"
 _SERVER_PORT = 13003
-_WHITE_NUM_TOLERANCE = 7
-_RED_NUM_TOLERANCE = 3
+_WHITE_NUM_TOLERANCE = 3
+_RED_NUM_TOLERANCE = 4
+fps_counter = time.time()
+frame_elapsed = 0
 
 def _server_plot_helper(to_path, str_2_write):
     f = open(to_path, 'a+')
@@ -29,6 +32,17 @@ def element_wise_comparison(iter_1, iter_2):
     for i in range(len(iter_1)):
         if iter_1[i] == iter_2[i]: acc += 1
     return acc
+
+def fps_count():
+    global fps_counter
+    global frame_elapsed
+    a = time.time()
+    if a - fps_counter >= 1:
+        _server_plot_helper("/tmp/fps.txt", str(frame_elapsed))
+        fps_counter = a
+        frame_elapsed = 0
+    else:
+        frame_elapsed += 1
 
 class client:
 
@@ -51,6 +65,7 @@ class client:
                 #new round starts
 
         '''
+        fps_count()
         if red_number_sequence:
             if red_number_sequence == self.current_red_sequence:
                 self.red_continuous_error = 0
@@ -87,6 +102,7 @@ class server:
         self.number_of_sequence_displayed = 0
         self.number_of_right_answers = 0
         self.number_of_red_right_answers = 0
+        self.current_round_answered = False
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((_SERVER_LOCAL_ADDRESS, _SERVER_PORT))
         self.s.listen(1)
@@ -103,8 +119,9 @@ class server:
             received_list = ast.literal_eval(data[0])
             received_red_list = ast.literal_eval(data[1])
             #received_list = [i.strip() for i in received_list]
-            if received_list == self.current_sequence:
+            if received_list == self.current_sequence and not self.current_round_answered:
                 self.number_of_right_answers += 1
+                self.current_round_answered = True
                 #print "You are correct for sequence " + str(self.current_sequence)
                 print "White sequence correct!"
             if received_red_list == self.current_red_sequence:
@@ -123,6 +140,7 @@ class server:
         self.current_sequence = nine_sequence
         self.current_red_sequence = red_sequence
         self.number_of_sequence_displayed += 1
+        self.current_round_answered = False
         print "------------------"
         print "New round staaaaart!"
         print "Current white sequence: " + str(self.current_sequence) + "\nCurrent red sequence: " + str(self.current_red_sequence)

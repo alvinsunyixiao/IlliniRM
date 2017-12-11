@@ -2,6 +2,7 @@
 
 ## 描述
 Python 2 大符模拟器。采用[辣鸡官方大符模拟器](http://bbs.robomasters.com/thread-4523-1-1.html)里的图片素材制作，老少 (Mac) 用户皆宜。未在其他平台测试过。
+最新的 benchmark STATs 在当前目录的 html 文件内。
 
 工作方式：
 1. 随机读取相应数字素材，并显示到屏幕上。
