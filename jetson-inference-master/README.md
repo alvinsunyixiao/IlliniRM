@@ -1,23 +1,22 @@
-TensorRT Deployment Template
+# TensorRT Deployment Template
+
 Referred to NVIDIA COP. opensource tensorrt tutorial, all rights reserved:
 https://github.com/dusty-nv/jetson-inference
 
 Additional Resources:
 http://docs.nvidia.com/deeplearning/sdk/tensorrt-developer-guide/index.html
 
-Compilation:
+## Compilation:
 
-use "make" in ./build to compile
+- use "make" in ./build to compile
+- use "make clean" to delete executable files
+- all compiled files placed in aarch64.
 
-use "make clean" to delete executable files 
-
-all compiled files placed in aarch64. 
-
-Usage:
+## Usage:
 
 aarch64/bin/imagenet-console <inputfile> for inferencing
 
-Network placement:
+## Network placement:
 
 data/networks/
 
