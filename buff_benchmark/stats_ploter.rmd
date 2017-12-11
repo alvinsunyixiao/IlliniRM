@@ -37,4 +37,5 @@ lines(fps$V1, col = 2)
 fps$time <- 1:length(fps$V1)
 fit <- lm(V1 ~ time, data = fps)
 abline(fit, col = "blue")
+summary(fit)
 ```

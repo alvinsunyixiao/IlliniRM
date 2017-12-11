@@ -19,6 +19,15 @@ net = caffe.Net('./model/lenet.prototxt',
 def swap(a,b):
     return b,a
 
+def pad_diggit(img):
+    w, h = img.shape[1], img.shape[0]
+    length = int(h * 1.4)
+    v_pad = int((length - h) / 2)
+    h_pad = int((length - w) / 2)
+    new_img = cv2.copyMakeBorder(img, v_pad, v_pad, h_pad, h_pad, borderType=cv2.BORDER_CONSTANT, value=0)
+    #new_img = cv2.resize(new_img, (8, 8))
+    return cv2.resize(new_img, (28,28))
+
 '''
 Sort a four-point arrary with respect to its relative spatial location
 
@@ -46,7 +55,23 @@ def sort_points(rect):
         x_sort[2,0], x_sort[3,0] = swap(x_sort[2,0], x_sort[3,0])
     return x_sort
 
+def find_contour_bound(cont):
+    left_bound = min(cont, key = lambda x: x[0])[0]
+    right_bound = max(cont, key = lambda x: x[0])[0]
+    lower_bound = min(cont, key = lambda x: x[1])[1]
+    upper_bound = max(cont, key = lambda x: x[1])[1]
+    return (left_bound, right_bound, lower_bound, upper_bound)
+
 # Load image and compute its threshold binary map
+
+def filterRects(rect):
+    left_bound, right_bound, lower_bound, upper_bound = find_contour_bound(rect)
+    x = right_bound - left_bound
+    y = float(upper_bound) - lower_bound
+    if y / x >= 0.3 and y / x <= 0.55:
+        return True
+    return False
+
 def process(img, client1 = None, pos = -1):
     #img = cv2.resize(img, (800,600))
     img_cp = img.copy()
@@ -55,7 +80,7 @@ def process(img, client1 = None, pos = -1):
     ret3,thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
     # Find all contours
-    im2, contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+    im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
     contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*50 and cv2.contourArea(cnt) <= 240*120]
     # Find contour approximation and enforce a 4-sided convex shape
@@ -78,8 +103,9 @@ def process(img, client1 = None, pos = -1):
         rect = cv2.minAreaRect(cnt)
         box = cv2.boxPoints(rect)
         box = np.int0(box)
-        cv2.drawContours(img, [box], 0, (0, 255, 0), 3)
-        tmp.append(box)
+        if filterRects(box):
+            cv2.drawContours(img, [box], 0, (0, 255, 0), 3)
+            tmp.append(box)
 
     if len(tmp) == 0:
         return img
@@ -155,6 +181,10 @@ def process(img, client1 = None, pos = -1):
     ftr[:,x_min2:] = 0
     mask = cv2.bitwise_and(mask, mask, mask=ftr)
 
+    #dilation
+    #kernel = np.ones((8, 10), np.uint8)
+    #mask = cv2.dilate(mask, kernel, iterations = 1)
+
     im2, sct_cnts, hierarchy = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
     rects = [cv2.boundingRect(cnt) for cnt in sct_cnts]
     rects = [rect for rect in rects if rect[2] < rect[3]]
@@ -173,15 +203,6 @@ def process(img, client1 = None, pos = -1):
                            (0,255,0),3)
 
     res = cv2.bitwise_and(gray, gray, mask=mask)
-
-    def pad_diggit(img):
-        w, h = img.shape[1], img.shape[0]
-        length = int(h * 1.4)
-        v_pad = int((length - h) / 2)
-        h_pad = int((length - w) / 2)
-        new_img = cv2.copyMakeBorder(img, v_pad, v_pad, h_pad, h_pad, borderType=cv2.BORDER_CONSTANT, value=0)
-        #new_img = cv2.resize(new_img, (8, 8))
-        return cv2.resize(new_img, (28,28))
 
     secrets = np.array([pad_diggit(mask[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
     secrets = secrets[:,None,...].astype('float32') / 255
