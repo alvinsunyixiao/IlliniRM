@@ -99,7 +99,7 @@ def main():
         round_count += 1
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
-        plt.pause(1.5)
+        plt.pause(1)
 
 
 def show(ax, image_object): #take a ax and an image object (can be numpy, image, plt_image, image...)
