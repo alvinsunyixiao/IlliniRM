@@ -11,7 +11,7 @@ import buff_benchmark_comm
 caffe.set_mode_cpu()
 
 net = caffe.Net('./model/lenet.prototxt',
-                './model/mnist_iter_20000.caffemodel',
+                './model/mnist_iter_200000.caffemodel',
                caffe.TEST)
 
 
@@ -59,6 +59,7 @@ def process(img, client1 = None, pos = -1):
     # Filter out contours that are either too big or too small
     contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*50 and cv2.contourArea(cnt) <= 240*120]
     # Find contour approximation and enforce a 4-sided convex shape
+    '''
     tmp = []
     for cnt in contours:
         epsilon = 0.05*cv2.arcLength(cnt, True)
@@ -71,6 +72,20 @@ def process(img, client1 = None, pos = -1):
 
     contours = np.array(tmp)[:,:,0,:]
     cv2.drawContours(img, contours, -1, (0,255,0), 3)
+    '''
+    tmp = []
+    for cnt in contours:
+        rect = cv2.minAreaRect(cnt)
+        box = cv2.boxPoints(rect)
+        box = np.int0(box)
+        cv2.drawContours(img, [box], 0, (0, 255, 0), 3)
+        tmp.append(box)
+
+    if len(tmp) == 0:
+        return img
+
+    contours = tmp
+    cv2.drawContours(img, contours, -1, (0, 255, 0), 3)
 
 
     BOX_LEN = 32                # bounding box length for digits
