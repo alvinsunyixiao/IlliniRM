@@ -11,7 +11,7 @@ import buff_benchmark_comm
 caffe.set_mode_cpu()
 
 net = caffe.Net('./model/lenet.prototxt',
-                './model/lenet_iter_50000.caffemodel',
+                './model/mnist_iter_20000.caffemodel',
                caffe.TEST)
 
 
@@ -48,8 +48,6 @@ def sort_points(rect):
 
 # Load image and compute its threshold binary map
 def process(img, client1 = None, pos = -1):
-    red_output_sequence = None
-    output_sequence = None
     #img = cv2.resize(img, (800,600))
     img_cp = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -110,6 +108,8 @@ def process(img, client1 = None, pos = -1):
 
     if len(contours) == 9:
         output_sequence = rank(dig_ids, contours)
+        client1.update(input_sequence = output_sequence)
+        print "White: " + str(output_sequence)
 
     org_img = img_cp.copy()
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
@@ -186,9 +186,8 @@ def process(img, client1 = None, pos = -1):
 
     if len(secret_ids) == 5:
         red_output_sequence = [i for i in secret_ids]
-
-    if red_output_sequence and output_sequence:
-        client1.update(output_sequence, red_output_sequence)
+        client1.update(red_number_sequence = red_output_sequence)
+        print "Red: " + str(red_output_sequence)
 
 
     return img

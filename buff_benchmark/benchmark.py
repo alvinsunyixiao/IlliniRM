@@ -94,8 +94,8 @@ def main():
         show(ax, current_round_buff_displayer_image)
         if _USE_SOCKET:
             benchmark_server.update(answer, red_board_sequence)
-        print(answer)
-        print(red_board_sequence)
+        #print(answer)
+        #print(red_board_sequence)
         round_count += 1
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
