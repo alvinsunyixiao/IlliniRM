@@ -18,6 +18,7 @@ paste("Generated at", date(), sep = " ")
 white <- read.table("/tmp/white_correct.txt")
 plot(white$V1, main = "White Correction Rate", ylab = "Correction Rate", xlab = "Number of input received")
 lines(white$V1, col = 2)
+abline(h = 0.95)
 ```
 
 ## Red Correction Plot
@@ -26,6 +27,7 @@ lines(white$V1, col = 2)
 red <- read.table("/tmp/red_correct.txt")
 plot(red$V1, main = "Red Correction Rate", ylab = "Correction Rate", xlab = "Number of input received")
 lines(red$V1, col = 2)
+abline(h = 0.7)
 ```
 
 ## FPS Plot

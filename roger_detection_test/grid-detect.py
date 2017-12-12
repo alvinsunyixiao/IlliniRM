@@ -182,10 +182,10 @@ def process(img, client1 = None, pos = -1):
     mask = cv2.bitwise_and(mask, mask, mask=ftr)
 
     #dilation
-    #kernel = np.ones((8, 10), np.uint8)
-    #mask = cv2.dilate(mask, kernel, iterations = 1)
+    kernel = np.ones((6, 2), np.uint8)
+    dilation_transformed = cv2.dilate(mask, kernel, iterations = 1)
 
-    im2, sct_cnts, hierarchy = cv2.findContours(mask,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    im2, sct_cnts, hierarchy = cv2.findContours(dilation_transformed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     rects = [cv2.boundingRect(cnt) for cnt in sct_cnts]
     rects = [rect for rect in rects if rect[2] < rect[3]]
     if len(rects) == 0:
