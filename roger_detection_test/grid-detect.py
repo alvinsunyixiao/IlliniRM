@@ -67,11 +67,14 @@ def find_contour_bound(cont):
 
 # Load image and compute its threshold binary map
 
-def filterRects(rect):
-    left_bound, right_bound, lower_bound, upper_bound = find_contour_bound(rect)
+def filterRects(rect, pure_cont = False):
+    if pure_cont:
+        left_bound, right_bound, lower_bound, upper_bound = find_contour_bound(rect[:,0])
+    else:
+        left_bound, right_bound, lower_bound, upper_bound = find_contour_bound(rect)
     x = right_bound - left_bound
     y = float(upper_bound) - lower_bound
-    if y / x >= 0.25 and y / x <= 0.55:
+    if y / x >= 0.3 and y / x <= 0.6:
         return True
     return False
 
@@ -86,10 +89,10 @@ def process(img, client1 = None, pos = -1):
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
     width, height = get_size(img)
-    img_width_range = (0.125 * width, 0.35 * width)
-    img_height_range = (0.1 * height, 0.25 * height)
+    img_width_range = (0.125 * width, 0.3 * width)
+    img_height_range = (0.1 * height, 0.18 * height)
     #contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*40 and cv2.contourArea(cnt) <= 300*150]
-    contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= img_width_range[0] * img_height_range[0] and cv2.contourArea(cnt) <= img_width_range[1] * img_height_range[1]]
+    contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= img_width_range[0] * img_height_range[0] and cv2.contourArea(cnt) <= img_width_range[1] * img_height_range[1] and filterRects(cnt, pure_cont = True)]
     # Find contour approximation and enforce a 4-sided convex shape
     tmp = []
     for cnt in contours:
@@ -101,12 +104,17 @@ def process(img, client1 = None, pos = -1):
     if len(tmp) == 0:
         return img
 
-    if len(contours) == 9 and len(tmp) == 8:
+    print "this is len of contours " + str(len(contours))
+    print "This one is tmp " + str(len(tmp))
+    if len(tmp) == 8:
+        print "Manually fixing..."
         tmp = []
         for cnt in contours:
             left, right, lower, upper = find_contour_bound(cnt[:,0])
             box = [[left, lower], [right, lower], [right, upper], [left, upper]]
             tmp.append(box)
+        while len(tmp) > 9:
+            tmp.remove(max(tmp, key = lambda x: x[2][1])) #remove highest contour
         contours = np.array(tmp)
     else:
         contours = np.array(tmp)[:,:,0,:]
@@ -178,8 +186,10 @@ def process(img, client1 = None, pos = -1):
     upper_red = np.array([179,255,255])
     mask2 = cv2.inRange(hsv_img, lower_red, upper_red)
     mask = np.bitwise_or(mask1, mask2)
+    org_2_img = mask.copy()
 
     #dilation
+    #kernel_height =
     kernel = np.ones((5, 2), np.uint8)
     mask = cv2.dilate(mask, kernel, iterations = 1)
 
@@ -220,7 +230,7 @@ def process(img, client1 = None, pos = -1):
 
     res = cv2.bitwise_and(gray, gray, mask=mask)
 
-    secrets = np.array([pad_diggit(mask[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
+    secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
     secrets = secrets[:,None,...].astype('float32') / 255
     net.blobs['data'].reshape(secrets.shape[0], 1, 28, 28)
     net.blobs['data'].data[...] = secrets
