@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import stats
 import buff_benchmark_comm
+import num_recog
 
 # Load caffe model
 caffe.set_mode_cpu()
@@ -49,6 +50,25 @@ def rank(dig_ids, contours_array):
         for j in i:
             ret.append(j[2])
     return ret
+
+def mask_process(mask, points):
+    kernel1 = np.ones((9,9),np.uint8)
+    kernel2 = np.ones((6,6),np.uint8)
+    kernel3 = np.ones((3,3),np.uint8)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
+
+    y_min = min(points,key=lambda cnt: cnt[0,1])[0,1]
+    y_min = int(y_min)
+    x_min1 = min(points, key=lambda cnt: cnt[1,0])[1,0]
+    x_min1 = int(x_min1)
+    x_min2 = max(points, key=lambda cnt: cnt[0,0])[0,0]
+    x_min2 = int(x_min2)
+    ftr = np.ones(img.shape[0:2],np.uint8)
+    ftr[y_min:-1,:] = 0
+    ftr[:,0:x_min1] = 0
+    ftr[:,x_min2:] = 0
+    return cv2.bitwise_and(mask, mask, mask=ftr)
 
 def sort_points(rect):
     x_sort = np.array(sorted(rect, key=lambda x: x[1]))
@@ -190,26 +210,11 @@ def process(img, client1 = None, pos = -1):
 
     #dilation
     #kernel_height =
-    kernel = np.ones((5, 2), np.uint8)
+    kernel = np.ones((5, 1), np.uint8)
     mask = cv2.dilate(mask, kernel, iterations = 1)
 
-    kernel1 = np.ones((9,9),np.uint8)
-    kernel2 = np.ones((6,6),np.uint8)
-    kernel3 = np.ones((3,3),np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
-
-    y_min = min(points,key=lambda cnt: cnt[0,1])[0,1]
-    y_min = int(y_min)
-    x_min1 = min(points, key=lambda cnt: cnt[1,0])[1,0]
-    x_min1 = int(x_min1)
-    x_min2 = max(points, key=lambda cnt: cnt[0,0])[0,0]
-    x_min2 = int(x_min2)
-    ftr = np.ones(img.shape[0:2],np.uint8)
-    ftr[y_min:-1,:] = 0
-    ftr[:,0:x_min1] = 0
-    ftr[:,x_min2:] = 0
-    mask = cv2.bitwise_and(mask, mask, mask=ftr)
+    mask = mask_process(mask, points)
+    mask_w_o_dilation = mask_process(org_2_img, points)
 
     im2, sct_cnts, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     rects = [cv2.boundingRect(cnt) for cnt in sct_cnts]
@@ -222,14 +227,15 @@ def process(img, client1 = None, pos = -1):
     y = y[len(y)/2][1]
     rects = [rect for rect in rects if rect[1] >= y*0.9 and rect[1] <= y*1.1]
 
-
+    '''
     if pos != -1 and pos < len(rects):
         cv2.rectangle(img, (rects[pos][0], rects[pos][1]),
                            (rects[pos][0]+rects[pos][2], rects[pos][1]+rects[pos][3]),
                            (0,255,0),3)
+                           '''
 
     res = cv2.bitwise_and(gray, gray, mask=mask)
-
+    '''
     secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
     secrets = secrets[:,None,...].astype('float32') / 255
     net.blobs['data'].reshape(secrets.shape[0], 1, 28, 28)
@@ -237,6 +243,13 @@ def process(img, client1 = None, pos = -1):
     out = net.forward()
     secret_ids = out['prob'].argmax(axis = 1)
     #print dig_ids
+    '''
+    secret_ids = []
+    for rect in rects:
+        if mask[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]].mean() > 240:
+            secret_ids.append(1)
+        else:
+            secret_ids.append(num_recog.digit_recognition(pad_diggit(mask_w_o_dilation[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]])))
 
     for i in range(len(rects)):
         cv2.putText(img, str(secret_ids[i]),
@@ -254,7 +267,7 @@ def process(img, client1 = None, pos = -1):
         idx = idx[0]
         cv2.drawContours(img, contours, idx, (0,0,255), 3)
     '''
-    if len(secret_ids) == 5:
+    if len(secret_ids) == 5 and -1 not in secret_ids:
         red_output_sequence = [i for i in secret_ids]
         client1.update(red_number_sequence = red_output_sequence)
         print "Red: " + str(red_output_sequence)
