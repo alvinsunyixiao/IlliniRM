@@ -9,6 +9,8 @@ try:
     os.remove('/tmp/white_correct.txt')
     os.remove('/tmp/red_correct.txt')
     os.remove("/tmp/fps.txt")
+    os.remove("/tmp/white_wrong_stats.txt")
+    os.remove("/tmp/red_wrong_stats.txt")
 except:
     pass
 
@@ -102,6 +104,8 @@ class server:
         self.number_of_sequence_displayed = 0
         self.number_of_right_answers = 0
         self.number_of_red_right_answers = 0
+        self.white_wrong_stats = [0 for i in range(10)]
+        self.red_wrong_stats = [0 for i in range(10)]
         self.current_round_answered = False
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind((_SERVER_LOCAL_ADDRESS, _SERVER_PORT))
@@ -127,6 +131,10 @@ class server:
             if received_red_list == self.current_red_sequence:
                 self.number_of_red_right_answers += 1
                 print "Red sequence correct!"
+            if received_list != self.current_sequence:
+                self.white_stats_keeper(received_list, self.current_sequence)
+            if received_red_list != self.current_red_sequence:
+                self.red_stats_keeper(received_red_list, self.current_red_sequence)
             cur_white_rate = float(self.number_of_right_answers) / self.number_of_sequence_displayed
             cur_red_rate = float(self.number_of_red_right_answers) / self.number_of_sequence_displayed
             print "White sequence received: " + str(received_list)
@@ -144,3 +152,23 @@ class server:
         print "------------------"
         print "New round staaaaart!"
         print "Current white sequence: " + str(self.current_sequence) + "\nCurrent red sequence: " + str(self.current_red_sequence)
+
+    def white_stats_keeper(self, user_input, server_answer):
+        assert len(user_input) == len(server_answer)
+        for i in range(len(user_input)):
+            if user_input[i] != server_answer[i]:
+                self.white_wrong_stats[server_answer[i]] += 1
+        f = open('/tmp/white_wrong_stats.txt', 'w')
+        for i in self.white_wrong_stats:
+            f.write(str(i) + '\n')
+        f.close()
+
+    def red_stats_keeper(self, user_input, server_answer):
+        assert len(user_input) == len(server_answer)
+        for i in range(len(user_input)):
+            if user_input[i] != server_answer[i]:
+                self.red_wrong_stats[server_answer[i]] += 1
+        f = open('/tmp/red_wrong_stats.txt', 'w')
+        for i in self.red_wrong_stats:
+            f.write(str(i) + '\n')
+        f.close()

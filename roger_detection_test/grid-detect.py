@@ -19,6 +19,9 @@ net = caffe.Net('./model/lenet.prototxt',
 def swap(a,b):
     return b,a
 
+def get_size(cv2_img):
+    return (len(cv2_img[0]), len(cv2_img)) #width, height
+
 def pad_diggit(img):
     w, h = img.shape[1], img.shape[0]
     length = int(h * 1.4)
@@ -68,7 +71,7 @@ def filterRects(rect):
     left_bound, right_bound, lower_bound, upper_bound = find_contour_bound(rect)
     x = right_bound - left_bound
     y = float(upper_bound) - lower_bound
-    if y / x >= 0.3 and y / x <= 0.55:
+    if y / x >= 0.25 and y / x <= 0.55:
         return True
     return False
 
@@ -82,9 +85,12 @@ def process(img, client1 = None, pos = -1):
     # Find all contours
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
-    contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*50 and cv2.contourArea(cnt) <= 240*120]
+    width, height = get_size(img)
+    img_width_range = (0.125 * width, 0.35 * width)
+    img_height_range = (0.1 * height, 0.25 * height)
+    #contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*40 and cv2.contourArea(cnt) <= 300*150]
+    contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= img_width_range[0] * img_height_range[0] and cv2.contourArea(cnt) <= img_width_range[1] * img_height_range[1]]
     # Find contour approximation and enforce a 4-sided convex shape
-    '''
     tmp = []
     for cnt in contours:
         epsilon = 0.05*cv2.arcLength(cnt, True)
@@ -95,7 +101,16 @@ def process(img, client1 = None, pos = -1):
     if len(tmp) == 0:
         return img
 
-    contours = np.array(tmp)[:,:,0,:]
+    if len(contours) == 9 and len(tmp) == 8:
+        tmp = []
+        for cnt in contours:
+            left, right, lower, upper = find_contour_bound(cnt[:,0])
+            box = [[left, lower], [right, lower], [right, upper], [left, upper]]
+            tmp.append(box)
+        contours = np.array(tmp)
+    else:
+        contours = np.array(tmp)[:,:,0,:]
+
     cv2.drawContours(img, contours, -1, (0,255,0), 3)
     '''
     tmp = []
@@ -112,6 +127,7 @@ def process(img, client1 = None, pos = -1):
 
     contours = tmp
     cv2.drawContours(img, contours, -1, (0, 255, 0), 3)
+    '''
 
 
     BOX_LEN = 32                # bounding box length for digits
@@ -158,10 +174,14 @@ def process(img, client1 = None, pos = -1):
     upper_red = np.array([15,255,255])
     mask = cv2.inRange(hsv_img, lower_red, upper_red)
     mask1 = cv2.inRange(hsv_img, lower_red, upper_red)
-    lower_red = np.array([165,90,70])
+    lower_red = np.array([155,90,70])
     upper_red = np.array([179,255,255])
     mask2 = cv2.inRange(hsv_img, lower_red, upper_red)
     mask = np.bitwise_or(mask1, mask2)
+
+    #dilation
+    kernel = np.ones((5, 2), np.uint8)
+    mask = cv2.dilate(mask, kernel, iterations = 1)
 
     kernel1 = np.ones((9,9),np.uint8)
     kernel2 = np.ones((6,6),np.uint8)
@@ -181,11 +201,7 @@ def process(img, client1 = None, pos = -1):
     ftr[:,x_min2:] = 0
     mask = cv2.bitwise_and(mask, mask, mask=ftr)
 
-    #dilation
-    kernel = np.ones((6, 2), np.uint8)
-    dilation_transformed = cv2.dilate(mask, kernel, iterations = 1)
-
-    im2, sct_cnts, hierarchy = cv2.findContours(dilation_transformed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    im2, sct_cnts, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     rects = [cv2.boundingRect(cnt) for cnt in sct_cnts]
     rects = [rect for rect in rects if rect[2] < rect[3]]
     if len(rects) == 0:
@@ -212,6 +228,14 @@ def process(img, client1 = None, pos = -1):
     secret_ids = out['prob'].argmax(axis = 1)
     #print dig_ids
 
+    for i in range(len(rects)):
+        cv2.putText(img, str(secret_ids[i]),
+                    (int(rects[i][0]), int(rects[i][1] - 15)),
+                    cv2.FONT_HERSHEY_SIMPLEX,
+                    0.9,
+                   (0,255,255),
+                   2,cv2.LINE_AA)
+    '''
     if pos != -1 and pos < len(secret_ids):
         num = secret_ids[pos]
         idx = np.argwhere(dig_ids == num).flatten()
@@ -219,7 +243,7 @@ def process(img, client1 = None, pos = -1):
             return img
         idx = idx[0]
         cv2.drawContours(img, contours, idx, (0,0,255), 3)
-
+    '''
     if len(secret_ids) == 5:
         red_output_sequence = [i for i in secret_ids]
         client1.update(red_number_sequence = red_output_sequence)
