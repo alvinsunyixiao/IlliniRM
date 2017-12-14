@@ -36,7 +36,7 @@ barplot(white_stats)
 red <- read.table("/tmp/red_correct.txt")
 plot(red$V1, main = "Red Correction Rate", ylab = "Correction Rate", xlab = "Number of input received")
 lines(red$V1, col = 2)
-abline(h = 0.7)
+abline(h = 0.95)
 ```
 
 ## Red Wrong Number Stats
