@@ -231,7 +231,7 @@ def process(img, client1 = None, pos = -1):
     rects = sorted(rects, key=lambda x: x[0])
     y = sorted(rects, key=lambda x: x[1])
     y = y[len(y)/2][1]
-    rects = [rect for rect in rects if rect[1] >= y * 0.8 and rect[1] <= y * 1.1]
+    rects = [rect for rect in rects if rect[1] >= y * 0.8 and rect[1] <= y * 1.23]
 
     '''
     if pos != -1 and pos < len(rects):
