@@ -231,7 +231,7 @@ def process(img, client1 = None, pos = -1):
     rects = sorted(rects, key=lambda x: x[0])
     y = sorted(rects, key=lambda x: x[1])
     y = y[len(y)/2][1]
-    rects = [rect for rect in rects if rect[1] >= y*0.9 and rect[1] <= y*1.1]
+    rects = [rect for rect in rects if rect[1] >= y * 0.8 and rect[1] <= y * 1.1]
 
     '''
     if pos != -1 and pos < len(rects):
@@ -250,12 +250,23 @@ def process(img, client1 = None, pos = -1):
     secret_ids = out['prob'].argmax(axis = 1)
     #print dig_ids
     '''
+    kernel = np.ones((2, 1), np.uint8)
+    mask_w_o_dilation = cv2.dilate(mask, kernel, iterations = 1)
     secret_ids = []
     for rect in rects:
         if mask[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]].mean() > 240:
             secret_ids.append(1)
         else:
             secret_ids.append(num_recog.digit_recognition(pad_diggit(mask_w_o_dilation[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]])))
+
+    if -1 in secret_ids:
+        for rect in rects:
+            secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
+            secrets = secrets[:,None,...].astype('float32') / 255
+            net.blobs['data'].reshape(secrets.shape[0], 1, 28, 28)
+            net.blobs['data'].data[...] = secrets
+            out = net.forward()
+            secret_ids = out['prob'].argmax(axis = 1)
 
     for i in range(len(rects)):
         cv2.putText(img, str(secret_ids[i]),
