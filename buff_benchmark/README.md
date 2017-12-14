@@ -23,7 +23,7 @@ Python 2 大符模拟器。采用[辣鸡官方大符模拟器](http://bbs.roboma
 2. 修改 benchmark.py 头部，将 \_USE\_SOCKET 设为 True
 3. 在 detect 程序里面 import buff_benchmark_comm
 4. client = buff_benchmark_comm.client()
-5. client.update([1, 2, 3, 4, 5, 6, 7, 8, 9])
+5. client.update(input_sequence = [1, 2, 3, 4, 5, 6, 7, 8, 9]) or client.update(red_number_sequence = [1, 2, 3, 4, 5])
 
 ## TODO
 - 扩大数据集（自己手写？）
