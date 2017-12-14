@@ -52,7 +52,7 @@ def rank(dig_ids, contours_array):
     return ret
 
 def mask_process(mask, points):
-    kernel1 = np.ones((9,9),np.uint8)
+    kernel1 = np.ones((7,6),np.uint8)
     kernel2 = np.ones((6,6),np.uint8)
     kernel3 = np.ones((3,3),np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
@@ -78,7 +78,8 @@ def sort_points(rect):
         x_sort[2,0], x_sort[3,0] = swap(x_sort[2,0], x_sort[3,0])
     return x_sort
 
-def find_contour_bound(cont):
+def find_contour_bound(cont, raw_cont = False):
+    if raw_cont: cont = cont[:,0]
     left_bound = min(cont, key = lambda x: x[0])[0]
     right_bound = max(cont, key = lambda x: x[0])[0]
     lower_bound = min(cont, key = lambda x: x[1])[1]
@@ -165,6 +166,7 @@ def process(img, client1 = None, pos = -1):
 
     bboxs = []
     points = []
+    dynamic_height = []
 
     for cnt in contours:
         # Sort points with respect to relative location
@@ -175,6 +177,8 @@ def process(img, client1 = None, pos = -1):
         new_img = cv2.warpPerspective(gray,M,(BOX_LEN,BOX_LEN))
         new_img = 255 - new_img[offset:-offset, offset:-offset]
         bboxs.append(new_img)
+        left, right, lower, upper = find_contour_bound(cnt)
+        dynamic_height.append(int(upper - lower))
 
     bboxs = np.array(bboxs)[:, None,...]
 
@@ -209,9 +213,11 @@ def process(img, client1 = None, pos = -1):
     org_2_img = mask.copy()
 
     #dilation
-    #kernel_height =
-    kernel = np.ones((5, 1), np.uint8)
+    digit_height = int(dynamic_height[len(dynamic_height) // 2] * (0.58))
+    kernel = np.ones((int(digit_height / 10), 1), np.uint8)
     mask = cv2.dilate(mask, kernel, iterations = 1)
+    #kernel = np.ones((5, 1), np.uint8)
+    #mask = cv2.dilate(mask, kernel, iterations = 1)
 
     mask = mask_process(mask, points)
     mask_w_o_dilation = mask_process(org_2_img, points)
@@ -267,7 +273,7 @@ def process(img, client1 = None, pos = -1):
         idx = idx[0]
         cv2.drawContours(img, contours, idx, (0,0,255), 3)
     '''
-    if len(secret_ids) == 5 and -1 not in secret_ids:
+    if len(secret_ids) == 5:
         red_output_sequence = [i for i in secret_ids]
         client1.update(red_number_sequence = red_output_sequence)
         print "Red: " + str(red_output_sequence)

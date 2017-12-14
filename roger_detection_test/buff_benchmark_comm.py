@@ -18,7 +18,7 @@ _SERVER_REMOTE_ADDRESS = "127.0.0.1"
 _SERVER_LOCAL_ADDRESS = "127.0.0.1"
 _SERVER_PORT = 13003
 _WHITE_NUM_TOLERANCE = 3
-_RED_NUM_TOLERANCE = 4
+_RED_NUM_TOLERANCE = 2
 fps_counter = time.time()
 frame_elapsed = 0
 
@@ -69,13 +69,16 @@ class client:
         '''
         fps_count()
         if red_number_sequence:
-            if red_number_sequence == self.current_red_sequence:
-                self.red_continuous_error = 0
-            else:
-                self.red_continuous_error += 1
-                if self.red_continuous_error >= _RED_NUM_TOLERANCE:
-                    self.current_red_sequence = red_number_sequence
+            if -1 not in red_number_sequence:
+                if red_number_sequence == self.current_red_sequence:
                     self.red_continuous_error = 0
+                else:
+                    self.red_continuous_error += 1
+                    if self.red_continuous_error >= _RED_NUM_TOLERANCE:
+                        self.current_red_sequence = red_number_sequence
+                        self.red_continuous_error = 0
+            else:
+                self.red_prob_pool_update(red_number_sequence)
         if input_sequence:
             if input_sequence == self.current_sequence:
                 self.continuous_error = 0
@@ -89,7 +92,7 @@ class client:
     def white_prob_pool_update(self, prob_sequence):
         pass
 
-    def red_prob_pool_update(self, prob_sequence):
+    def red_prob_pool_update(self, uncertain_sequence):
         pass
 
     def send(self): #Socket: send sequence to server

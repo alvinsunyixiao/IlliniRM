@@ -64,8 +64,8 @@ def digit_recognition(padded_num):
             #print "Current Area Protion" + str(total / float(area))
             if total / float(area) > 0.68: on[i]= 1
         except ZeroDivisionError:
-            print "Warning: Zero division! Skipping..."
-            return -1
+            print "Warning: Zero division! Returning 1 as result (could be inaccurate)..."
+            return 1
         '''
         if i == 6:
             plt.axhline(y = yA, color = 'blue')
