@@ -8,6 +8,7 @@ from scipy import stats
 import buff_benchmark_comm
 import num_recog
 
+_DEBUG = False
 # Load caffe model
 caffe.set_mode_cpu()
 
@@ -125,10 +126,12 @@ def process(img, client1 = None, pos = -1):
     if len(tmp) == 0:
         return img
 
-    print "this is len of contours " + str(len(contours))
-    print "This one is tmp " + str(len(tmp))
+    if _DEBUG:
+        print "this is len of contours " + str(len(contours))
+        print "This one is tmp " + str(len(tmp))
     if len(tmp) == 8:
-        print "Manually fixing..."
+        if _DEBUG:
+            print "Manually fixing..."
         tmp = []
         for cnt in contours:
             left, right, lower, upper = find_contour_bound(cnt[:,0])
@@ -198,7 +201,8 @@ def process(img, client1 = None, pos = -1):
     if len(contours) == 9:
         output_sequence = rank(dig_ids, contours)
         client1.update(input_sequence = output_sequence)
-        print "White: " + str(output_sequence)
+        if _DEBUG:
+            print "White: " + str(output_sequence)
 
     org_img = img_cp.copy()
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
@@ -287,7 +291,8 @@ def process(img, client1 = None, pos = -1):
     if len(secret_ids) == 5:
         red_output_sequence = [i for i in secret_ids]
         client1.update(red_number_sequence = red_output_sequence)
-        print "Red: " + str(red_output_sequence)
+        if _DEBUG:
+            print "Red: " + str(red_output_sequence)
 
 
     return img
