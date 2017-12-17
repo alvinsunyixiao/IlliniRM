@@ -9,6 +9,7 @@ from collections import Counter
 
 start_time = time.time()
 _DEBUG = False
+RED_RECORD_PATH = "/tmp/red_record.txt"
 # Load caffe model
 caffe.set_mode_cpu()
 
@@ -19,6 +20,38 @@ net = caffe.Net('./model/lenet.prototxt',
 red_number_record = [[] for i in range(5)]
 white_number_record = [[] for i in range(9)]
 
+def read_record(RED_RECORD_PATH):
+    try:
+        f = open(RED_RECORD_PATH)
+        a = f.read()
+        f.close()
+        a = a.split('\n')
+        prv_seq = a[0].split('|')[:-1]
+        return [int(i) for i in prv_seq], int(a[1])
+    except IOError:
+        return None, None
+
+'''
+---------
+Read record from saved file
+---------
+'''
+
+prv_red_seq, prv_hit_round = read_record(RED_RECORD_PATH)
+if prv_hit_round == 4: #WE HAD FINISHED ALL BEFORE
+    prv_red_seq = None
+    prv_hit_round = None
+
+def write_record(seq_2_write, trial_num):
+    global RED_RECORD_PATH
+    f = open(RED_RECORD_PATH, "w")
+    line1 = ""
+    for i in seq_2_write:
+        line1 += str(i) + "|"
+    f.write(line1)
+    f.write('\n')
+    f.write(str(trial_num))
+    f.close()
 
 # Swap 2 objects
 def swap(a,b):
@@ -115,7 +148,7 @@ def update_record(input_sequence = None, red_number_sequence = None):
         for n in range(5):
             red_number_record[n].append(red_number_sequence[n])
 
-def calculate_position_2_hit():
+def calculate_position_2_hit(prv_red_seq, prv_hit_round):
     global white_number_record
     global red_number_record
     if len(white_number_record[0]) == 0 or len(red_number_record[0]) == 0:
@@ -127,9 +160,16 @@ def calculate_position_2_hit():
     final_red_seq = []
     for i in range(5):
         final_red_seq.append(Counter(red_number_record[i]).most_common(1)[0][0])
-    return final_white_seq, final_red_seq
+    if not prv_red_seq and not prv_hit_round: #New round
+        cur_round = 0
+    elif final_red_seq == prv_red_seq: #Had it correct; continue to next round
+        cur_round = prv_hit_round + 1
+    else: #Had it wrong; let's have a new start
+        cur_round = 0
+    write_record(final_red_seq, cur_round)
+    return final_white_seq.index(final_red_seq[cur_round])
 
-def process(img, client1 = None, pos = -1):
+def process(img):
     global red_number_record
     global white_number_record
     #img = cv2.resize(img, (800,600))
@@ -154,7 +194,7 @@ def process(img, client1 = None, pos = -1):
     # Find contour approximation and enforce a 4-sided convex shape
     tmp = []
     for cnt in contours:
-        epsilon = 0.05*cv2.arcLength(cnt, True)
+        epsilon = 0.05 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt,epsilon,True)
         if len(approx) == 4 and cv2.isContourConvex(approx):
             tmp.append(approx)
@@ -324,11 +364,10 @@ cap = cv2.VideoCapture(0)
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
-client = buff_benchmark_comm.client()
 
 while True:
     ret, img = cap.read()
-    img = process(img, client1 = client, pos =  i)
+    img = process(img)
     #cv2.imshow('go', img)
     #vout.write(img)
     #vout.write(img)
@@ -336,7 +375,7 @@ while True:
         break
 
 #Send desired position
-ret = calculate_position_2_hit()
+ret = calculate_position_2_hit(prv_red_seq, prv_hit_round)
 print ret
 #Cleanup
 cap.release()
