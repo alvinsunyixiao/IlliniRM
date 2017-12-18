@@ -11,14 +11,15 @@ import time
 from pprint import pprint
 
 _DEBUG = True
+BATCHSIZE = 9
 # Load caffe model
-caffe.set_mode_cpu()
-#caffe.set_device(0)
+caffe.set_mode_gpu()
+caffe.set_device(0)
 
 net = caffe.Net('./model/lenet.prototxt',
                 './model/mnist_iter_200000.caffemodel',
                caffe.TEST)
-
+net.blobs['data'].reshape(BATCHSIZE, 1, 28, 28)
 
 # Swap 2 objects
 def swap(a,b):
@@ -112,7 +113,9 @@ def process(img, client1 = None, pos = -1):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (7,7), 0)
     ret3,thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-
+    kernel = np.ones((4,8),np.uint8)
+    thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+    
     timer['whole_img_threshold'] = time.time() - st
     st = time.time()
 
@@ -132,11 +135,13 @@ def process(img, client1 = None, pos = -1):
         if len(approx) == 4 and cv2.isContourConvex(approx):
             tmp.append(approx)
 
-    timer['contour_approx'] = time.time() - st
-    st = time.time()
-
     if len(tmp) == 0:
         return img, timer
+    
+    timer['contour_approx'] = time.time() - st
+    '''
+    st = time.time()
+
 
     if _DEBUG:
         print "this is len of contours " + str(len(contours))
@@ -156,6 +161,8 @@ def process(img, client1 = None, pos = -1):
         contours = np.array(tmp)[:,:,0,:]
 
     timer['manual_fix'] = time.time() - st
+    '''
+    contours = np.array(tmp)[:,:,0,:]
     st = time.time()
 
     cv2.drawContours(img, contours, -1, (0,255,0), 3)
@@ -203,10 +210,12 @@ def process(img, client1 = None, pos = -1):
     timer['crop_digits'] = time.time() - st
     st = time.time()
 
-    net.blobs['data'].reshape(bboxs.shape[0], 1, 28, 28)
-    net.blobs['data'].data[...] = bboxs.astype('float32') / 255
-    out = net.forward()
-    dig_ids = out['prob'].argmax(axis = 1)
+    if bboxs.shape[0] == BATCHSIZE:
+        net.blobs['data'].data[...] = bboxs.astype('float32') / 255
+        out = net.forward()
+        dig_ids = out['prob'].argmax(axis = 1)
+    else:
+        return img, timer
 
     timer['mnist_predict'] = time.time() - st
 
@@ -292,13 +301,13 @@ def process(img, client1 = None, pos = -1):
             secret_ids.append(num_recog.digit_recognition(pad_diggit(mask_w_o_dilation[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]])))
 
     if -1 in secret_ids:
-        for rect in rects:
-            secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
-            secrets = secrets[:,None,...].astype('float32') / 255
-            net.blobs['data'].reshape(secrets.shape[0], 1, 28, 28)
-            net.blobs['data'].data[...] = secrets
-            out = net.forward()
-            secret_ids = out['prob'].argmax(axis = 1)
+        secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
+        secrets = secrets[:,None,...].astype('float32') / 255
+        pad_size = BATCHSIZE - secrets.shape[0]
+        zeros = np.zeros((pad_size,1,28,28),dtype='float32')
+        net.blobs['data'].data[...] = np.concatenate([secrets,zeros], axis=0)
+        out = net.forward()
+        secret_ids = out['prob'].argmax(axis = 1)
 
     timer['secret_recognition'] = time.time() - st
 
@@ -327,8 +336,8 @@ def process(img, client1 = None, pos = -1):
 
     return img, timer
 
-cap = cv2.VideoCapture(0)
-#cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)100/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+#cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
