@@ -340,7 +340,8 @@ while True:
             ret, img = cap.read()
             img, timer = process(img, client1 = client, pos =  i)
             if _DEBUG:
-                print('bottleneck: ', max(timer), ': ', timer[max(timer)])
+                bnk = max(timer.items(), key=lambda x:x[1])
+                print('bottleneck: ', bnk[0], ': ', bnk[1])
                 pprint(timer)
             cv2.imshow('go', img)
             #vout.write(img)
