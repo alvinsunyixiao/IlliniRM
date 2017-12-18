@@ -8,7 +8,7 @@ import num_recog
 from collections import Counter
 
 start_time = time.time()
-_DEBUG = False
+_DEBUG = True
 RED_RECORD_PATH = "/tmp/red_record.txt"
 # Load caffe model
 caffe.set_mode_cpu()
@@ -360,22 +360,19 @@ def process(img):
 
     return 1
 
-cap = cv2.VideoCapture(0)
+if __name__ == '__main__':
+    cap = cv2.VideoCapture(0)
+    while True:
+        ret, img = cap.read()
+        img = process(img)
+        #cv2.imshow('go', img)
+        #vout.write(img)
+        #vout.write(img)
+        if time.time() - start_time >= 2:
+            break
 
-#fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-#vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
-
-while True:
-    ret, img = cap.read()
-    img = process(img)
-    #cv2.imshow('go', img)
-    #vout.write(img)
-    #vout.write(img)
-    if time.time() - start_time >= 0.8:
-        break
-
-#Send desired position
-ret = calculate_position_2_hit(prv_red_seq, prv_hit_round)
-print ret
-#Cleanup
-cap.release()
+    #Send desired position
+    ret = calculate_position_2_hit(prv_red_seq, prv_hit_round)
+    print ret
+    #Cleanup
+    cap.release()
