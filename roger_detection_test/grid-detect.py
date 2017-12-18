@@ -10,8 +10,8 @@ import num_recog
 
 _DEBUG = False
 # Load caffe model
-caffe.set_mode_gpu()
-caffe.set_device(0)
+caffe.set_mode_cpu()
+#caffe.set_device(0)
 
 net = caffe.Net('./model/lenet.prototxt',
                 './model/mnist_iter_200000.caffemodel',
@@ -298,8 +298,8 @@ def process(img, client1 = None, pos = -1):
 
     return img
 
-
-cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)100/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)100/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))

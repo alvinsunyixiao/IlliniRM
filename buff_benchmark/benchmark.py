@@ -93,17 +93,22 @@ def main():
         board_width, board_height = current_round_board_image.size
         board_left_bound = (_resolution_width - board_width) / 2
         current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
-        #show(ax, current_round_image)
         show(ax, current_round_buff_displayer_image)
+        plt.pause(0.01)
+        cur_time = time.time()
         if _USE_SOCKET:
             benchmark_server.update(answer, red_board_sequence)
+            while time.time() - cur_time < 1.5 and not benchmark_server.is_current_round_answered():
+                time.sleep(0.1)
+        else:
+            while time.time() - cur_time < 1.5:
+                time.sleep(0.1)
         #print(answer)
         #print(red_board_sequence)
         round_count += 1
         #raw_input('Press anykey to continue...')
         #show(ax, pause_white_background)
-        plt.pause(1)
-
+        #plt.pause(1)
 
 def show(ax, image_object): #take a ax and an image object (can be numpy, image, plt_image, image...)
     img = ax.imshow(image_object)

@@ -16,6 +16,7 @@ except:
 
 _SERVER_REMOTE_ADDRESS = "127.0.0.1"
 _SERVER_LOCAL_ADDRESS = "127.0.0.1"
+_MODE = "ALL" #"ALL" for entire sequence input; "SIMUL" for position input
 _SERVER_PORT = 13003
 _WHITE_NUM_TOLERANCE = 2
 _RED_NUM_TOLERANCE = 2
@@ -118,6 +119,9 @@ class server:
         self.t = threading.Thread(target = self.handler)
         self.t.start()
 
+    def is_current_round_answered(self):
+        return self.current_round_answered
+
     def handler(self):
         print "Incoming connection from %s:%s" % self.addr
         while True:
@@ -126,9 +130,10 @@ class server:
             received_list = ast.literal_eval(data[0])
             received_red_list = ast.literal_eval(data[1])
             #received_list = [i.strip() for i in received_list]
+            if received_list:
+                self.current_round_answered = True
             if received_list == self.current_sequence and not self.current_round_answered:
                 self.number_of_right_answers += 1
-                self.current_round_answered = True
                 #print "You are correct for sequence " + str(self.current_sequence)
                 print "White sequence correct!"
             if received_red_list == self.current_red_sequence:
