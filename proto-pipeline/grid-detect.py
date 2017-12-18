@@ -11,7 +11,7 @@ import buff_benchmark_comm
 caffe.set_mode_cpu()
 
 net = caffe.Net('./model/lenet.prototxt',
-                './model/lenet_iter_50000.caffemodel',
+                './model/mnist_iter_200000.caffemodel',
                caffe.TEST)
 
 
@@ -188,7 +188,7 @@ def process(img, client1 = None, pos = -1):
     return img
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
