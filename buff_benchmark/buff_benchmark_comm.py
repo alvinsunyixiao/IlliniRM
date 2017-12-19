@@ -143,8 +143,11 @@ class server:
                 self.white_stats_keeper(received_list, self.current_sequence)
             if received_red_list != self.current_red_sequence:
                 self.red_stats_keeper(received_red_list, self.current_red_sequence)
-            cur_white_rate = float(self.number_of_right_answers) / self.number_of_sequence_displayed
-            cur_red_rate = float(self.number_of_red_right_answers) / self.number_of_sequence_displayed
+            try:
+                cur_white_rate = float(self.number_of_right_answers) / self.number_of_sequence_displayed
+                cur_red_rate = float(self.number_of_red_right_answers) / self.number_of_sequence_displayed
+            except ZeroDivisionError:
+                pass
             print "White sequence received: " + str(received_list)
             print "Red sequence received: " + str(received_red_list)
             #print "Current white-num correct detection rate: %f" % cur_white_rate
