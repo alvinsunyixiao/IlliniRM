@@ -11,7 +11,7 @@ _DEBUG = False
     - kernel: adjusted for 640*360 /Priority: 1
     - Time Optimization /Priority: 1
 - filterRects
-    - y / x: height/width ratio
+    - y / x: height/width ratio /Priority: 2
 - pre_process
     - kernel for GaussianBlur and Morphological transformation adjusted for 640*360 /Priority: 2
 - pad_white_digit
@@ -22,6 +22,7 @@ _DEBUG = False
     - 面积阀值调整 /Priority: 3
 - bound_red_number
     - y 阀值调整 /Priority: 1
+    - 能够识别旋转的 digit。（换 minarearect 试一试？） /Priority: 3
 '''
 # Swap 2 objects
 def swap(a,b):
@@ -59,9 +60,9 @@ def rank(dig_ids, contours_array):
     return ret
 
 def mask_process(mask, points):
-    kernel1 = np.ones((7,6),np.uint8)
-    kernel2 = np.ones((6,6),np.uint8)
-    kernel3 = np.ones((3,3),np.uint8)
+    kernel1 = np.ones((5, 4),np.uint8)
+    kernel2 = np.ones((4, 4),np.uint8)
+    #kernel3 = np.ones((3, 3),np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
 
@@ -109,7 +110,7 @@ def filterRects(rect, pure_cont = False):
 
 def pre_process(img):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (7,7), 0)
+    gray = cv2.GaussianBlur(gray, (3,3), 0)
     ret3, thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     kernel = np.ones((4,8),np.uint8)
     return cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
@@ -119,8 +120,8 @@ def find_and_filter_contour(thresh):
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
     width, height = get_size(img)
-    img_width_range = (0.125 * width, 0.3 * width)
-    img_height_range = (0.1 * height, 0.18 * height)
+    img_width_range = (0.1 * width, 0.3 * width)
+    img_height_range = (0.08 * height, 0.18 * height)
     #contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*40 and cv2.contourArea(cnt) <= 300*150]
     return [cnt for cnt in contours if cv2.contourArea(cnt) >= img_width_range[0] * img_height_range[0] and cv2.contourArea(cnt) <= img_width_range[1] * img_height_range[1] and filterRects(cnt, pure_cont = True)]
 
