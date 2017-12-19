@@ -33,6 +33,7 @@
 #include "Error.h"
 #include "Options.h"
 #include "PreviewConsumer.h"
+#include "camera.h"
 
 namespace ArgusSamples
 {

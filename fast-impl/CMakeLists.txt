@@ -35,7 +35,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" "${CMAKE_MODULE_PATH}")
 find_package(Argus REQUIRED)
 
 set(SOURCES
-    main.cpp
+    src/main.cpp
+    src/camera.cpp
     )
 
 include_directories(
@@ -43,6 +44,7 @@ include_directories(
     ${EGL_INCLUDE_DIR}
     ${OPENGLES_INCLUDE_DIR}
     ${CMAKE_SOURCE_DIR}/utils
+    #${CMAKE_SOURCE_DIR}/include
     )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

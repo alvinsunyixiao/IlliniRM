@@ -34,7 +34,7 @@
 find_package(PkgConfig)
 
 find_path(ARGUS_INCLUDE_DIR Argus/Argus.h
-          HINTS ${CMAKE_CURRENT_SOURCE_DIR}/include)
+          HINTS ${CMAKE_SOURCE_DIR}/include)
 
 find_library(ARGUS_LIBRARY NAMES argus
              HINTS /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/tegra)
