@@ -70,7 +70,7 @@ def mask_process(mask, points):
     ftr[y_min:-1,:] = 0
     ftr[:,0:x_min1] = 0
     ftr[:,x_min2:] = 0
-    return cv2.bitwise_and(mask, mask, mask=ftr)
+    return cv2.bitwise_and(mask, mask, mask = ftr)
 
 def sort_points(rect):
     x_sort = np.array(sorted(rect, key=lambda x: x[1]))
@@ -102,7 +102,7 @@ def filterRects(rect, pure_cont = False):
     return False
 
 def process(img, client1 = None, pos = -1):
-    #img = cv2.resize(img, (800,600))
+    #img = cv2.resize(img, (640,360))
     img_cp = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (7,7), 0)

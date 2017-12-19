@@ -3,7 +3,7 @@ import math
 import matplotlib.pyplot as plt
 
 one_threshold = 170
-_DEBUG = True
+_DEBUG = False
 
 """
 u_x  c2        c3    u_x + width
@@ -37,7 +37,7 @@ digit_match = {
 	(1, 0, 1, 1, 1, 1, 1): 9
 }
 
-def digit_recognition_dirty(padded_num, tilt_offset = 1, on = [0 for i in range(7)]):
+def digit_recognition(padded_num, tilt_offset = 0, on = [0 for i in range(7)]):
     if padded_num.mean() >= one_threshold:
         return 1
     thresh_value, padded_num = cv2.threshold(padded_num, 240, 255, cv2.THRESH_BINARY)
@@ -87,5 +87,6 @@ def digit_recognition_dirty(padded_num, tilt_offset = 1, on = [0 for i in range(
     try:
         return digit_match[tuple(on)]
     except KeyError:
-        if tilt_offset == -2: return -1
-        return digit_recognition(padded_num, tilt_offset - 1, on)
+        return -1
+        #if tilt_offset == -2: return -1
+        #return digit_recognition(padded_num, tilt_offset - 1, on)
