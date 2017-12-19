@@ -112,8 +112,8 @@ def process(img, client1 = None, pos = -1):
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
     width, height = get_size(img)
-    img_width_range = (0.125 * width, 0.3 * width)
-    img_height_range = (0.1 * height, 0.18 * height)
+    img_width_range = (0.1 * width, 0.3 * width)
+    img_height_range = (0.08 * height, 0.18 * height)
     #contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*40 and cv2.contourArea(cnt) <= 300*150]
     contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= img_width_range[0] * img_height_range[0] and cv2.contourArea(cnt) <= img_width_range[1] * img_height_range[1] and filterRects(cnt, pure_cont = True)]
     # Find contour approximation and enforce a 4-sided convex shape
