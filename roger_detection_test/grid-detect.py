@@ -66,7 +66,7 @@ def mask_process(mask, points):
     x_min1 = int(x_min1)
     x_min2 = max(points, key=lambda cnt: cnt[0,0])[0,0]
     x_min2 = int(x_min2)
-    ftr = np.ones(img.shape[0:2],np.uint8)
+    ftr = np.ones(mask.shape[0:2],np.uint8)
     ftr[y_min:-1,:] = 0
     ftr[:,0:x_min1] = 0
     ftr[:,x_min2:] = 0
@@ -102,7 +102,7 @@ def filterRects(rect, pure_cont = False):
     return False
 
 def process(img, client1 = None, pos = -1):
-    #img = cv2.resize(img, (640,360))
+    img = cv2.resize(img, (640,360))
     img_cp = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (7,7), 0)
