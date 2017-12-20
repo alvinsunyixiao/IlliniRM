@@ -53,6 +53,13 @@ cd python && sudo -H pip2 install -r requirements.txt
 * Download two files from the [Google Drive](https://drive.google.com/drive/u/1/folders/151dvJA-1cIoJ5kNKNFrwGojRCTCMHgle) to `training-zoo/minist/demo`.
 * Run `python2 demo.py` to demo.
 
+### Manually fix missing C++ include
+```
+protoc src/caffe/proto/caffe.proto --cpp_out=.
+mkdir include/caffe/proto
+mv src/caffe/proto/caffe.pb.h include/caffe/proto
+```
+
 ## References and More Links (For Windows & Linux Users)
 * [Caffe's OS X Installation](http://caffe.berkeleyvision.org/install_osx.html)
 * [Trained Model](https://drive.google.com/drive/u/1/folders/1Za_5X8DBD2OeAjottFdYQ94skK8arM-T)
