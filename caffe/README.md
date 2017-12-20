@@ -15,6 +15,7 @@ brew install -vd snappy leveldb gflags glog szip lmdb
 brew tap homebrew/science
 brew install hdf5
 brew install opencv --with-python --with-python3
+brew install boost protobuf
 ```
 
 * Remaining dependencies
