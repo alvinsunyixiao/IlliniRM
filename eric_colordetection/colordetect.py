@@ -141,7 +141,7 @@ def findTargets (rects, blackconts):
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('testvideo/炮台素材蓝车后面-ev--3.mp4')  #Open video file
+    cap = cv2.VideoCapture('testvideo1.mp4')  #Open video file
 
     while (cap.isOpened()): #If there is video
         ret,frame = cap.read()  #Read the frame
