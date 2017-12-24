@@ -86,9 +86,9 @@ static Mat pre_process(Mat img){
     return ret_img;
 }
 
-static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays& desired_ref){
+static void find_and_filter_contour(Mat thresh, queue<vector<Point> >& desired_ref){
     vector<vector<Point> > contours;
-    vector<vector<Point> > ret[0];
+    queue<vector<Point> > ret;
     vector<Vec4i> hierarchy;
     findContours(thresh, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
     int width = thresh.size().width;
@@ -100,21 +100,21 @@ static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays& desired_ref
     for(size_t i = 0; i < contours.size(); i++){
         int area = contourArea(contours[i]);
         if((filterRects(contours[i], true)) & (area >= img_width_range_lower * img_height_range_lower) & (area <= img_width_range_higher * img_height_range_higher)){
-            ret.resize(ret.size() + 1);
-            ret[ret.size() - 1] = cnt;
+            ret.push(contours[i]);
         }
     }
     desired_ref = ret;
 }
 
-static void four_poly_approx(vector<vector<Point> > contours, vector<vector<Point> > &desired_ref){
-    vector<vector<Point> > tmp[contours.size()];
-    vector<vector<Point> > ret[0];
-    for(size_t i = 0; i < contours.size(); i++){
-        approxPolyDP(contours[i], tmp[i], 0.05 * arcLength(contours[i], true), true);
-        if((sizeof(tmp[i]) == 4) & (isContourConvex(tmp[i]))){
-            ret.resize(ret.size() + 1);
-            ret[ret.size() - 1] = tmp[i];
+static void four_poly_approx(queue<vector<Point> > contours, queue<vector<Point> > &desired_ref){
+    queue<vector<Point> > ret;
+    while(contours.size() > 0){
+        vector<Point> cnt = contours.front();
+        vector<Point> aprox;
+        contours.pop();
+        approxPolyDP(cnt, aprox, 0.05 * arcLength(cnt, true), true);
+        if((sizeof(aprox) == 4) & (isContourConvex(aprox))){
+            ret.push(aprox);
         }
     }
     desired_ref = ret;
@@ -148,7 +148,8 @@ int main(void){
     while(true){
         UMat frame;
         Mat img, img_cp, thresh, gray, org_mask, mask;
-        vector<vector<Point> > contours;
+        queue<vector<Point> > contours; //it's a queue!!!
+        vector<vector<Point> > vector_contours;
         cap.read(frame);
         resize(frame, img, Size(640, 360));
         img.copyTo(img_cp);
@@ -156,16 +157,20 @@ int main(void){
         thresh = pre_process(gray);
         find_and_filter_contour(thresh, contours);
         four_poly_approx(contours, contours);
+        while(contours.size() > 0){
+            vector_contours.push_back(contours.front());
+            contours.pop();
+        }
         if(contours.size() == 0){
             continue;
         }
         if(_DEBUG){
             stringstream output_stream;
-            output_stream << "This is the len of contours" << contours.size() << "\n" << "This is the len of tmp" << tmp.size();
+            output_stream << "This is the len of contours" << vector_contours.size();
         }
-        drawContours(img, contours, -1, Scalar(0, 255, 0), 3);
+        drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
         int digit_height;
-        bbox, digit_height, points = pad_white_digit(contours, gray); //what are the types of these variables; probably should pass their reference instead of returning
+        bbox, digit_height, points = pad_white_digit(vector_contours, gray); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
@@ -182,4 +187,4 @@ int main(void){
         dilate(org_mask, org_mask, Size(2, 1));
         //Putting into recognition module or neural network for recognition
     }
-}
+}}
