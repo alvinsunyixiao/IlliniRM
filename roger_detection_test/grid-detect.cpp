@@ -1,15 +1,10 @@
 #include <caffe/caffe.hpp>
 #include <opencv2/opencv.hpp>
-/*
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/shape.hpp>*/
+#include <tuple>
 
 /*
 TODO:
     - Python-like max, min, sort
-    - Try passing reference for results
 */
 
 const bool _DEBUG = false;
@@ -71,9 +66,11 @@ static Mat mask_process(Mat mask, int* points){
     return ret;
 }
 
-int* sort_points(int *points){}
+vector<Point> sort_points(vector<Point> points){}
 
-int* find_contour_bound(int* cont, bool raw_cont){}
+static void find_contour_bound(vector<Point> cont, bool raw_cont, int& left, int& right, int& lower, int& upper){
+    left = 0;
+}
 
 bool filterRects(InputArray rect, bool pure_cont){}
 
@@ -120,7 +117,27 @@ static void four_poly_approx(queue<vector<Point> > contours, queue<vector<Point>
     desired_ref = ret;
 }
 
-Mat* pad_white_digit(int* contours, Mat* gray){}
+static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Mat>& bboxs, vector<vector<Point> >& points, int& digit_height){
+    int BOX_LEN = 32;
+    int offset = (BOX_LEN - 28) / 2;
+    int dstpts_array[8] = {0 ,0, BOX_LEN, 0, 0, BOX_LEN, BOX_LEN, BOX_LEN};
+    Mat dstpts = Mat(4, 2, CV_8UC1, dstpts_array);
+    vector<int> dynamic_height;
+    for(size_t i = 0; i < contours.size(); i++){
+        vector<Point> cnt = contours[i];
+        vector<Point> pts1 = sort_points(cnt);
+        points.push_back(pts1);
+        Mat m = getPerspectiveTransform(pts1, dstpts);
+        Mat new_img, digit_img;
+        warpPerspective(gray, new_img, m, Size(BOX_LEN, BOX_LEN));
+        bitwise_not(new_img(Rect(offset, new_img.size().width - offset, offset, new_img.size().height - offset)), digit_img);
+        bboxs.push_back(digit_img);
+        int left, right, lower, upper;
+        find_contour_bound(cnt, false, left, right, lower, upper);
+        dynamic_height.push_back(upper - lower);
+    }
+    digit_height = static_cast<int>(dynamic_height[dynamic_height.size() / 2] * (0.58));
+}
 
 Mat red_color_binarization(Mat org_img){
     Mat mask1, mask2, ret, hsv;
@@ -170,7 +187,9 @@ int main(void){
         }
         drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
         int digit_height;
-        bbox, digit_height, points = pad_white_digit(vector_contours, gray); //what are the types of these variables; probably should pass their reference instead of returning
+        vector<vector<Point> >points;
+        vector<Mat> bbox;
+        pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
@@ -180,7 +199,7 @@ int main(void){
         }
         mask = red_color_binarization(img_cp);
         mask.copyTo(org_mask);
-        dilate(mask, mask, Size(static_cast<int>(digit_height / 10, 1));
+        dilate(mask, mask, Size(static_cast<int>(digit_height / 10), 1));
         mask = mask_process(mask, points);
         org_mask = mask_process(org_mask, points);
         vector<vector<Point> > bounding_box = bound_red_number(mask);
