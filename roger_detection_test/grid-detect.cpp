@@ -24,9 +24,6 @@ Scalar upper_red_2(179, 255, 255);
 
 //Net nn("./model/lenet.prototxt", "./model/mnist_iter_200000.caffemodel", TEST);
 
-int* find_contour_bound(bool = false);
-bool filterRects(bool = false);
-
 static Mat pad_diggit(Mat img){
     int w = img.size().width;
     int h = img.size().height;
@@ -56,17 +53,17 @@ static Mat mask_process(Mat mask, int* points){
     Mat ftr = Mat::ones(w, h, CV_8UC1);
     for(int i = y_min; i < h; i++){
         for(int j = 0; j < w; j++){
-            ftr[i][j] = 0;
+            ftr.at<uchar>(i, j) = 0; //not very efficient
         }
     }
     for(int i = 0; i < y_min; i++){
         for(int j = 0; j < x_min1; j++){
-            ftr[i][j] = 0;
+            ftr.at<uchar>(i, j) = 0;
         }
     }
     for(int i = 0; i < y_min; i++){
         for(int j = x_min2; j < w; j++){
-            ftr[i][j] = 0;
+            ftr.at<uchar>(i, j) = 0;
         }
     }
     Mat ret;
@@ -78,7 +75,7 @@ int* sort_points(int *points){}
 
 int* find_contour_bound(int* cont, bool raw_cont){}
 
-bool filterRects(int* rect, bool pure_cont){}
+bool filterRects(InputArray rect, bool pure_cont){}
 
 static Mat pre_process(Mat img){
     Mat ret_img;
@@ -89,7 +86,7 @@ static Mat pre_process(Mat img){
     return ret_img;
 }
 
-static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays desired_ref){
+static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays& desired_ref){
     vector<vector<Point> > contours;
     vector<vector<Point> > ret[0];
     vector<Vec4i> hierarchy;
@@ -102,7 +99,7 @@ static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays desired_ref)
     int img_height_range_higher = static_cast<int>(0.18 * width);
     for(size_t i = 0; i < contours.size(); i++){
         int area = contourArea(contours[i]);
-        if(filterRects(contours[i]) & area >= img_width_range_lower * img_height_range_lower & area <= img_width_range_higher * img_height_range_higher){
+        if((filterRects(contours[i], true)) & (area >= img_width_range_lower * img_height_range_lower) & (area <= img_width_range_higher * img_height_range_higher)){
             ret.resize(ret.size() + 1);
             ret[ret.size() - 1] = cnt;
         }
@@ -110,7 +107,7 @@ static void find_and_filter_contour(Mat thresh, OutputArrayOfArrays desired_ref)
     desired_ref = ret;
 }
 
-static void four_poly_approx(vector<vector<Point> > contours, vector<vector<Point> >* desired_ref){
+static void four_poly_approx(vector<vector<Point> > contours, vector<vector<Point> > &desired_ref){
     vector<vector<Point> > tmp[contours.size()];
     vector<vector<Point> > ret[0];
     for(size_t i = 0; i < contours.size(); i++){
@@ -120,7 +117,7 @@ static void four_poly_approx(vector<vector<Point> > contours, vector<vector<Poin
             ret[ret.size() - 1] = tmp[i];
         }
     }
-    desired_ref = *ret;
+    desired_ref = ret;
 }
 
 Mat* pad_white_digit(int* contours, Mat* gray){}
@@ -151,13 +148,14 @@ int main(void){
     while(true){
         UMat frame;
         Mat img, img_cp, thresh, gray, org_mask, mask;
+        vector<vector<Point> > contours;
         cap.read(frame);
         resize(frame, img, Size(640, 360));
         img.copyTo(img_cp);
         cvtColor(img, gray, COLOR_BGR2GRAY);
         thresh = pre_process(gray);
-        vector<vector<Point> > contours = find_and_filter_contour(thresh);
-        vector<vector<Point> > contours = four_poly_approx(contours);
+        find_and_filter_contour(thresh, contours);
+        four_poly_approx(contours, contours);
         if(contours.size() == 0){
             continue;
         }
