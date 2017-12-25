@@ -3,13 +3,18 @@
 
 /*
 TODO:
-    - Finish main program
+    - Finish Main
+        - NN for white digits
+        - comm communication
+        - CV-recog and NN for red digits
+        - test demo
 */
 
 const bool _DEBUG = false;
 
 using namespace cv;
 using namespace std;
+using namespace caffe;
 
 Scalar lower_red_1(0, 4, 210);
 Scalar upper_red_1(25, 255, 255);
@@ -26,7 +31,9 @@ bool sort_by_y(Point i, Point j) { return i.y < j.y; }
 bool sort_by_zero(Rect i, Rect j) { return i.x < j.x; }
 bool sort_by_first(Rect i, Rect j) { return i.y < j.y; }
 
-//Net nn("./model/lenet.prototxt", "./model/mnist_iter_200000.caffemodel", TEST);
+Caffe::set_mode(Caffe::CPU);
+Caffe::Net<float> net("./model/lenet.prototxt", caffe::TEST);
+net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
 
 static vector<int> get_cnt_x_vector(vector<Point> cnt){
     vector<int> ret;
@@ -255,14 +262,10 @@ vector<Rect> bound_red_number(Mat mask){
     return true_ret;
 }
 
-int main(void){
-    VideoCapture cap;
-    while(true){
-        UMat frame;
+Mat process(Mat frame){
         Mat img, img_cp, thresh, gray, org_mask, mask;
         queue<vector<Point> > contours; //it's a queue!!!
         vector<vector<Point> > vector_contours;
-        cap.read(frame);
         resize(frame, img, Size(640, 360));
         img.copyTo(img_cp);
         cvtColor(img, gray, COLOR_BGR2GRAY);
@@ -274,7 +277,7 @@ int main(void){
             contours.pop();
         }
         if(contours.size() == 0){
-            continue;
+            return img;
         }
         if(_DEBUG){
             stringstream output_stream;
@@ -288,6 +291,22 @@ int main(void){
         vector<Mat> bbox;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
+        caffe::Blob<float> *input_ptr = net.input_blobs()[0];
+        input_ptr->caffe::Reshape(bbox.size(), 1, 28, 28);
+        caffe::Blob<float> *output_ptr = net.output_blobs()[0];
+        output_ptr->caffe::Reshape(bbox.size(), 10, 1, 1);
+        input_ptr->caffe::set_cpu_data(bbox);
+        net.Forward();
+        const float* output_data = output_ptr->caffe::cpu_data();
+        vector<int> dig_ids;
+        for(int i = 0; i < bbox.size(); i++){
+            int max_prob_index = 0;
+            for(int j = 0; j < 10; j++){
+                if(output_data[i][max_prob_index] < output_data[i][j]) { max_prob_index = j; }
+            }
+            dig_ids.push_back(max_prob_index);
+        }
+        cout << dig_ids;
         /*
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
@@ -304,5 +323,15 @@ int main(void){
         vector<Rect> bounding_box = bound_red_number(mask);
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
         //Putting into recognition module or neural network for recognition
+}
+
+int main(void){
+    VideoCapture cap(0);
+    if(!cap.isOpened()) { return -1; }
+    while(true){
+        Mat frame;
+        cap >> frame;
+        Mat proc_img = process(frame);
+        imshow("debug", proc_img);
     }
 }
