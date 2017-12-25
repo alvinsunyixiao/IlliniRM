@@ -31,10 +31,6 @@ bool sort_by_y(Point i, Point j) { return i.y < j.y; }
 bool sort_by_zero(Rect i, Rect j) { return i.x < j.x; }
 bool sort_by_first(Rect i, Rect j) { return i.y < j.y; }
 
-Caffe::set_mode(Caffe::CPU);
-Caffe::Net<float> net("./model/lenet.prototxt", caffe::TEST);
-net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
-
 static vector<int> get_cnt_x_vector(vector<Point> cnt){
     vector<int> ret;
     for(size_t i = 0; i < cnt.size(); i++){
@@ -262,7 +258,7 @@ vector<Rect> bound_red_number(Mat mask){
     return true_ret;
 }
 
-Mat process(Mat frame){
+Mat process(Mat frame, Net<vector<Mat> > &net){
         Mat img, img_cp, thresh, gray, org_mask, mask;
         queue<vector<Point> > contours; //it's a queue!!!
         vector<vector<Point> > vector_contours;
@@ -291,13 +287,13 @@ Mat process(Mat frame){
         vector<Mat> bbox;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
-        caffe::Blob<float> *input_ptr = net.input_blobs()[0];
-        input_ptr->caffe::Reshape(bbox.size(), 1, 28, 28);
-        caffe::Blob<float> *output_ptr = net.output_blobs()[0];
-        output_ptr->caffe::Reshape(bbox.size(), 10, 1, 1);
-        input_ptr->caffe::set_cpu_data(bbox);
+        Blob<vector<Mat> > *input_ptr = net.input_blobs()[0];
+        input_ptr->Blob::Reshape(bbox.size(), 1, 28, 28);
+        Blob<vector<Mat> > *output_ptr = net.output_blobs()[0];
+        output_ptr->Blob::Reshape(bbox.size(), 10, 1, 1);
+        input_ptr->set_cpu_data(bbox*);
         net.Forward();
-        const float* output_data = output_ptr->caffe::cpu_data();
+        const float* output_data = output_ptr->cpu_data();
         vector<int> dig_ids;
         for(int i = 0; i < bbox.size(); i++){
             int max_prob_index = 0;
@@ -328,10 +324,13 @@ Mat process(Mat frame){
 int main(void){
     VideoCapture cap(0);
     if(!cap.isOpened()) { return -1; }
+    Caffe::set_mode(Caffe::CPU);
+    Net<vector<Mat> > net("./model/lenet.prototxt", caffe::TEST);
+    net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
     while(true){
         Mat frame;
         cap >> frame;
-        Mat proc_img = process(frame);
+        Mat proc_img = process(frame, net);
         imshow("debug", proc_img);
     }
 }
