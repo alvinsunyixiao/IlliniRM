@@ -1,6 +1,5 @@
 #include <caffe/caffe.hpp>
 #include <opencv2/opencv.hpp>
-#include <tuple>
 
 /*
 TODO:
@@ -19,6 +18,22 @@ Scalar upper_red_2(179, 255, 255);
 
 //Net nn("./model/lenet.prototxt", "./model/mnist_iter_200000.caffemodel", TEST);
 
+static vector<int> get_cnt_x_vector(vector<Point> cnt){
+    vector<int> ret;
+    for(size_t i = 0; i < cnt.size(); i++){
+        ret.push_back(cnt[i].x);
+    }
+    return ret;
+}
+
+static vector<int> get_cnt_y_vector(vector<Point> cnt){
+    vector<int> ret;
+    for(size_t i = 0; i < cnt.size(); i++){
+        ret.push_back(cnt[i].y);
+    }
+    return ret;
+}
+
 static Mat pad_diggit(Mat img){
     int w = img.size().width;
     int h = img.size().height;
@@ -32,17 +47,25 @@ static Mat pad_diggit(Mat img){
     resize(new_img, ret_img, mnist_size);
 }
 
-int* rank(int* dig_ids, int* contours_array){}
+vector<Point> extract_nth_point_from_contours(vector<vector<Point> > points, int pos){
+    vector<Point> ret;
+    for(size_t i = 0; i < points.size(); i++){
+        ret.push_back(points[i][pos]);
+    }
+    return ret;
+}
 
-static Mat mask_process(Mat mask, int* points){
+int* rank(int* dig_ids, int* contours_array){} //TODO
+
+static Mat mask_process(Mat mask, vector<vector<Point> > points){
     Mat kernel1 = Mat::ones(5, 4, CV_8UC1);
     Mat kernel2 = Mat::ones(4, 4, CV_8UC1);
     morphologyEx(mask, mask, MORPH_CLOSE, kernel1);
     morphologyEx(mask, mask, MORPH_OPEN, kernel2);
     //use python-like sort here
-    int y_min;
-    int x_min1;
-    int x_min2;
+    int y_min = min(get_cnt_y_vector(extract_nth_point_from_contours(points, 0)));
+    int x_min1 = min(get_cnt_x_vector(extract_nth_point_from_contours(points, 1)));
+    int x_min2 = max(get_cnt_x_vector(extract_nth_point_from_contours(points, 0)));
     int w = mask.size().width;
     int h = mask.size().height;
     Mat ftr = Mat::ones(w, h, CV_8UC1);
@@ -66,13 +89,18 @@ static Mat mask_process(Mat mask, int* points){
     return ret;
 }
 
-vector<Point> sort_points(vector<Point> points){}
+vector<Point> sort_points(vector<Point> points){} //TODO
 
 static void find_contour_bound(vector<Point> cont, bool raw_cont, int& left, int& right, int& lower, int& upper){
-    left = 0;
+    vector<int> x_vector = get_cnt_x_vector(cont);
+    vector<int> y_vector = get_cnt_y_vector(cont);
+    left = cont[distance(x_vector.begin(), min_element(x_vector.begin(), x_vector.end()))].x;
+    right = cont[distance(x_vector.begin(), max_element(x_vector.begin(), x_vector.end()))].x;
+    lower = cont[distance(y_vector.begin(), min_element(y_vector.begin(), y_vector.end()))].y;
+    upper = cont[distance(y_vector.begin(), max_element(y_vector.begin(), y_vector.end()))].y;
 }
 
-bool filterRects(InputArray rect, bool pure_cont){}
+bool filterRects(InputArray rect, bool pure_cont){} //TODO
 
 static Mat pre_process(Mat img){
     Mat ret_img;
@@ -139,7 +167,7 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
     digit_height = static_cast<int>(dynamic_height[dynamic_height.size() / 2] * (0.58));
 }
 
-Mat red_color_binarization(Mat org_img){
+static Mat red_color_binarization(Mat org_img){
     Mat mask1, mask2, ret, hsv;
     cvtColor(org_img, hsv, COLOR_BGR2HSV);
     inRange(hsv, Scalar(0, 4, 210), Scalar(25, 255, 255), mask1);
@@ -156,7 +184,7 @@ vector<vector<Point> > bound_red_number(Mat mask){
     findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
     for(size_t i = 0; i < contours.size(); i++){
         Rect rec = boundingRect(contours[i]);
-        //Rest of the filter process
+        //Rest of the filter process TODO
     }
 }
 
@@ -184,6 +212,8 @@ int main(void){
         if(_DEBUG){
             stringstream output_stream;
             output_stream << "This is the len of contours" << vector_contours.size();
+            string debug_string = output_stream.str();
+            cout << debug_string;
         }
         drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
         int digit_height;
@@ -192,18 +222,18 @@ int main(void){
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         for(int i = 0; i < sizeof(dig_ids); i++){
-            putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
+            //putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
         }
         if(contours.size() == 9){
             std::cout << "update sequence to benchmark comm here";
         }
         mask = red_color_binarization(img_cp);
         mask.copyTo(org_mask);
-        dilate(mask, mask, Size(static_cast<int>(digit_height / 10), 1));
+        dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
         mask = mask_process(mask, points);
         org_mask = mask_process(org_mask, points);
         vector<vector<Point> > bounding_box = bound_red_number(mask);
-        dilate(org_mask, org_mask, Size(2, 1));
+        dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
         //Putting into recognition module or neural network for recognition
     }
-}}
+}
