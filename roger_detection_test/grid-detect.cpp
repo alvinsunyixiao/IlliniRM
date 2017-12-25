@@ -1,6 +1,5 @@
-//#include <caffe/caffe.hpp>
+#include <caffe/caffe.hpp>
 #include <opencv2/opencv.hpp>
-#include <algorithm>
 
 /*
 TODO:
@@ -17,7 +16,12 @@ Scalar upper_red_1(25, 255, 255);
 Scalar lower_red_2(155, 4, 210);
 Scalar upper_red_2(179, 255, 255);
 
-bool sort_by_x(int i[2], int j[2]) { return i[1] < j[1]; }
+struct contours_and_dig{
+    int dig_id;
+    int x;
+};
+
+bool sort_by_x(contours_and_dig &i, contours_and_dig &j) { return i.x < j.x; }
 bool sort_by_y(Point i, Point j) { return i.y < j.y; }
 bool sort_by_zero(Rect i, Rect j) { return i.x < j.x; }
 bool sort_by_first(Rect i, Rect j) { return i.y < j.y; }
@@ -64,16 +68,18 @@ vector<Point> extract_nth_point_from_contours(vector<vector<Point> > points, int
 
 //expect length of input array is greater than 9
 static vector<int> rank(vector<int> dig_ids, vector<vector<Point> > contours_array){
-    vector<vector<int[2]> > unranked;
+    vector<vector<contours_and_dig> > unranked;
     for(int i = 0; i < 9; i++){
-        int pack[2] = {dig_ids[i], contours_array[i][0].x};
+        contours_and_dig pack;
+        pack.dig_id = dig_ids[i];
+        pack.x = contours_array[i][0].x;
         unranked[2 - (i / 3)].push_back(pack);
     }
     vector<int> ret;
     for(int i = 0; i < unranked.size(); i++){
         sort(unranked[i].begin(), unranked[i].end(), sort_by_x);
         for(int j = 0; j < 3; j++){
-            ret.push_back(unranked[i][j][0]);
+            ret.push_back(unranked[i][j].dig_id);
         }
     }
     return ret;
