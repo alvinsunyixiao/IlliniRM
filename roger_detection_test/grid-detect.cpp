@@ -1,9 +1,10 @@
-#include <caffe/caffe.hpp>
+//#include <caffe/caffe.hpp>
 #include <opencv2/opencv.hpp>
+#include <algorithm>
 
 /*
 TODO:
-    - Python-like max, min, sort
+    - Finish main program
 */
 
 const bool _DEBUG = false;
@@ -15,6 +16,11 @@ Scalar lower_red_1(0, 4, 210);
 Scalar upper_red_1(25, 255, 255);
 Scalar lower_red_2(155, 4, 210);
 Scalar upper_red_2(179, 255, 255);
+
+bool sort_by_x(int i[2], int j[2]) { return i[1] < j[1]; }
+bool sort_by_y(Point i, Point j) { return i.y < j.y; }
+bool sort_by_zero(Rect i, Rect j) { return i.x < j.x; }
+bool sort_by_first(Rect i, Rect j) { return i.y < j.y; }
 
 //Net nn("./model/lenet.prototxt", "./model/mnist_iter_200000.caffemodel", TEST);
 
@@ -45,6 +51,7 @@ static Mat pad_diggit(Mat img){
     Size mnist_size(28, 28);
     Mat ret_img;
     resize(new_img, ret_img, mnist_size);
+    return ret_img;
 }
 
 vector<Point> extract_nth_point_from_contours(vector<vector<Point> > points, int pos){
@@ -55,7 +62,22 @@ vector<Point> extract_nth_point_from_contours(vector<vector<Point> > points, int
     return ret;
 }
 
-int* rank(int* dig_ids, int* contours_array){} //TODO
+//expect length of input array is greater than 9
+static vector<int> rank(vector<int> dig_ids, vector<vector<Point> > contours_array){
+    vector<vector<int[2]> > unranked;
+    for(int i = 0; i < 9; i++){
+        int pack[2] = {dig_ids[i], contours_array[i][0].x};
+        unranked[2 - (i / 3)].push_back(pack);
+    }
+    vector<int> ret;
+    for(int i = 0; i < unranked.size(); i++){
+        sort(unranked[i].begin(), unranked[i].end(), sort_by_x);
+        for(int j = 0; j < 3; j++){
+            ret.push_back(unranked[i][j][0]);
+        }
+    }
+    return ret;
+}
 
 static Mat mask_process(Mat mask, vector<vector<Point> > points){
     Mat kernel1 = Mat::ones(5, 4, CV_8UC1);
@@ -63,9 +85,12 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
     morphologyEx(mask, mask, MORPH_CLOSE, kernel1);
     morphologyEx(mask, mask, MORPH_OPEN, kernel2);
     //use python-like sort here
-    int y_min = min(get_cnt_y_vector(extract_nth_point_from_contours(points, 0)));
-    int x_min1 = min(get_cnt_x_vector(extract_nth_point_from_contours(points, 1)));
-    int x_min2 = max(get_cnt_x_vector(extract_nth_point_from_contours(points, 0)));
+    vector<int> y_min_vector = get_cnt_y_vector(extract_nth_point_from_contours(points, 0));
+    vector<int> x_min_vector_1 = get_cnt_x_vector(extract_nth_point_from_contours(points, 1));
+    vector<int> x_min_vector_2 = get_cnt_x_vector(extract_nth_point_from_contours(points, 0));
+    int y_min = *min_element(y_min_vector.begin(), y_min_vector.end());
+    int x_min1 = *min_element(x_min_vector_1.begin(), x_min_vector_1.end());
+    int x_min2 = *max_element(x_min_vector_1.begin(), x_min_vector_2.end());
     int w = mask.size().width;
     int h = mask.size().height;
     Mat ftr = Mat::ones(w, h, CV_8UC1);
@@ -89,7 +114,21 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
     return ret;
 }
 
-vector<Point> sort_points(vector<Point> points){} //TODO
+static vector<Point> sort_points(vector<Point> points){
+    vector<Point> ret = points; //deepcopy
+    sort(points.begin(), points.end(), sort_by_y);
+    if(points[0].x > points[1].x){
+        int temp = points[1].x;
+        points[1].x = points[0].x;
+        points[0].x = temp;
+    }
+    if(points[2].x > points[3].x){
+        int temp = points[3].x;
+        points[3].x = points[2].x;
+        points[2].x = temp;
+    }
+    return ret;
+}
 
 static void find_contour_bound(vector<Point> cont, bool raw_cont, int& left, int& right, int& lower, int& upper){
     vector<int> x_vector = get_cnt_x_vector(cont);
@@ -100,7 +139,17 @@ static void find_contour_bound(vector<Point> cont, bool raw_cont, int& left, int
     upper = cont[distance(y_vector.begin(), max_element(y_vector.begin(), y_vector.end()))].y;
 }
 
-bool filterRects(InputArray rect, bool pure_cont){} //TODO
+bool filterRects(vector<Point> rect, bool pure_cont){
+    int left, right, lower, upper;
+    find_contour_bound(rect, false, left, right, lower, upper);
+    int x = right - left;
+    float y = upper - lower;
+    if((y / x >= 0.3) & (y / x <= 0.75)){
+        return true;
+    } else {
+        return false;
+    }
+}
 
 static Mat pre_process(Mat img){
     Mat ret_img;
@@ -177,15 +226,27 @@ static Mat red_color_binarization(Mat org_img){
 }
 
 //return bound
-vector<vector<Point> > bound_red_number(Mat mask){
+vector<Rect> bound_red_number(Mat mask){
     vector<vector<Point> > contours;
-    vector<vector<Point> > ret[0];
+    vector<Rect> ret, true_ret;
     vector<Vec4i> hierarchy;
     findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
     for(size_t i = 0; i < contours.size(); i++){
         Rect rec = boundingRect(contours[i]);
-        //Rest of the filter process TODO
+        if(rec.width < rec.height){
+            ret.push_back(rec);
+        }
     }
+    sort(ret.begin(), ret.end(), sort_by_zero);
+    vector<Rect> y = ret; //deepcopy
+    sort(y.begin(), y.end(), sort_by_first);
+    int y_coord = y[y.size() / 2].y;
+    for(size_t i = 0; i < ret.size(); i++){
+        if((ret[i].y >= y_coord * 0.8) & (ret[i].y <= y_coord * 1.23)){
+            true_ret.push_back(ret[i]);
+        }
+    }
+    return true_ret;
 }
 
 int main(void){
@@ -221,9 +282,11 @@ int main(void){
         vector<Mat> bbox;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
+        /*
         for(int i = 0; i < sizeof(dig_ids); i++){
-            //putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
+            putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
         }
+        */
         if(contours.size() == 9){
             std::cout << "update sequence to benchmark comm here";
         }
@@ -232,7 +295,7 @@ int main(void){
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
         mask = mask_process(mask, points);
         org_mask = mask_process(org_mask, points);
-        vector<vector<Point> > bounding_box = bound_red_number(mask);
+        vector<Rect> bounding_box = bound_red_number(mask);
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
         //Putting into recognition module or neural network for recognition
     }
