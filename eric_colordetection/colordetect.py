@@ -33,7 +33,27 @@ lowerblackBound = np.array([0,0,BlackV[0]])         #Setting up lower bounds for
 upperblackBound = np.array([255,180,BlackV[1]])     #Setting up higher bounds for Black
 
 
-def maskHSV (hsvframe, lowerBound, upperBound):
+##  Resize factor and Gaussian factor are the main two factors that affect the performance of this code
+##  Range resizefactor 0.1 - 1.0 (0.5)
+##  Range Gaussianfactor 3,5,7,9,11 (5)
+##  Higher = Better quality in recognizing targets Lower = Faster
+
+resizefactor = 0.3  #Resize the image to this factor
+
+Gaussianfactor = 5  #Blur factor
+
+def resize (frame, factor): #Resizes the frame by factor
+    height, width = frame.shape[:2]
+    if factor == 1:
+        return frame
+    elif factor < 1:
+        size = (int(width * factor), int(height * factor))
+        return cv2.resize(frame, size, interpolation=cv2.INTER_AREA)
+    else:
+        size = (int(width * factor), int(height * factor))
+        return cv2.resize(frame, size, interpolation=cv2.INTER_CUBIC)
+
+def maskHSV (hsvframe, lowerBound, upperBound, Gaussianfactor): #Masks the HSV frame using color bounds
     if lowerBound[0] > upperBound[0]:
         midBound1 = np.array([179,upperBound[1],upperBound[2]])
         midBound2 = np.array([0,lowerBound[1],lowerBound[2]])
@@ -41,11 +61,11 @@ def maskHSV (hsvframe, lowerBound, upperBound):
         mask += cv2.inRange(hsvframe, midBound2, upperBound)
     else:
         mask = cv2.inRange(hsvframe, lowerBound, upperBound)
-    mask = cv2.GaussianBlur(mask, (7,7), 0)
+    mask = cv2.GaussianBlur(mask, (Gaussianfactor,Gaussianfactor), 0)
     return mask
 
 
-def findRects (conts):
+def findRects (conts):  #Find the minAreaRects according to the contour
     rects = []
     for cont in conts:
         rect = cv2.minAreaRect(cont)
@@ -53,7 +73,7 @@ def findRects (conts):
     return rects
 
 
-def filterRects (rects):
+def filterRects (rects):    #Filter the rects according to the characteristics of armor
     newrects = []
     for rect in rects:
         point, size, ang = rect
@@ -62,14 +82,29 @@ def filterRects (rects):
             newrects.append(rect)
     return newrects
 
+def resizeRects (rects, factor):    #Resize the rects back to normal size
+    if factor == 1:
+        return rects
+    newrects = []
+    for rect in rects:
+        point, size, ang = rect
+        h, w = size
+        x, y = point
+        h /= factor
+        w /= factor
+        x /= factor
+        y /= factor
+        rect = ((x, y), (h, w), ang)
+        newrects.append(rect)
+    return newrects
 
-def drawRects (frame, rects, color):
+def drawRects (frame, rects, color):    #Draw the rects on the frame
     for rect in rects:
         box = cv2.cv.BoxPoints(rect)
         box = np.int0(box)
         cv2.drawContours(frame, [box], 0, color, 2)
 
-def recttransform (size, ang):
+def recttransform (size, ang):  #make all the rects in desired format
     newang = ang
     h,w = size
     if ang < -60:
@@ -80,7 +115,7 @@ def recttransform (size, ang):
         return w,h,newang
     return h,w,ang
 
-def findTargets (rects, blackconts):
+def findTargets (rects):    #Find the target armor using hard coded methods
     targets = []
     scores = []
     for a in range(len(rects)):
@@ -111,14 +146,14 @@ def findTargets (rects, blackconts):
 
             dist = np.sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1))
 
-            score += adiff / (a1 + a2)
-
-            if x1 != x2:
-                score += abs((y2 - y1) / (x2 - x1))
-            else:
-                score = 100
-
-            score += 2 * abs(ang1 - ang2) / 180
+            # score += adiff / (a1 + a2)
+            #
+            # if x1 != x2:
+            #     score += abs((y2 - y1) / (x2 - x1))
+            # else:
+            #     score = 100
+            #
+            # score += 2 * abs(ang1 - ang2) / 180
 
             if (dist != 0):
                 dwratio = dist / wavg
@@ -126,11 +161,11 @@ def findTargets (rects, blackconts):
             else:
                 score = 100
 
-            score += 100
-            for blackcont in blackconts:
-                if (cv2.pointPolygonTest(blackcont, (xmid, ymid), False)):
-                    score -= 100
-                    break
+            # score += 100
+            # for blackcont in blackconts:
+            #     if (cv2.pointPolygonTest(blackcont, (xmid, ymid), False)):
+            #         score -= 100
+            #         break
 
             if score < 5:
                 targets.append((xmid, ymid))
@@ -141,30 +176,38 @@ def findTargets (rects, blackconts):
 
 
 if __name__ == '__main__':
-    cap = cv2.VideoCapture('testvideo1.mp4')  #Open video file
+    cap = cv2.VideoCapture('testvideo/步兵素材红车正面2-ev--3.mp4')  #Open video file
 
     while (cap.isOpened()): #If there is video
         ret,frame = cap.read()  #Read the frame
 
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)    #Convert RGB to HSV for value check
+        resizedframe = resize(frame, resizefactor)
 
-        maskred = maskHSV(hsv, lowerredBound, upperorangeBound)
-        maskblue = maskHSV(hsv, lowerblueBound, upperblueBound)
-        maskblack = maskHSV(hsv, lowerblackBound, upperblackBound)
+        hsv = cv2.cvtColor(resizedframe, cv2.COLOR_BGR2HSV)    #Convert RGB to HSV for value check
+
+        maskred = maskHSV(hsv, lowerredBound, upperorangeBound, Gaussianfactor)
+        maskblue = maskHSV(hsv, lowerblueBound, upperblueBound, Gaussianfactor)
+        # maskblack = maskHSV(hsv, lowerblackBound, upperblackBound)
 
         redconts, hred = cv2.findContours(maskred.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   #Finding contours of red points
         blueconts, hblue = cv2.findContours(maskblue.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    #Finding contours of blue points
-        blackconts, hblack = cv2.findContours(maskblack.copy(),cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  #Finding contours of black points
+        # blackconts, hblack = cv2.findContours(maskblack.copy(),cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  #Finding contours of black points
 
         redrects = filterRects(findRects(redconts))
+
+        redrects = resizeRects(redrects,resizefactor)
+
         drawRects(frame, redrects, (0, 255, 0))
-        redtargets = findTargets(redrects, blackconts)
+        redtargets = findTargets(redrects)
         for a in range(min(1, int(len(redtargets)))):
             cv2.circle(frame, redtargets[a], 20, (0, 0, 255), -1)
 
         bluerects = filterRects(findRects(blueconts))
+
+        bluerects = resizeRects(bluerects, resizefactor)
+
         drawRects(frame, bluerects, (0, 255, 255))
-        bluetargets = findTargets(bluerects, blackconts)
+        bluetargets = findTargets(bluerects)
         for a in range(min(1, int(len(bluetargets)))):
             cv2.circle(frame, bluetargets[a], 20, (230, 216, 173), -1)
 
