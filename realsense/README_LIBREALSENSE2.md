@@ -1,6 +1,5 @@
 # librealsense mac 安装指南
-
-(librealsense legacy (implements a subset of librealsense2)；mac 只能用 legacy，librealsense 2 官方暂时无法支持 R200)
+# 暂时还不能够 work（include 没修好；需要添加 c++11 flag），等搞定了再更新
 
 ## Prerequisites
 * [Homebrew](https://brew.sh/)
@@ -18,8 +17,9 @@ git checkout latest
 mkdir build
 cd build
 cmake .. -DBUILD_SHARED_LIBS=ON
-make
+make -j4
 sudo make install
+brew install llvm
 ```
 
 ### Build librealsense
@@ -27,21 +27,20 @@ sudo make install
 ```
 git clone https://github.com/IntelRealSense/librealsense
 cd librealsense
-git checkout legacy
 mkdir build
 cd build
-cmake .. -DBUILD_EXAMPLES=ON
-make
+//one-time setting that compiles with OpenMP features
+export CPPFLAGS="-I/usr/local/opt/llvm/include"
+export LDFLAGS="-L/usr/local/opt/llvm/lib"
+export CXX=/usr/local/opt/llvm/bin/clang++
+export CC=/usr/local/opt/llvm/bin/clang
+cmake .. -DBUILD_EXAMPLES=ON -DBUILD_PYTHON_BINDINGS=bool:true -DBUILD_CV_EXAMPLES=true //可能需要 -DBUILD_WITH_OPENMP=false
+make -j4
 sudo make install
-cpp-capture //run exmaple to test (need a live realsense camera connected to a USB 3.0 port; better with a powered hub)
 ```
 
-### Setup Python wrapper
-
-```
-sudo pip install pyrealsense2
-python -c "import pyrealsense; print 'hello'" #Confirm pyrealsense is successfully installed
-```
+### Setup PYTHONPATH
+### Manually Fixing Include
 
 ## References and More Links (For Windows & Linux Users)
 * [Official README](https://github.com/IntelRealSense/librealsense)
