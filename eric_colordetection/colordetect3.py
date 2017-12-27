@@ -100,7 +100,7 @@ def resizeRects (rects, factor):    #Resize the rects back to normal size
 
 def drawRects (frame, rects, color):    #Draw the rects on the frame
     for rect in rects:
-        box = cv2.cv.BoxPoints(rect)
+        box = cv2.boxPoints(rect)
         box = np.int0(box)
         cv2.drawContours(frame, [box], 0, color, 2)
 
@@ -192,8 +192,8 @@ if __name__ == '__main__':
         maskblue = maskHSV(hsv, lowerblueBound, upperblueBound, Gaussianfactor)
         # maskblack = maskHSV(hsv, lowerblackBound, upperblackBound)
 
-        redconts, hred = cv2.findContours(maskred.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   #Finding contours of red points
-        blueconts, hblue = cv2.findContours(maskblue.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    #Finding contours of blue points
+        imred, redconts, hred = cv2.findContours(maskred.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)   #Finding contours of red points
+        imblue, blueconts, hblue = cv2.findContours(maskblue.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)    #Finding contours of blue points
         # blackconts, hblack = cv2.findContours(maskblack.copy(),cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)  #Finding contours of black points
 
         redrects = filterRects(findRects(redconts))
