@@ -160,7 +160,7 @@ bool filterRects(vector<Point> rect, bool pure_cont){
     }
 }
 
-static Mat pre_process(Mat img){
+Mat pre_process(Mat img){
     Mat ret_img;
     GaussianBlur(img, ret_img, Size(3, 3), 0);
     threshold(ret_img, ret_img, 0, 255, THRESH_BINARY + THRESH_OTSU);
@@ -196,7 +196,7 @@ static void four_poly_approx(queue<vector<Point> > contours, queue<vector<Point>
         vector<Point> aprox;
         contours.pop();
         approxPolyDP(cnt, aprox, 0.05 * arcLength(cnt, true), true);
-        if((sizeof(aprox) == 4) & (isContourConvex(aprox))){
+        if((aprox.size() == 4) & (isContourConvex(aprox))){
             ret.push(aprox);
         }
     }
@@ -258,7 +258,8 @@ vector<Rect> bound_red_number(Mat mask){
     return true_ret;
 }
 
-Mat process(Mat frame, Net<vector<Mat> > &net){
+//Mat process(Mat frame, Net<float> &net){
+Mat process(Mat frame){
         Mat img, img_cp, thresh, gray, org_mask, mask;
         queue<vector<Point> > contours; //it's a queue!!!
         vector<vector<Point> > vector_contours;
@@ -272,7 +273,7 @@ Mat process(Mat frame, Net<vector<Mat> > &net){
             vector_contours.push_back(contours.front());
             contours.pop();
         }
-        if(contours.size() == 0){
+        if(vector_contours.size() == 0){
             return img;
         }
         if(_DEBUG){
@@ -286,6 +287,7 @@ Mat process(Mat frame, Net<vector<Mat> > &net){
         vector<vector<Point> >points;
         vector<Mat> bbox;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
+        /*
         //Feed neural network here
         Blob<vector<Mat> > *input_ptr = net.input_blobs()[0];
         input_ptr->Blob::Reshape(bbox.size(), 1, 28, 28);
@@ -303,6 +305,7 @@ Mat process(Mat frame, Net<vector<Mat> > &net){
             dig_ids.push_back(max_prob_index);
         }
         cout << dig_ids;
+        */
         /*
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
@@ -319,18 +322,20 @@ Mat process(Mat frame, Net<vector<Mat> > &net){
         vector<Rect> bounding_box = bound_red_number(mask);
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
         //Putting into recognition module or neural network for recognition
+        return img;
 }
 
 int main(void){
     VideoCapture cap(0);
     if(!cap.isOpened()) { return -1; }
-    Caffe::set_mode(Caffe::CPU);
-    Net<vector<Mat> > net("./model/lenet.prototxt", caffe::TEST);
-    net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
+    //Caffe::set_mode(Caffe::CPU);
+    //Net<float> net("./model/lenet.prototxt", caffe::TEST);
+    //net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
     while(true){
         Mat frame;
         cap >> frame;
-        Mat proc_img = process(frame, net);
+        Mat proc_img = process(frame);
         imshow("debug", proc_img);
+        if(waitKey(30) >= 0) break;
     }
 }
