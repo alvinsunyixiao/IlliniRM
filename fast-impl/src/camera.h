@@ -35,8 +35,9 @@ namespace Camera {
         CSICam(cameraOptions &options);
         ~CSICam();
 
-        EGLStreamKHR getEGLStream();
-        bool initialize();
+        EGLStreamKHR        getEGLStream();
+        Size2D<uint32_t>    getResolution();
+        bool                initialize();
     };
 }
 
