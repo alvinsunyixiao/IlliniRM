@@ -88,27 +88,62 @@ static vector<int> rank(vector<int> dig_ids, vector<vector<Point> > contours_arr
     return ret;
 }
 
+static int index_of_min_element_in_vector(vector<int> a_vector){
+    if(a_vector.size() == 1){
+        return 0;
+    }
+    int min[2] = {a_vector[0], 0};
+    for(int i = 1; i < a_vector.size(); i++){
+        if(a_vector[i] < min[0]){
+            min[0] = a_vector[i];
+            min[1] = i;
+        }
+    }
+    return min[1];
+}
+
+static int index_of_max_element_in_vector(vector<int> a_vector){
+    if(a_vector.size() == 1){
+        return 0;
+    }
+    int min[2] = {a_vector[0], 0};
+    for(int i = 1; i < a_vector.size(); i++){
+        if(a_vector[i] > min[0]){
+            min[0] = a_vector[i];
+            min[1] = i;
+        }
+    }
+    return min[1];
+}
+
 static Mat mask_process(Mat mask, vector<vector<Point> > points){
+    //cout << "starting mask_process" << endl;
     Mat kernel1 = Mat::ones(5, 4, CV_8UC1);
     Mat kernel2 = Mat::ones(4, 4, CV_8UC1);
     morphologyEx(mask, mask, MORPH_CLOSE, kernel1);
     morphologyEx(mask, mask, MORPH_OPEN, kernel2);
-    cout << "Morpho open success";
-    //use python-like sort here
+    //cout << "morphological trans success" << endl;
     vector<int> y_min_vector = get_cnt_y_vector(extract_nth_point_from_contours(points, 0)); //TODO: DEBUG
     vector<int> x_min_vector_1 = get_cnt_x_vector(extract_nth_point_from_contours(points, 1));
     vector<int> x_min_vector_2 = get_cnt_x_vector(extract_nth_point_from_contours(points, 0));
-    int y_min = *min_element(y_min_vector.begin(), y_min_vector.end());
+    //cout << "obtained vectors" << endl;
+    int y_min = y_min_vector[index_of_min_element_in_vector(y_min_vector)];
+    /*
     vector<int> path = y_min_vector;
+    cout << "y_min size " << y_min_vector.size();
+    cout << "path size " << path.size();
     for (vector<int>::const_iterator i = path.begin(); i != path.end(); ++i)
         cout << *i << ' ';
-    cout << "obtained min element";
-    cout << y_min;
-    int x_min1 = *min_element(x_min_vector_1.begin(), x_min_vector_1.end());
-    int x_min2 = *max_element(x_min_vector_1.begin(), x_min_vector_2.end());
+    cout << "obtained min element" << y_min;
+    */
+    int x_min1 = x_min_vector_1[index_of_min_element_in_vector(x_min_vector_1)];
+    int x_min2 = x_min_vector_2[index_of_max_element_in_vector(x_min_vector_2)];
+    //cout << "maxmin elements obtained" << endl;
     int w = mask.size().width;
     int h = mask.size().height;
-    Mat ftr = Mat::ones(w, h, CV_8UC1);
+    Mat ftr = Mat::ones(h, w, CV_8UC1);
+    //cout << "ftr mask size " << ftr.size() << endl;
+    //cout << "mask mat size " << mask.size() << endl;;
     for(int i = y_min; i < h; i++){
         for(int j = 0; j < w; j++){
             ftr.at<uchar>(i, j) = 0; //not very efficient
@@ -125,9 +160,10 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
         }
     }
     Mat ret;
-    cout << "prepare for bit and";
+    //cout << "processed ftr type" << ftr.type() << endl;
+    //cout << "prepare for bit and" << endl;
     bitwise_and(mask, mask, ret, ftr);
-    cout << "BIT_AND success";
+    //cout << "BIT_AND success" << endl;
     return ret;
 }
 
@@ -258,19 +294,28 @@ vector<Rect> bound_red_number(Mat mask){
     findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
     for(size_t i = 0; i < contours.size(); i++){
         Rect rec = boundingRect(contours[i]);
+        cout << "This is rect " << i << rec << endl;
         if(rec.width < rec.height){
             ret.push_back(rec);
         }
     }
+    if(ret.size() == 0){
+        return vector<Rect>();
+    }
     sort(ret.begin(), ret.end(), sort_by_zero);
     vector<Rect> y = ret; //deepcopy
     sort(y.begin(), y.end(), sort_by_first);
+    cout << "rect size" << y.size() << endl;
     int y_coord = y[y.size() / 2].y;
+    cout << "y coord obtained" << endl;
     for(size_t i = 0; i < ret.size(); i++){
+        cout << "evaluating" << endl;
         if((ret[i].y >= y_coord * 0.8) & (ret[i].y <= y_coord * 1.23)){
+            cout << "pushing " << endl;
             true_ret.push_back(ret[i]);
         }
     }
+    cout << "returning..." << endl;
     return true_ret;
 }
 
@@ -294,15 +339,16 @@ Mat process(Mat frame){
         }
         if(_DEBUG){
             stringstream output_stream;
-            output_stream << "This is the len of contours" << vector_contours.size();
+            output_stream << "This is the len of contours" << vector_contours.size() << endl;
             string debug_string = output_stream.str();
-            cout << debug_string;
+            cout << debug_string << endl;
         }
         drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
         imwrite("latest_frame.jpg", img);
         int digit_height;
         vector<vector<Point> >points;
         vector<Mat> bbox;
+        cout << "prepare to pad white digit" << endl;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         /*
         //Feed neural network here
@@ -329,7 +375,7 @@ Mat process(Mat frame){
         }
         */
         if(contours.size() == 9){
-            std::cout << "update sequence to benchmark comm here";
+            std::cout << "update sequence to benchmark comm here" << endl;
         }
         mask = red_color_binarization(img_cp);
         imwrite("debug.jpg", mask);
@@ -337,9 +383,11 @@ Mat process(Mat frame){
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
         imwrite("debug_dilate.jpg", mask);
         mask = mask_process(mask, points);
-        cout << "mask_process success";
+        cout << "mask process success" << endl;
         org_mask = mask_process(org_mask, points);
+        cout << "org_mask_process success" << endl;
         vector<Rect> bounding_box = bound_red_number(mask);
+        cout << "Bounding red num success" << endl;
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
         //Putting into recognition module or neural network for recognition
         return img;
