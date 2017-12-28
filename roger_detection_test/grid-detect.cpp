@@ -93,11 +93,17 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
     Mat kernel2 = Mat::ones(4, 4, CV_8UC1);
     morphologyEx(mask, mask, MORPH_CLOSE, kernel1);
     morphologyEx(mask, mask, MORPH_OPEN, kernel2);
+    cout << "Morpho open success";
     //use python-like sort here
-    vector<int> y_min_vector = get_cnt_y_vector(extract_nth_point_from_contours(points, 0));
+    vector<int> y_min_vector = get_cnt_y_vector(extract_nth_point_from_contours(points, 0)); //TODO: DEBUG
     vector<int> x_min_vector_1 = get_cnt_x_vector(extract_nth_point_from_contours(points, 1));
     vector<int> x_min_vector_2 = get_cnt_x_vector(extract_nth_point_from_contours(points, 0));
     int y_min = *min_element(y_min_vector.begin(), y_min_vector.end());
+    vector<int> path = y_min_vector;
+    for (vector<int>::const_iterator i = path.begin(); i != path.end(); ++i)
+        cout << *i << ' ';
+    cout << "obtained min element";
+    cout << y_min;
     int x_min1 = *min_element(x_min_vector_1.begin(), x_min_vector_1.end());
     int x_min2 = *max_element(x_min_vector_1.begin(), x_min_vector_2.end());
     int w = mask.size().width;
@@ -119,22 +125,24 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
         }
     }
     Mat ret;
+    cout << "prepare for bit and";
     bitwise_and(mask, mask, ret, ftr);
+    cout << "BIT_AND success";
     return ret;
 }
 
 static vector<Point> sort_points(vector<Point> points){
     vector<Point> ret = points; //deepcopy
-    sort(points.begin(), points.end(), sort_by_y);
-    if(points[0].x > points[1].x){
-        int temp = points[1].x;
-        points[1].x = points[0].x;
-        points[0].x = temp;
+    sort(ret.begin(), ret.end(), sort_by_y);
+    if(ret[0].x > ret[1].x){
+        int temp = ret[1].x;
+        ret[1].x = ret[0].x;
+        ret[0].x = temp;
     }
-    if(points[2].x > points[3].x){
-        int temp = points[3].x;
-        points[3].x = points[2].x;
-        points[2].x = temp;
+    if(ret[2].x > ret[3].x){
+        int temp = ret[3].x;
+        ret[3].x = ret[2].x;
+        ret[2].x = temp;
     }
     return ret;
 }
@@ -205,18 +213,26 @@ static void four_poly_approx(queue<vector<Point> > contours, queue<vector<Point>
 
 static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Mat>& bboxs, vector<vector<Point> >& points, int& digit_height){
     int BOX_LEN = 32;
-    int offset = (BOX_LEN - 28) / 2;
-    int dstpts_array[8] = {0 ,0, BOX_LEN, 0, 0, BOX_LEN, BOX_LEN, BOX_LEN};
-    Mat dstpts = Mat(4, 2, CV_8UC1, dstpts_array);
+    int offset = (BOX_LEN - 28) / 2; //offset = 2
+    Point2f dstpts[4];
+    dstpts[0] = Point2f(0, 0);
+    dstpts[1] = Point2f(BOX_LEN, 0);
+    dstpts[2] = Point2f(0, BOX_LEN);
+    dstpts[3] = Point2f(BOX_LEN, BOX_LEN);
+    //Mat dstpts = (Mat_<cv::Point_<int> >(1, 4) << Point(0, 0), Point(BOX_LEN, 0), Point(0, BOX_LEN), Point(BOX_LEN, BOX_LEN));
     vector<int> dynamic_height;
     for(size_t i = 0; i < contours.size(); i++){
         vector<Point> cnt = contours[i];
         vector<Point> pts1 = sort_points(cnt);
         points.push_back(pts1);
-        Mat m = getPerspectiveTransform(pts1, dstpts);
+        Point2f pts1_f[4];
+        for(int i = 0; i < 4; i++){
+            pts1_f[i] = Point2f(pts1[i]);
+        }
+        Mat m = getPerspectiveTransform(pts1_f, dstpts);
         Mat new_img, digit_img;
         warpPerspective(gray, new_img, m, Size(BOX_LEN, BOX_LEN));
-        bitwise_not(new_img(Rect(offset, new_img.size().width - offset, offset, new_img.size().height - offset)), digit_img);
+        bitwise_not(new_img(Rect(offset, offset, new_img.size().width - offset, new_img.size().height - offset)), digit_img);
         bboxs.push_back(digit_img);
         int left, right, lower, upper;
         find_contour_bound(cnt, false, left, right, lower, upper);
@@ -283,6 +299,7 @@ Mat process(Mat frame){
             cout << debug_string;
         }
         drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
+        imwrite("latest_frame.jpg", img);
         int digit_height;
         vector<vector<Point> >points;
         vector<Mat> bbox;
@@ -315,9 +332,12 @@ Mat process(Mat frame){
             std::cout << "update sequence to benchmark comm here";
         }
         mask = red_color_binarization(img_cp);
+        imwrite("debug.jpg", mask);
         mask.copyTo(org_mask);
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
+        imwrite("debug_dilate.jpg", mask);
         mask = mask_process(mask, points);
+        cout << "mask_process success";
         org_mask = mask_process(org_mask, points);
         vector<Rect> bounding_box = bound_red_number(mask);
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
