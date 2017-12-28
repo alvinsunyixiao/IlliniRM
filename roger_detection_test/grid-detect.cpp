@@ -280,8 +280,12 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
 static Mat red_color_binarization(Mat org_img){
     Mat mask1, mask2, ret, hsv;
     cvtColor(org_img, hsv, COLOR_BGR2HSV);
-    inRange(hsv, Scalar(0, 4, 210), Scalar(25, 255, 255), mask1);
-    inRange(hsv, Scalar(155, 4, 210), Scalar(179, 255, 255), mask2);
+    //real
+    //inRange(hsv, Scalar(0, 4, 210), Scalar(25, 255, 255), mask1);
+    //inRange(hsv, Scalar(155, 4, 210), Scalar(179, 255, 255), mask2);
+    //display parameters
+    inRange(hsv, Scalar(0, 90, 70), Scalar(15, 255, 255), mask1);
+    inRange(hsv, Scalar(155, 90, 70), Scalar(179, 255, 255), mask2);
     bitwise_or(mask1, mask2, ret);
     return ret;
 }
@@ -294,7 +298,7 @@ vector<Rect> bound_red_number(Mat mask){
     findContours(mask, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
     for(size_t i = 0; i < contours.size(); i++){
         Rect rec = boundingRect(contours[i]);
-        cout << "This is rect " << i << rec << endl;
+        //cout << "This is rect " << i << rec << endl;
         if(rec.width < rec.height){
             ret.push_back(rec);
         }
@@ -305,17 +309,17 @@ vector<Rect> bound_red_number(Mat mask){
     sort(ret.begin(), ret.end(), sort_by_zero);
     vector<Rect> y = ret; //deepcopy
     sort(y.begin(), y.end(), sort_by_first);
-    cout << "rect size" << y.size() << endl;
+    //cout << "rect size" << y.size() << endl;
     int y_coord = y[y.size() / 2].y;
-    cout << "y coord obtained" << endl;
+    //cout << "y coord obtained" << endl;
     for(size_t i = 0; i < ret.size(); i++){
-        cout << "evaluating" << endl;
+        //cout << "evaluating" << endl;
         if((ret[i].y >= y_coord * 0.8) & (ret[i].y <= y_coord * 1.23)){
-            cout << "pushing " << endl;
+            //cout << "pushing " << endl;
             true_ret.push_back(ret[i]);
         }
     }
-    cout << "returning..." << endl;
+    //cout << "returning..." << endl;
     return true_ret;
 }
 
@@ -348,7 +352,7 @@ Mat process(Mat frame){
         int digit_height;
         vector<vector<Point> >points;
         vector<Mat> bbox;
-        cout << "prepare to pad white digit" << endl;
+        //cout << "prepare to pad white digit" << endl;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         /*
         //Feed neural network here
@@ -383,12 +387,15 @@ Mat process(Mat frame){
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
         imwrite("debug_dilate.jpg", mask);
         mask = mask_process(mask, points);
-        cout << "mask process success" << endl;
+        //cout << "mask process success" << endl;
         org_mask = mask_process(org_mask, points);
-        cout << "org_mask_process success" << endl;
+        //cout << "org_mask_process success" << endl;
         vector<Rect> bounding_box = bound_red_number(mask);
-        cout << "Bounding red num success" << endl;
-        dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1));
+        //cout << "Bounding box size" << bounding_box.size() << endl;
+        for(int i = 0; i < bounding_box.size(); i++){
+            rectangle(img, bounding_box[i], Scalar(0, 0, 255), 3);
+        }
+        dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1)); //improve accuracy
         //Putting into recognition module or neural network for recognition
         return img;
 }
