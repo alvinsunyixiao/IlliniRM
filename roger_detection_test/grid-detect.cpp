@@ -1,5 +1,7 @@
 #include <caffe/caffe.hpp>
 #include <opencv2/opencv.hpp>
+#include <caffe/blob.hpp>
+#include <caffe/util/io.hpp>
 
 /*
 TODO:
@@ -30,6 +32,10 @@ bool sort_by_x(contours_and_dig &i, contours_and_dig &j) { return i.x < j.x; }
 bool sort_by_y(Point i, Point j) { return i.y < j.y; }
 bool sort_by_zero(Rect i, Rect j) { return i.x < j.x; }
 bool sort_by_first(Rect i, Rect j) { return i.y < j.y; }
+static bool PairCompare(const std::pair<float, int>& lhs,
+                        const std::pair<float, int>& rhs) {
+  return lhs.first > rhs.first;
+}
 
 static vector<int> get_cnt_x_vector(vector<Point> cnt){
     vector<int> ret;
@@ -323,8 +329,20 @@ vector<Rect> bound_red_number(Mat mask){
     return true_ret;
 }
 
+static int Argmax(const std::vector<float>& v, int N) {
+  std::vector<std::pair<float, int> > pairs;
+  for (size_t i = 0; i < v.size(); ++i)
+    pairs.push_back(std::make_pair(v[i], i));
+  std::partial_sort(pairs.begin(), pairs.begin() + N, pairs.end(), PairCompare);
+
+  std::vector<int> result;
+  for (int i = 0; i < N; ++i)
+    result.push_back(pairs[i].second);
+  return result[0];
+}
+
 //Mat process(Mat frame, Net<float> &net){
-Mat process(Mat frame){
+Mat process(Mat frame, Net<float> &net){
         Mat img, img_cp, thresh, gray, org_mask, mask;
         queue<vector<Point> > contours; //it's a queue!!!
         vector<vector<Point> > vector_contours;
@@ -354,25 +372,26 @@ Mat process(Mat frame){
         vector<Mat> bbox;
         //cout << "prepare to pad white digit" << endl;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
-        /*
         //Feed neural network here
-        Blob<vector<Mat> > *input_ptr = net.input_blobs()[0];
-        input_ptr->Blob::Reshape(bbox.size(), 1, 28, 28);
-        Blob<vector<Mat> > *output_ptr = net.output_blobs()[0];
-        output_ptr->Blob::Reshape(bbox.size(), 10, 1, 1);
-        input_ptr->set_cpu_data(bbox*);
-        net.Forward();
-        const float* output_data = output_ptr->cpu_data();
+        Blob<float> *input_layer = net.input_blobs()[0];
+        //input_layer->Reshape(bboxs.size(), 1, 28, 28);
+        input_layer->Reshape(1, 1, 28, 28);
+        net.Reshape();
+        vector<Mat> input_channels;
+        float* input_data = input_layer->mutable_cpu_data();
+        Mat channel(28, 28, CV_32FC1, input_data);
+        input_channels.push_back(channel);
         vector<int> dig_ids;
         for(int i = 0; i < bbox.size(); i++){
-            int max_prob_index = 0;
-            for(int j = 0; j < 10; j++){
-                if(output_data[i][max_prob_index] < output_data[i][j]) { max_prob_index = j; }
-            }
-            dig_ids.push_back(max_prob_index);
+            //split(bbox[i], *input_channels);
+            input_channels.push_back(bbox[i]);
+            net.Forward();
+            Blob<float>* output_layer = net.output_blobs()[0];
+            const float* begin = output_layer->cpu_data();
+            const float* end = begin + output_layer->channels();
+            vector<float> prob_ = vector<float>(begin, end);
+            dig_ids.push_back(Argmax(prob_, 1));
         }
-        cout << dig_ids;
-        */
         /*
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
@@ -403,13 +422,14 @@ Mat process(Mat frame){
 int main(void){
     VideoCapture cap(0);
     if(!cap.isOpened()) { return -1; }
-    //Caffe::set_mode(Caffe::CPU);
-    //Net<float> net("./model/lenet.prototxt", caffe::TEST);
-    //net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
+    //Caffe::set_phase(Caffe::TEST);
+    Caffe::set_mode(Caffe::CPU);
+    Net<float> net("./model/lenet.prototxt", caffe::TEST);
+    net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
     while(true){
         Mat frame;
         cap >> frame;
-        Mat proc_img = process(frame);
+        Mat proc_img = process(frame, net);
         imshow("debug", proc_img);
         if(waitKey(30) >= 0) break;
     }
