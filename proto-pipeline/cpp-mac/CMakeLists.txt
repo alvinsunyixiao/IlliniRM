@@ -7,8 +7,10 @@ find_package(OpenCV REQUIRED)
 
 include_directories(${Caffe_INCLUDE_DIRS})
 include_directories(${OpenCV_INLUCDE_DIRS})
-include_directories(/usr/local/cuda-9.0/include)
+include_directories(/usr/local/opt/openblas/include)
 
 add_executable(grid-detect grid-detect.cpp)
+
+add_definitions(-DCPU_ONLY)
 
 target_link_libraries(grid-detect ${Caffe_LIBRARIES} ${OpenCV_LIBS} glog boost_system)
