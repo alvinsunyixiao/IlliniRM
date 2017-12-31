@@ -26,9 +26,9 @@ bool CSICam::initialize() {
     std::vector<CameraDevice*> cameraDevices;
     if (!iCameraProvider->getCameraDevices(&cameraDevices) != STATUS_OK)
         ORIGINATE_ERROR("Fail to get CameraDevices");
-    if (CameraDevices.size() == 0)
+    if (cameraDevices.size() == 0)
         ORIGINATE_ERROR("No Camera Available");
-    if (CameraDevices.size() <= options.cameraIndex)
+    if (cameraDevices.size() <= options.cameraIndex)
         ORIGINATE_ERROR("Camera %d not available; there are %d cameras",
                         options.cameraIndex, (unsigned)cameraDevices.size());
 
@@ -42,7 +42,7 @@ bool CSICam::initialize() {
     if (!iSession)
         ORIGINATE_ERROR("Failed to create Capture Session");
 
-    std::vector<Arguss::SensorMode*> sensorModes;
+    std::vector<Argus::SensorMode*> sensorModes;
     iCameraProperties->getBasicSensorModes(&sensorModes);
     if (sensorModes.size() == 0)
         ORIGINATE_ERROR("Failed to get sensor modes");
@@ -78,7 +78,7 @@ Argus::Size2D<uint32_t> CSICam::getResolution() {
 }
 
 bool CSICam::start() {
-    return iSession->repeat(iRequest.get()) == STATUS_OK;
+    return iSession->repeat(*iRequest) == STATUS_OK;
 }
 
 void CSICam::stop() {

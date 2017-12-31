@@ -271,146 +271,31 @@ struct ExecuteOptions
     bool enablePreview;
 };
 
-static bool execute(const ExecuteOptions& options)
+static bool execute(Camera::CSICam &cam)
 {
     using namespace Argus;
 
-    // Initialize the preview window and EGL display.
-    Window &window = Window::getInstance();
-    if (options.enablePreview)
-    {
-        window.setWindowRect(options.windowRect.left(), options.windowRect.top(),
-                             options.windowRect.width(), options.windowRect.height());
-        PROPAGATE_ERROR(g_display.initialize(window.getEGLNativeDisplay()));
-    }
-    else
-    {
-        PROPAGATE_ERROR(g_display.initialize(EGL_DEFAULT_DISPLAY));
-    }
-
-    // Create CameraProvider.
-    UniqueObj<CameraProvider> cameraProvider(CameraProvider::create());
-    ICameraProvider *iCameraProvider = interface_cast<ICameraProvider>(cameraProvider);
-    if (!iCameraProvider)
-        ORIGINATE_ERROR("Failed to open CameraProvider");
-    printf("Argus Version: %s\n", iCameraProvider->getVersion().c_str());
-
-    // Get/use the first available CameraDevice.
-    std::vector<CameraDevice*> cameraDevices;
-    if (iCameraProvider->getCameraDevices(&cameraDevices) != STATUS_OK)
-        ORIGINATE_ERROR("Failed to get CameraDevices");
-    if (cameraDevices.size() == 0)
-        ORIGINATE_ERROR("No CameraDevices available");
-    if (cameraDevices.size() <= options.cameraIndex)
-        ORIGINATE_ERROR("Camera %d not available; there are %d cameras",
-                        options.cameraIndex, (unsigned)cameraDevices.size());
-
-    CameraDevice *cameraDevice = cameraDevices[options.cameraIndex];
-    ICameraProperties *iCameraProperties = interface_cast<ICameraProperties>(cameraDevice);
-    if (!iCameraProperties)
-        ORIGINATE_ERROR("Failed to get ICameraProperties interface");
-
-    // Create CaptureSession.
-    UniqueObj<CaptureSession> captureSession(iCameraProvider->createCaptureSession(cameraDevice));
-    ICaptureSession *iSession = interface_cast<ICaptureSession>(captureSession);
-    if (!iSession)
-        ORIGINATE_ERROR("Failed to create CaptureSession");
-
-    // Get the sensor mode to determine the video output stream resolution.
-    std::vector<Argus::SensorMode*> sensorModes;
-    iCameraProperties->getBasicSensorModes(&sensorModes);
-    if (sensorModes.size() == 0)
-        ORIGINATE_ERROR("Failed to get sensor modes");
-    ISensorMode *iSensorMode = interface_cast<ISensorMode>(sensorModes[0]);
-    if (!iSensorMode)
-        ORIGINATE_ERROR("Failed to get sensor mode interface");
-
-    // Set common output stream settings.
-    UniqueObj<OutputStreamSettings> streamSettings(iSession->createOutputStreamSettings());
-    IOutputStreamSettings *iStreamSettings = interface_cast<IOutputStreamSettings>(streamSettings);
-    if (!iStreamSettings)
-        ORIGINATE_ERROR("Failed to create OutputStreamSettings");
-    iStreamSettings->setPixelFormat(PIXEL_FMT_YCbCr_420_888);
-    iStreamSettings->setEGLDisplay(g_display.get());
-
-    // Create video encoder stream.
-    iStreamSettings->setResolution(iSensorMode->getResolution());
-    UniqueObj<OutputStream> videoStream(iSession->createOutputStream(streamSettings.get()));
-    IStream *iVideoStream = interface_cast<IStream>(videoStream);
-    if (!iVideoStream)
-        ORIGINATE_ERROR("Failed to create video stream");
-
-    // Create preview stream.
-    UniqueObj<OutputStream> previewStream;
-    IStream *iPreviewStream = NULL;
-    if (options.enablePreview)
-    {
-        iStreamSettings->setResolution(PREVIEW_STREAM_SIZE);
-        previewStream.reset(iSession->createOutputStream(streamSettings.get()));
-        iPreviewStream = interface_cast<IStream>(previewStream);
-        if (!iPreviewStream)
-            ORIGINATE_ERROR("Failed to create preview stream");
-    }
-
-    // Create capture Request and enable the streams in the Request.
-    UniqueObj<Request> request(iSession->createRequest(CAPTURE_INTENT_VIDEO_RECORD));
-    IRequest *iRequest = interface_cast<IRequest>(request);
-    if (!iRequest)
-        ORIGINATE_ERROR("Failed to create Request");
-    if (iRequest->enableOutputStream(videoStream.get()) != STATUS_OK)
-        ORIGINATE_ERROR("Failed to enable video stream in Request");
-    if (options.enablePreview)
-    {
-        if (iRequest->enableOutputStream(previewStream.get()) != STATUS_OK)
-            ORIGINATE_ERROR("Failed to enable preview stream in Request");
-    }
-
     // Initialize the GStreamer video encoder consumer.
     GstVideoEncoder gstVideoEncoder;
-    if (!gstVideoEncoder.initialize(iVideoStream->getEGLStream(), iSensorMode->getResolution(),
+    if (!gstVideoEncoder.initialize(cam.getEGLStream(), cam.getResolution(),
                                     FRAMERATE, BITRATE, ENCODER, MUXER, OUTPUT))
         ORIGINATE_ERROR("Failed to initialize GstVideoEncoder EGLStream consumer");
     if (!gstVideoEncoder.startRecording())
         ORIGINATE_ERROR("Failed to start video recording");
 
-    // Initialize the preview consumer.
-    PreviewConsumerThread previewConsumer(iPreviewStream ? iPreviewStream->getEGLDisplay() : NULL,
-                                          iPreviewStream ? iPreviewStream->getEGLStream() : NULL);
-    if (options.enablePreview)
-    {
-        PROPAGATE_ERROR(previewConsumer.initialize());
-        PROPAGATE_ERROR(previewConsumer.waitRunning());
-    }
-
     // Perform repeat capture requests for requested number of seconds.
-    if (iSession->repeat(request.get()) != STATUS_OK)
+    if (!cam.start())
         ORIGINATE_ERROR("Failed to start repeat capture requests");
-    if (options.enablePreview)
-        PROPAGATE_ERROR(Window::getInstance().pollingSleep(options.captureSeconds));
-    else
-        sleep(options.captureSeconds);
-    iSession->stopRepeat();
+    sleep(10);
 
-    // Wait until all frames have completed before stopping recording.
-    /// @todo: Not doing this may cause a deadlock.
-    iSession->waitForIdle();
-
+    cam.stop();
     // Stop video recording.
     if (!gstVideoEncoder.stopRecording())
         ORIGINATE_ERROR("Failed to stop video recording");
     gstVideoEncoder.shutdown();
-    videoStream.reset();
-
-    // Stop preview.
-    if (options.enablePreview)
-    {
-        previewStream.reset();
-        PROPAGATE_ERROR(previewConsumer.shutdown());
-    }
 
     return true;
 }
-
 }; // namespace ArgusSamples
 
 int main(int argc, char** argv)
@@ -437,13 +322,13 @@ int main(int argc, char** argv)
     if (options.requestedExit())
         return EXIT_SUCCESS;
 
-    ArgusSamples::ExecuteOptions executeOptions;
+    Camera::cameraOptions executeOptions;
     executeOptions.cameraIndex = cameraIndex.get();
-    executeOptions.captureSeconds = captureTime.get();
-    executeOptions.windowRect = windowRect.get();
-    executeOptions.enablePreview = enablePreview.get();
 
-    if (!ArgusSamples::execute(executeOptions))
+    Camera::CSICam mycam(executeOptions);
+    mycam.initialize();
+
+    if (!ArgusSamples::execute(mycam))
         return EXIT_FAILURE;
 
     return EXIT_SUCCESS;

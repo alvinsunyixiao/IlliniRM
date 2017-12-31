@@ -36,7 +36,6 @@ find_package(Argus REQUIRED)
 
 set(SOURCES
     src/main.cpp
-    src/camera.cpp
     )
 
 include_directories(
