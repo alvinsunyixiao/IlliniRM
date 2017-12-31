@@ -2,7 +2,7 @@
 unset(Caffe_FOUND)
 
 ###Set the variable Caffe_DIR as the root of your caffe directory
-set(Caffe_DIR /Users/alvin/IlliniRM/caffe/distribute)
+set(Caffe_DIR /home/nvidia/caffe/distribute)
 
 
 find_path(Caffe_INCLUDE_DIRS NAMES caffe/caffe.hpp caffe/common.hpp caffe/net.hpp caffe/proto/caffe.pb.h caffe/util/io.hpp caffe/vision_layers.hpp

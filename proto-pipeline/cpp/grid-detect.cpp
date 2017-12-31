@@ -420,7 +420,8 @@ Mat process(Mat frame, Net<float> &net){
 }
 
 int main(void){
-    VideoCapture cap(0);
+    //VideoCapture cap(0);
+    VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
     if(!cap.isOpened()) { return -1; }
     //Caffe::set_phase(Caffe::TEST);
     Caffe::set_mode(Caffe::CPU);
