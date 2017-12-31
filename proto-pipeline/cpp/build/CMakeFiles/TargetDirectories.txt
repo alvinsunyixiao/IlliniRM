@@ -1,3 +1,0 @@
-/Users/alvin/IlliniRM/proto-pipeline/cpp/build/CMakeFiles/rebuild_cache.dir
-/Users/alvin/IlliniRM/proto-pipeline/cpp/build/CMakeFiles/edit_cache.dir
-/Users/alvin/IlliniRM/proto-pipeline/cpp/build/CMakeFiles/grid-detect.dir
