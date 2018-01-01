@@ -347,6 +347,20 @@ static int Argmax(const std::vector<float>& v, int N) {
   return result[0];
 }
 
+void Predict(const float *data_ptr, vector<int> &dig_ids, int cnt, int channel) {
+    for (int i=0; i<cnt; i++) {
+        int max_idx = 0;
+        float max_prob = data_ptr[0];
+        for (int j=0; j<channel; j++)
+            if (max_prob < data_ptr[j]) {
+                max_idx = j;
+                max_prob = data_ptr[j];
+            }
+        dig_ids.push_back(max_idx);
+        data_ptr += channel;
+    }
+}
+
 //Mat process(Mat frame, Net<float> &net){
 Mat process(Mat frame, Net<float> &net){
         Mat img, img_cp, thresh, gray, org_mask, mask;
@@ -382,22 +396,21 @@ Mat process(Mat frame, Net<float> &net){
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         Blob<float> *input_layer = net.input_blobs()[0];
+        float* input_data = input_layer->mutable_cpu_data();
         //input_layer->Reshape(bboxs.size(), 1, 28, 28);
-        input_layer->Reshape(1, 1, 28, 28);
-        net.Reshape();
         vector<int> dig_ids;
         for(int i = 0; i < bbox.size(); i++){
-            float* input_data = input_layer->mutable_cpu_data();
             Mat channel(28, 28, CV_32FC1, input_data);
             bbox[i].convertTo(channel, CV_32FC1);
             channel /= 255;
-            net.Forward();
-            Blob<float>* output_layer = net.output_blobs()[0];
-            const float* begin = output_layer->cpu_data();
-            const float* end = begin + output_layer->channels();
-            vector<float> prob_ = vector<float>(begin, end);
-            dig_ids.push_back(Argmax(prob_));
+            input_data += 28*28;
         }
+        net.Forward();
+        Blob<float>* output_layer = net.output_blobs()[0];
+        Predict(output_layer->cpu_data(), dig_ids, bbox.size(), output_layer->channels());
+        //const float* end = begin + output_layer->channels();
+        //vector<float> prob_ = vector<float>(begin, end);
+        //dig_ids.push_back(Argmax(prob_));
 
         for(int i = 0; i < dig_ids.size(); i++){
             char dig_str[5];
@@ -435,9 +448,14 @@ int main(void){
     if(!cap.isOpened()) { return -1; }
     //Caffe::set_phase(Caffe::TEST);
     Caffe::set_mode(Caffe::CPU);
-    Net<float> net("./model/lenet.prototxt", caffe::TEST);
+    //Caffe::set_mode(Caffe::GPU);
+    //Caffe::SetDevice(0);
+    Net<float> net("./model/lenet.prototxt", TEST);
     net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
-    while(true){
+    Blob<float> *input_layer = net.input_blobs()[0];
+    input_layer->Reshape(13, 1, 28, 28);
+    net.Reshape();
+    while(false){
         Mat frame;
         cap >> frame;
         Mat proc_img = process(frame, net);
