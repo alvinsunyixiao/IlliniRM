@@ -2,6 +2,8 @@
 #include <opencv2/opencv.hpp>
 #include <caffe/blob.hpp>
 #include <caffe/util/io.hpp>
+#include <stdlib.h>
+#include <stdio.h>
 
 /*
 TODO:
@@ -366,9 +368,9 @@ Mat process(Mat frame, Net<float> &net){
             cout << debug_string << endl;
         }
         drawContours(img, vector_contours, -1, Scalar(0, 255, 0), 3);
-        imwrite("latest_frame.jpg", img);
+        // imwrite("latest_frame.jpg", img);
         int digit_height;
-        vector<vector<Point> >points;
+        vector<vector<Point> > points;
         vector<Mat> bbox;
         //cout << "prepare to pad white digit" << endl;
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
@@ -392,19 +394,23 @@ Mat process(Mat frame, Net<float> &net){
             vector<float> prob_ = vector<float>(begin, end);
             dig_ids.push_back(Argmax(prob_, 1));
         }
-        /*
-        for(int i = 0; i < sizeof(dig_ids); i++){
-            putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
+
+        for(int i = 0; i < dig_ids.size(); i++){
+            char dig_str[5];
+            sprintf(dig_str, "%d", dig_ids[i]);
+            Point loc(points[i][0]);
+            loc.y -= 20;
+            putText(img, string(dig_str), loc, FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
         }
-        */
+
         if(contours.size() == 9){
             std::cout << "update sequence to benchmark comm here" << endl;
         }
         mask = red_color_binarization(img_cp);
-        imwrite("debug.jpg", mask);
+        //imwrite("debug.jpg", mask);
         mask.copyTo(org_mask);
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
-        imwrite("debug_dilate.jpg", mask);
+        //imwrite("debug_dilate.jpg", mask);
         mask = mask_process(mask, points);
         //cout << "mask process success" << endl;
         org_mask = mask_process(org_mask, points);
@@ -420,8 +426,8 @@ Mat process(Mat frame, Net<float> &net){
 }
 
 int main(void){
-    //VideoCapture cap(0);
-    VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
+    VideoCapture cap(0);
+    //VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
     if(!cap.isOpened()) { return -1; }
     //Caffe::set_phase(Caffe::TEST);
     Caffe::set_mode(Caffe::CPU);
