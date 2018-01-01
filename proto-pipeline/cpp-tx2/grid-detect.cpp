@@ -276,7 +276,7 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
         Mat m = getPerspectiveTransform(pts1_f, dstpts);
         Mat new_img, digit_img;
         warpPerspective(gray, new_img, m, Size(BOX_LEN, BOX_LEN));
-        bitwise_not(new_img(Rect(offset, offset, new_img.size().width - offset, new_img.size().height - offset)), digit_img);
+        bitwise_not(new_img(Rect(offset, offset, 28, 28)), digit_img);
         bboxs.push_back(digit_img);
         int left, right, lower, upper;
         find_contour_bound(cnt, false, left, right, lower, upper);
@@ -331,6 +331,20 @@ vector<Rect> bound_red_number(Mat mask){
     return true_ret;
 }
 
+static int Argmax(const vector<float>& v) {
+    if (v.size() == 0)
+        return -1;
+    int rs = 0;
+    float max = v[rs];
+    for (size_t i=1; i<v.size(); i++) {
+        if (max < v[i]) {
+            max = v[i];
+            rs = i;
+        }
+    }
+    return rs;
+}
+
 static int Argmax(const std::vector<float>& v, int N) {
   std::vector<std::pair<float, int> > pairs;
   for (size_t i = 0; i < v.size(); ++i)
@@ -379,20 +393,18 @@ Mat process(Mat frame, Net<float> &net){
         //input_layer->Reshape(bboxs.size(), 1, 28, 28);
         input_layer->Reshape(1, 1, 28, 28);
         net.Reshape();
-        vector<Mat> input_channels;
-        float* input_data = input_layer->mutable_cpu_data();
-        Mat channel(28, 28, CV_32FC1, input_data);
-        input_channels.push_back(channel);
         vector<int> dig_ids;
         for(int i = 0; i < bbox.size(); i++){
-            //split(bbox[i], *input_channels);
-            input_channels.push_back(bbox[i]);
+            float* input_data = input_layer->mutable_cpu_data();
+            Mat channel(28, 28, CV_32FC1, input_data);
+            bbox[i].convertTo(channel, CV_32FC1);
+            channel /= 255;
             net.Forward();
             Blob<float>* output_layer = net.output_blobs()[0];
             const float* begin = output_layer->cpu_data();
             const float* end = begin + output_layer->channels();
             vector<float> prob_ = vector<float>(begin, end);
-            dig_ids.push_back(Argmax(prob_, 1));
+            dig_ids.push_back(Argmax(prob_));
         }
 
         for(int i = 0; i < dig_ids.size(); i++){
