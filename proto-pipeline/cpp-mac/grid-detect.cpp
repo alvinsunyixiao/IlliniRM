@@ -124,7 +124,7 @@ static int index_of_max_element_in_vector(vector<int> a_vector){
     return min[1];
 }
 
-static Mat mask_process(Mat mask, vector<vector<Point> > points){
+static void mask_process(Mat mask, vector<vector<Point> > points, Mat &ret_img){
     //cout << "starting mask_process" << endl;
     Mat kernel1 = Mat::ones(5, 4, CV_8UC1);
     Mat kernel2 = Mat::ones(4, 4, CV_8UC1);
@@ -167,12 +167,10 @@ static Mat mask_process(Mat mask, vector<vector<Point> > points){
             ftr.at<uchar>(i, j) = 0;
         }
     }
-    Mat ret;
     //cout << "processed ftr type" << ftr.type() << endl;
     //cout << "prepare for bit and" << endl;
-    bitwise_and(mask, mask, ret, ftr);
+    bitwise_and(mask, mask, ret_img, ftr);
     //cout << "BIT_AND success" << endl;
-    return ret;
 }
 
 static vector<Point> sort_points(vector<Point> points){
@@ -212,13 +210,10 @@ bool filterRects(vector<Point> rect, bool pure_cont){
     }
 }
 
-Mat pre_process(Mat img){
-    Mat ret_img;
-    GaussianBlur(img, ret_img, Size(3, 3), 0);
+static void pre_process(Mat &ret_img){
+    GaussianBlur(ret_img, ret_img, Size(3, 3), 0);
     threshold(ret_img, ret_img, 0, 255, THRESH_BINARY + THRESH_OTSU);
-    Mat kernel = Mat::ones(4, 8, CV_8UC1);
-    morphologyEx(ret_img, ret_img, MORPH_CLOSE, kernel);
-    return ret_img;
+    morphologyEx(ret_img, ret_img, MORPH_CLOSE, Mat::ones(4, 8, CV_8UC1));
 }
 
 static void find_and_filter_contour(Mat thresh, queue<vector<Point> >& desired_ref){
@@ -285,8 +280,8 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
     digit_height = static_cast<int>(dynamic_height[dynamic_height.size() / 2] * (0.58));
 }
 
-static Mat red_color_binarization(Mat org_img){
-    Mat mask1, mask2, ret, hsv;
+static void red_color_binarization(Mat org_img, Mat &ret_img){
+    Mat mask1, mask2, hsv;
     cvtColor(org_img, hsv, COLOR_BGR2HSV);
     //real
     //inRange(hsv, Scalar(0, 4, 210), Scalar(25, 255, 255), mask1);
@@ -294,8 +289,7 @@ static Mat red_color_binarization(Mat org_img){
     //display parameters
     inRange(hsv, Scalar(0, 90, 70), Scalar(15, 255, 255), mask1);
     inRange(hsv, Scalar(155, 90, 70), Scalar(179, 255, 255), mask2);
-    bitwise_or(mask1, mask2, ret);
-    return ret;
+    bitwise_or(mask1, mask2, ret_img);
 }
 
 //return bound
@@ -351,7 +345,8 @@ Mat process(Mat frame, Net<float> &net){
         resize(frame, img, Size(640, 360));
         img.copyTo(img_cp);
         cvtColor(img, gray, COLOR_BGR2GRAY);
-        thresh = pre_process(gray);
+        thresh = gray;
+        pre_process(thresh);
         find_and_filter_contour(thresh, contours);
         four_poly_approx(contours, contours);
         while(contours.size() > 0){
@@ -392,7 +387,13 @@ Mat process(Mat frame, Net<float> &net){
             const float* begin = output_layer->cpu_data();
             const float* end = begin + output_layer->channels();
             vector<float> prob_ = vector<float>(begin, end);
+            cout << "a new predict" << endl;
+            for (vector<float>::const_iterator i = prob_.begin(); i != prob_.end(); ++i)
+                cout << *i << ' ' << endl;
             dig_ids.push_back(Argmax(prob_, 1));
+            while(!input_channels.empty()){
+                input_channels.pop_back();
+            }
         }
 
         for(int i = 0; i < dig_ids.size(); i++){
@@ -406,14 +407,14 @@ Mat process(Mat frame, Net<float> &net){
         if(contours.size() == 9){
             std::cout << "update sequence to benchmark comm here" << endl;
         }
-        mask = red_color_binarization(img_cp);
+        red_color_binarization(img_cp, mask);
         //imwrite("debug.jpg", mask);
         mask.copyTo(org_mask);
         dilate(mask, mask, Mat::ones(static_cast<int>(digit_height / 10), 1, CV_8UC1));
         //imwrite("debug_dilate.jpg", mask);
-        mask = mask_process(mask, points);
+        mask_process(mask, points, mask);
         //cout << "mask process success" << endl;
-        org_mask = mask_process(org_mask, points);
+        mask_process(org_mask, points, org_mask);
         //cout << "org_mask_process success" << endl;
         vector<Rect> bounding_box = bound_red_number(mask);
         //cout << "Bounding box size" << bounding_box.size() << endl;
