@@ -4,7 +4,6 @@
 #include <caffe/util/io.hpp>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string>
 
 /*
 TODO:
@@ -56,18 +55,15 @@ static vector<int> get_cnt_y_vector(vector<Point> cnt){
     return ret;
 }
 
-static Mat pad_diggit(Mat img){
+static void pad_diggit(Mat img, Mat &ret_img){
     int w = img.size().width;
     int h = img.size().height;
     int length = static_cast<int>(h * 1.4);
     int v_pad = (length - h) / 2;
     int h_pad = (length - w) / 2;
-    Mat new_img;
-    copyMakeBorder(img, new_img, v_pad, v_pad, h_pad, h_pad, BORDER_CONSTANT, 0);
+    copyMakeBorder(img, ret_img, v_pad, v_pad, h_pad, h_pad, BORDER_CONSTANT, 0);
     Size mnist_size(28, 28);
-    Mat ret_img;
-    resize(new_img, ret_img, mnist_size);
-    return ret_img;
+    resize(ret_img, ret_img, mnist_size);
 }
 
 vector<Point> extract_nth_point_from_contours(vector<vector<Point> > points, int pos){
@@ -271,10 +267,8 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
         Mat m = getPerspectiveTransform(pts1_f, dstpts);
         Mat new_img, digit_img;
         warpPerspective(gray, new_img, m, Size(BOX_LEN, BOX_LEN));
-        bitwise_not(new_img(Rect(offset, offset, new_img.size().width - offset, new_img.size().height - offset)), digit_img);
-        cv::divide(255, digit_img, digit_img);
+        bitwise_not(new_img(Rect(offset, offset, 28, 28)), digit_img);
         bboxs.push_back(digit_img);
-        imwrite(to_string(i) + ".jpg", digit_img);
         int left, right, lower, upper;
         find_contour_bound(cnt, false, left, right, lower, upper);
         dynamic_height.push_back(upper - lower);
@@ -283,7 +277,7 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
 }
 
 static void red_color_binarization(Mat org_img, Mat &ret_img){
-    Mat mask1, mask2, hsv;
+    Mat mask1, mask2, ret, hsv;
     cvtColor(org_img, hsv, COLOR_BGR2HSV);
     //real
     //inRange(hsv, Scalar(0, 4, 210), Scalar(25, 255, 255), mask1);
@@ -325,6 +319,20 @@ vector<Rect> bound_red_number(Mat mask){
     }
     //cout << "returning..." << endl;
     return true_ret;
+}
+
+static int Argmax(const vector<float>& v) {
+    if (v.size() == 0)
+        return -1;
+    int rs = 0;
+    float max = v[rs];
+    for (size_t i=1; i<v.size(); i++) {
+        if (max < v[i]) {
+            max = v[i];
+            rs = i;
+        }
+    }
+    return rs;
 }
 
 static int Argmax(const std::vector<float>& v, int N) {
@@ -371,34 +379,24 @@ Mat process(Mat frame, Net<float> &net){
         vector<vector<Point> > points;
         vector<Mat> bbox;
         //cout << "prepare to pad white digit" << endl;
-        imwrite("gray.jpg", gray);
-        imwrite("thresh.jpg", thresh);
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         Blob<float> *input_layer = net.input_blobs()[0];
         //input_layer->Reshape(bboxs.size(), 1, 28, 28);
         input_layer->Reshape(1, 1, 28, 28);
         net.Reshape();
-        vector<Mat> input_channels;
-        float* input_data = input_layer->mutable_cpu_data();
-        Mat channel(28, 28, CV_32FC1, input_data);
-        input_channels.push_back(channel);
         vector<int> dig_ids;
         for(int i = 0; i < bbox.size(); i++){
-            //split(bbox[i], *input_channels);
-            input_channels.push_back(bbox[i]);
+            float* input_data = input_layer->mutable_cpu_data();
+            Mat channel(28, 28, CV_32FC1, input_data);
+            bbox[i].convertTo(channel, CV_32FC1);
+            channel /= 255;
             net.Forward();
             Blob<float>* output_layer = net.output_blobs()[0];
             const float* begin = output_layer->cpu_data();
             const float* end = begin + output_layer->channels();
             vector<float> prob_ = vector<float>(begin, end);
-            cout << "a new predict" << endl;
-            for (vector<float>::const_iterator i = prob_.begin(); i != prob_.end(); ++i)
-                cout << *i << ' ' << endl;
-            dig_ids.push_back(Argmax(prob_, 1));
-            while(!input_channels.empty()){
-                input_channels.pop_back();
-            }
+            dig_ids.push_back(Argmax(prob_));
         }
 
         for(int i = 0; i < dig_ids.size(); i++){
