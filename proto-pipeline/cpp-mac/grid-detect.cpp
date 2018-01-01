@@ -4,6 +4,7 @@
 #include <caffe/util/io.hpp>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string>
 
 /*
 TODO:
@@ -211,9 +212,8 @@ bool filterRects(vector<Point> rect, bool pure_cont){
 }
 
 static void pre_process(Mat &ret_img){
-    GaussianBlur(ret_img, ret_img, Size(3, 3), 0);
+    GaussianBlur(ret_img, ret_img, Size(1, 1), 0);
     threshold(ret_img, ret_img, 0, 255, THRESH_BINARY + THRESH_OTSU);
-    morphologyEx(ret_img, ret_img, MORPH_CLOSE, Mat::ones(4, 8, CV_8UC1));
 }
 
 static void find_and_filter_contour(Mat thresh, queue<vector<Point> >& desired_ref){
@@ -272,7 +272,9 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
         Mat new_img, digit_img;
         warpPerspective(gray, new_img, m, Size(BOX_LEN, BOX_LEN));
         bitwise_not(new_img(Rect(offset, offset, new_img.size().width - offset, new_img.size().height - offset)), digit_img);
+        cv::divide(255, digit_img, digit_img);
         bboxs.push_back(digit_img);
+        imwrite(to_string(i) + ".jpg", digit_img);
         int left, right, lower, upper;
         find_contour_bound(cnt, false, left, right, lower, upper);
         dynamic_height.push_back(upper - lower);
@@ -345,8 +347,9 @@ Mat process(Mat frame, Net<float> &net){
         resize(frame, img, Size(640, 360));
         img.copyTo(img_cp);
         cvtColor(img, gray, COLOR_BGR2GRAY);
-        thresh = gray;
-        pre_process(thresh);
+        pre_process(gray);
+        gray.copyTo(thresh);
+        morphologyEx(thresh, thresh, MORPH_CLOSE, Mat::ones(4, 8, CV_8UC1));
         find_and_filter_contour(thresh, contours);
         four_poly_approx(contours, contours);
         while(contours.size() > 0){
@@ -368,6 +371,8 @@ Mat process(Mat frame, Net<float> &net){
         vector<vector<Point> > points;
         vector<Mat> bbox;
         //cout << "prepare to pad white digit" << endl;
+        imwrite("gray.jpg", gray);
+        imwrite("thresh.jpg", thresh);
         pad_white_digit(vector_contours, gray, bbox, points, digit_height); //what are the types of these variables; probably should pass their reference instead of returning
         //Feed neural network here
         Blob<float> *input_layer = net.input_blobs()[0];
