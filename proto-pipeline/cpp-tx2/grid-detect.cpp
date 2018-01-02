@@ -55,7 +55,7 @@ static vector<int> get_cnt_y_vector(vector<Point> cnt){
     return ret;
 }
 
-static void pad_diggit(Mat img, Mat &ret_img){
+static void pad_diggit(Mat &img, Mat &ret_img){
     int w = img.size().width;
     int h = img.size().height;
     int length = static_cast<int>(h * 1.4);
@@ -121,7 +121,7 @@ static int index_of_max_element_in_vector(vector<int> a_vector){
     return min[1];
 }
 
-static void mask_process(Mat mask, vector<vector<Point> > points, Mat &ret_img){
+static void mask_process(Mat &mask, vector<vector<Point> > points, Mat &ret_img){
     //cout << "starting mask_process" << endl;
     Mat kernel1 = Mat::ones(5, 4, CV_8UC1);
     Mat kernel2 = Mat::ones(4, 4, CV_8UC1);
@@ -212,7 +212,7 @@ static void pre_process(Mat &ret_img){
     threshold(ret_img, ret_img, 0, 255, THRESH_BINARY + THRESH_OTSU);
 }
 
-static void find_and_filter_contour(Mat thresh, queue<vector<Point> >& desired_ref){
+static void find_and_filter_contour(Mat &thresh, queue<vector<Point> >& desired_ref){
     vector<vector<Point> > contours;
     queue<vector<Point> > ret;
     vector<Vec4i> hierarchy;
@@ -246,7 +246,7 @@ static void four_poly_approx(queue<vector<Point> > contours, queue<vector<Point>
     desired_ref = ret;
 }
 
-static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Mat>& bboxs, vector<vector<Point> >& points, int& digit_height){
+static void pad_white_digit(vector<vector<Point> > contours, Mat &gray, vector<Mat>& bboxs, vector<vector<Point> >& points, int& digit_height){
     int BOX_LEN = 32;
     int offset = (BOX_LEN - 28) / 2; //offset = 2
     Point2f dstpts[4];
@@ -276,7 +276,7 @@ static void pad_white_digit(vector<vector<Point> > contours, Mat gray, vector<Ma
     digit_height = static_cast<int>(dynamic_height[dynamic_height.size() / 2] * (0.58));
 }
 
-static void red_color_binarization(Mat org_img, Mat &ret_img){
+static void red_color_binarization(Mat &org_img, Mat &ret_img){
     Mat mask1, mask2, ret, hsv;
     cvtColor(org_img, hsv, COLOR_BGR2HSV);
     //real
@@ -289,7 +289,7 @@ static void red_color_binarization(Mat org_img, Mat &ret_img){
 }
 
 //return bound
-vector<Rect> bound_red_number(Mat mask){
+vector<Rect> bound_red_number(Mat &mask){
     vector<vector<Point> > contours;
     vector<Rect> ret, true_ret;
     vector<Vec4i> hierarchy;
@@ -458,7 +458,8 @@ int main(void){
     while(true){
         Mat frame;
         cap >> frame;
-        Mat proc_img = process(frame, net);
+        Mat proc_img;
+        proc_img = process(frame, net);
         imshow("debug", proc_img);
         if(waitKey(30) >= 0) break;
     }
