@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 one_threshold = 170
-_DEBUG = True
+_DEBUG = False
 
 """
 u_x  c2        c3    u_x + width
@@ -43,17 +43,21 @@ def remove_smear(img, x, y, width, height):
     #if x >= width - 7 or y >= height - 7: return None
     if x == width or y == height: return np.array([])
     left_col = cv2.countNonZero(img[:,x:x+1])
-    print "left", left_col
+    if _DEBUG:
+        print "left", left_col
     if left_col <= 3: #lower because it could be 7
         return remove_smear(img, x + 1, y, width, height)
     right_col = cv2.countNonZero(img[:,x+width-1:x+width])
-    print "right", right_col
+    if _DEBUG:
+        print "right", right_col
     if right_col <= 5: return remove_smear(img, x, y, width - 1, height)
     upper_row = cv2.countNonZero(img[y:y+1])
-    print "upper", upper_row
+    if _DEBUG:
+        print "upper", upper_row
     if upper_row <= 4: return remove_smear(img, x, y + 1, width, height)
     lower_row = cv2.countNonZero(img[y+height-1:y+height])
-    print "lower", lower_row
+    if _DEBUG:
+        print "lower", lower_row
     if lower_row <= 4: return remove_smear(img, x, y, width, height - 1)
     return img[y:y+height, x:x+width]
 
@@ -68,7 +72,8 @@ def digit_recognition(padded_num, tilt_offset = 1, on = None):
         return 1
     padded_num = remove_smear(padded_num, u_x, u_y, width, height)
     if not padded_num.any():
-        print "Wadu hek"
+        if _DEBUG:
+            print "Wadu hek"
         return -1
     #print u_x, u_y, width, height
     #tube_width, tube_height = int(width * 0.25), int(height * 0.18)
