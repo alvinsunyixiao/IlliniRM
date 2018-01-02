@@ -1,9 +1,10 @@
 import cv2
 import math
 import matplotlib.pyplot as plt
+import numpy as np
 
 one_threshold = 170
-_DEBUG = False
+_DEBUG = True
 
 """
 u_x  c2        c3    u_x + width
@@ -37,6 +38,25 @@ digit_match = {
 	(1, 0, 1, 1, 1, 1, 1): 9
 }
 
+def remove_smear(img, x, y, width, height):
+    #print x,y,width,height
+    #if x >= width - 7 or y >= height - 7: return None
+    if x == width or y == height: return np.array([])
+    left_col = cv2.countNonZero(img[:,x:x+1])
+    print "left", left_col
+    if left_col <= 3: #lower because it could be 7
+        return remove_smear(img, x + 1, y, width, height)
+    right_col = cv2.countNonZero(img[:,x+width-1:x+width])
+    print "right", right_col
+    if right_col <= 5: return remove_smear(img, x, y, width - 1, height)
+    upper_row = cv2.countNonZero(img[y:y+1])
+    print "upper", upper_row
+    if upper_row <= 4: return remove_smear(img, x, y + 1, width, height)
+    lower_row = cv2.countNonZero(img[y+height-1:y+height])
+    print "lower", lower_row
+    if lower_row <= 4: return remove_smear(img, x, y, width, height - 1)
+    return img[y:y+height, x:x+width]
+
 def digit_recognition(padded_num, tilt_offset = 1, on = None):
     if not on:
         on = [0 for i in range(7)]
@@ -46,9 +66,14 @@ def digit_recognition(padded_num, tilt_offset = 1, on = None):
     u_x, u_y, width, height = cv2.boundingRect(padded_num)
     if width < 8: #too slim
         return 1
+    padded_num = remove_smear(padded_num, u_x, u_y, width, height)
+    if not padded_num.any():
+        print "Wadu hek"
+        return -1
     #print u_x, u_y, width, height
     #tube_width, tube_height = int(width * 0.25), int(height * 0.18)
     #tube_width = int((width * 0.25 + height * 0.18) / 2)
+    u_x, u_y, width, height = cv2.boundingRect(padded_num)
     tube_width = 2
     tube_height = tube_width
     bias = int(height * 0.08)
@@ -72,13 +97,13 @@ def digit_recognition(padded_num, tilt_offset = 1, on = None):
             area = (xB - xA) * (yB - yA)
             if _DEBUG:
                 print "Current Area Protion" + str(total / float(area))
-            if total / float(area) >= 0.69:
+            if total / float(area) >= 0.5:
                 on[i]= 1
         except ZeroDivisionError:
             print "Warning: Zero division! Returning 1 as result (could be inaccurate)..."
             return 1
         if _DEBUG:
-            if i == 0:
+            if i == 2:
                 plt.axhline(y = yA, color = 'blue')
                 plt.axhline(y = yB, color = 'blue')
                 plt.axvline(x = xA, color = 'red')
