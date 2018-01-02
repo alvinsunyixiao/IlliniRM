@@ -447,15 +447,15 @@ int main(void){
     VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
     if(!cap.isOpened()) { return -1; }
     //Caffe::set_phase(Caffe::TEST);
-    Caffe::set_mode(Caffe::CPU);
-    //Caffe::set_mode(Caffe::GPU);
-    //Caffe::SetDevice(0);
+    //Caffe::set_mode(Caffe::CPU);
+    Caffe::set_mode(Caffe::GPU);
+    Caffe::SetDevice(0);
     Net<float> net("./model/lenet.prototxt", TEST);
     net.CopyTrainedLayersFrom("./model/mnist_iter_200000.caffemodel");
     Blob<float> *input_layer = net.input_blobs()[0];
     input_layer->Reshape(13, 1, 28, 28);
     net.Reshape();
-    while(false){
+    while(true){
         Mat frame;
         cap >> frame;
         Mat proc_img = process(frame, net);

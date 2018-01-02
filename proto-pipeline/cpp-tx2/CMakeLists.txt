@@ -11,4 +11,6 @@ include_directories(/usr/local/cuda-9.0/include)
 
 add_executable(grid-detect grid-detect.cpp)
 
+add_definitions(-DUSE_CUDNN=1)
+
 target_link_libraries(grid-detect ${Caffe_LIBRARIES} ${OpenCV_LIBS} glog boost_system)
