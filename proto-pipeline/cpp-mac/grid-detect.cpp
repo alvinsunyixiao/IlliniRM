@@ -349,6 +349,7 @@ static int Argmax(const std::vector<float>& v, int N) {
   return result[0];
 }
 
+/*
 vector<int> cv_num_recog(vector<Mat> &red_imgs){ //hugely inefficient; for demo only.
     for(int i = 0; i < red_imgs.size(); i++){
         stringstream fname;
@@ -374,6 +375,7 @@ vector<int> cv_num_recog(vector<Mat> &red_imgs){ //hugely inefficient; for demo 
     return ret;
     //system(commandline.str());
 }
+*/
 
 //Mat process(Mat frame, Net<float> &net){
 Mat process(Mat frame, Net<float> &net){
@@ -458,13 +460,38 @@ Mat process(Mat frame, Net<float> &net){
         vector<Mat> padded_red_num;
         for(int i = 0; i < bounding_box.size(); i++){
             Mat temp;
-            Mat bounded = org_mask(bounding_box[i]);
+            Mat bounded;
+            org_mask(bounding_box[i]).copyTo(bounded);
             pad_diggit(bounded, temp);
+            //stringstream fname;
+            //fname << i << ".jpg";
+            //imwrite(fname.str(), temp);
             padded_red_num.push_back(temp);
         }
-        vector<int> recog_result = cv_num_recog(padded_red_num);
-        for (vector<int>::const_iterator i = recog_result.begin(); i != recog_result.end(); ++i)
-            cout << *i << ' ';
+        vector<int> red_dig_ids;
+        for(int i = 0; i < padded_red_num.size(); i++){
+            float* input_data = input_layer->mutable_cpu_data();
+            Mat channel(28, 28, CV_32FC1, input_data);
+            padded_red_num[i].convertTo(channel, CV_32FC1);
+            channel /= 255;
+            net.Forward();
+            Blob<float>* output_layer = net.output_blobs()[0];
+            const float* begin = output_layer->cpu_data();
+            const float* end = begin + output_layer->channels();
+            vector<float> prob_ = vector<float>(begin, end);
+            red_dig_ids.push_back(Argmax(prob_));
+        }
+        //cout << "size of rednum" << red_dig_ids.size() << endl;
+        for(int i = 0; i < red_dig_ids.size(); i++){
+            char dig_str[5];
+            sprintf(dig_str, "%d", red_dig_ids[i]);
+            Point loc(bounding_box[i].x, bounding_box[i].y);
+            loc.y -= 17;
+            putText(img, string(dig_str), loc, FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
+        }
+        //vector<int> recog_result = cv_num_recog(padded_red_num);
+        //for (vector<int>::const_iterator i = recog_result.begin(); i != recog_result.end(); ++i)
+        //    cout << *i << ' ';
         return img;
 }
 
