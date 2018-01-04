@@ -2,8 +2,10 @@
 #include <opencv2/opencv.hpp>
 #include <caffe/blob.hpp>
 #include <caffe/util/io.hpp>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+//#include <boost/python.hpp>
 
 /*
 TODO:
@@ -55,7 +57,7 @@ static vector<int> get_cnt_y_vector(vector<Point> cnt){
     return ret;
 }
 
-static void pad_diggit(Mat img, Mat &ret_img){
+static void pad_diggit(Mat &img, Mat &ret_img){
     int w = img.size().width;
     int h = img.size().height;
     int length = static_cast<int>(h * 1.4);
@@ -347,6 +349,32 @@ static int Argmax(const std::vector<float>& v, int N) {
   return result[0];
 }
 
+vector<int> cv_num_recog(vector<Mat> &red_imgs){ //hugely inefficient; for demo only.
+    for(int i = 0; i < red_imgs.size(); i++){
+        stringstream fname;
+        fname << "/tmp/" << i << "_temp.jpg";
+        imwrite(fname.str(), red_imgs[i]);
+    }
+    stringstream commandline;
+    commandline << "python ../num_recog_from_file.py " << red_imgs.size();
+    FILE *fp;
+    char line[1035];
+    fp = popen(commandline.str().c_str(), "r");
+    if (fp == NULL) {
+        printf("Failed to run command. Is the python file placed in ../num_recog_from_file.py ?\n" );
+        exit(1);
+    }
+    vector<int> ret;
+    while (fgets(line, sizeof(line)-1, fp) != NULL) {
+        int x;
+        sscanf(line, "%d", &x);
+        ret.push_back(x);
+    }
+    pclose(fp);
+    return ret;
+    //system(commandline.str());
+}
+
 //Mat process(Mat frame, Net<float> &net){
 Mat process(Mat frame, Net<float> &net){
         Mat img, img_cp, thresh, gray, org_mask, mask;
@@ -426,6 +454,17 @@ Mat process(Mat frame, Net<float> &net){
         }
         dilate(org_mask, org_mask, Mat::ones(2, 1, CV_8UC1)); //improve accuracy
         //Putting into recognition module or neural network for recognition
+        //recog module
+        vector<Mat> padded_red_num;
+        for(int i = 0; i < bounding_box.size(); i++){
+            Mat temp;
+            Mat bounded = org_mask(bounding_box[i]);
+            pad_diggit(bounded, temp);
+            padded_red_num.push_back(temp);
+        }
+        vector<int> recog_result = cv_num_recog(padded_red_num);
+        for (vector<int>::const_iterator i = recog_result.begin(); i != recog_result.end(); ++i)
+            cout << *i << ' ';
         return img;
 }
 
