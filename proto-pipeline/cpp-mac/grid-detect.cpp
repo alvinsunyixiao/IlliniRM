@@ -4,7 +4,7 @@
 #include <caffe/util/io.hpp>
 #include <stdio.h>
 #include <stdlib.h>
-#include "num_recog.cpp"
+#include "num_recog.h"
 
 //#include <boost/python.hpp>
 
@@ -379,6 +379,7 @@ vector<int> cv_num_recog(vector<Mat> &red_imgs){ //hugely inefficient; for demo 
 }
 */
 
+
 //Mat process(Mat frame, Net<float> &net){
 Mat process(Mat frame, Net<float> &net){
         Mat img, img_cp, thresh, gray, org_mask, mask;
@@ -468,12 +469,14 @@ Mat process(Mat frame, Net<float> &net){
             //stringstream fname;
             //fname << "/tmp/debug_red/" << counter << ".jpg";
             //imwrite(fname.str(), temp);
+            red_dig_ids.push_back(num_recog::digit_recog(temp));
             counter ++;
             padded_red_num.push_back(temp);
         }
         for(size_t i = 0; i < padded_red_num.size(); i++){
             pad_diggit(padded_red_num[i], padded_red_num[i]);
         }
+        /*
         for(int i = 0; i < padded_red_num.size(); i++){
             float* input_data = input_layer->mutable_cpu_data();
             Mat channel(28, 28, CV_32FC1, input_data);
@@ -486,6 +489,7 @@ Mat process(Mat frame, Net<float> &net){
             vector<float> prob_ = vector<float>(begin, end);
             red_dig_ids.push_back(Argmax(prob_));
         }
+        */
         //cout << "size of rednum" << red_dig_ids.size() << endl;
         for(int i = 0; i < red_dig_ids.size(); i++){
             char dig_str[5];
