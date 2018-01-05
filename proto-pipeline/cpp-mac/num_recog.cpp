@@ -2,7 +2,7 @@
 
 //bool _DEBUG = false;
 int one_threshold = 170;
-int on_threshold = 10;
+int on_threshold = 8;
 
 std::array<bool, 7> digit_match[10];
 //stupid but quick way to initialize digit_match
@@ -89,11 +89,11 @@ namespace num_recog{
         if(img_avg >= one_threshold) return 1; //too much red pixel
         if(unpadded_num.size().width < 6) return 1; //too slim
         cv::Mat proc_img;
-        cv::threshold(unpadded_num, proc_img, 240, 255, cv::THRESH_BINARY);
+        //cv::threshold(unpadded_num, proc_img, 240, 255, cv::THRESH_BINARY);
         //int tube_width = 2;
         //int tube_height = tube_width;
         //int on_threshold = 5;
-        cv::resize(proc_img, proc_img, cv::Size(10, 18), 0, 0, cv::INTER_NEAREST);
+        cv::resize(unpadded_num, proc_img, cv::Size(10, 18), 0, 0, cv::INTER_NEAREST);
         cv::imwrite("debug.jpg", proc_img);
         //bool on_test[7];
         std::array<bool, 7> on_test={false, false, false, false, false, false, false};
