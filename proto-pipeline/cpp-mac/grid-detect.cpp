@@ -4,6 +4,7 @@
 #include <caffe/util/io.hpp>
 #include <stdio.h>
 #include <stdlib.h>
+#include "num_recog.cpp"
 
 //#include <boost/python.hpp>
 
@@ -26,6 +27,7 @@ Scalar lower_red_1(0, 4, 210);
 Scalar upper_red_1(25, 255, 255);
 Scalar lower_red_2(155, 4, 210);
 Scalar upper_red_2(179, 255, 255);
+int counter = 0;
 
 struct contours_and_dig{
     int dig_id;
@@ -458,17 +460,20 @@ Mat process(Mat frame, Net<float> &net){
         //Putting into recognition module or neural network for recognition
         //recog module
         vector<Mat> padded_red_num;
+        vector<int> red_dig_ids;
         for(int i = 0; i < bounding_box.size(); i++){
             Mat temp;
-            Mat bounded;
-            org_mask(bounding_box[i]).copyTo(bounded);
-            pad_diggit(bounded, temp);
+            //Mat bounded;
+            org_mask(bounding_box[i]).copyTo(temp);
             //stringstream fname;
-            //fname << i << ".jpg";
+            //fname << "/tmp/debug_red/" << counter << ".jpg";
             //imwrite(fname.str(), temp);
+            counter ++;
             padded_red_num.push_back(temp);
         }
-        vector<int> red_dig_ids;
+        for(size_t i = 0; i < padded_red_num.size(); i++){
+            pad_diggit(padded_red_num[i], padded_red_num[i]);
+        }
         for(int i = 0; i < padded_red_num.size(); i++){
             float* input_data = input_layer->mutable_cpu_data();
             Mat channel(28, 28, CV_32FC1, input_data);
