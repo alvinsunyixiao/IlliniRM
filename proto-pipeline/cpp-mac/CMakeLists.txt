@@ -9,7 +9,8 @@ include_directories(${Caffe_INCLUDE_DIRS})
 include_directories(${OpenCV_INLUCDE_DIRS})
 include_directories(/usr/local/opt/openblas/include)
 
-add_executable(grid-detect grid-detect.cpp)
+set(SOURCES grid-detect.cpp num_recog.cpp)
+add_executable(grid-detect ${SOURCES})
 
 add_definitions(-DCPU_ONLY)
 

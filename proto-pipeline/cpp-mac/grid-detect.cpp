@@ -469,7 +469,7 @@ Mat process(Mat frame, Net<float> &net){
             //stringstream fname;
             //fname << "/tmp/debug_red/" << counter << ".jpg";
             //imwrite(fname.str(), temp);
-            red_dig_ids.push_back(num_recog::digit_recog(temp));
+            red_dig_ids.push_back(digit_recog(temp));
             counter ++;
             padded_red_num.push_back(temp);
         }

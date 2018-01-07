@@ -6,8 +6,6 @@
 #include <array>
 #include <vector>
 
-namespace num_recog{
-    int digit_recog(cv::Mat unpadded_num);
-}
+int digit_recog(cv::Mat unpadded_num);
 
 #endif
