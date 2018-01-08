@@ -1,10 +1,5 @@
-#include <caffe/caffe.hpp>
-#include <opencv2/opencv.hpp>
-#include <caffe/blob.hpp>
-#include <caffe/util/io.hpp>
-#include <stdio.h>
-#include <stdlib.h>
 #include "num_recog.h"
+#include "grid-detect.h"
 
 //#include <boost/python.hpp>
 
@@ -17,22 +12,12 @@ TODO:
         - test demo
 */
 
-const bool _DEBUG = false;
-
-using namespace cv;
-using namespace std;
-using namespace caffe;
+int counter = 0;
 
 Scalar lower_red_1(0, 4, 210);
 Scalar upper_red_1(25, 255, 255);
 Scalar lower_red_2(155, 4, 210);
 Scalar upper_red_2(179, 255, 255);
-int counter = 0;
-
-struct contours_and_dig{
-    int dig_id;
-    int x;
-};
 
 bool sort_by_x(contours_and_dig &i, contours_and_dig &j) { return i.x < j.x; }
 bool sort_by_y(Point i, Point j) { return i.y < j.y; }
@@ -42,6 +27,8 @@ static bool PairCompare(const std::pair<float, int>& lhs,
                         const std::pair<float, int>& rhs) {
   return lhs.first > rhs.first;
 }
+
+const bool _DEBUG = false;
 
 static vector<int> get_cnt_x_vector(vector<Point> cnt){
     vector<int> ret;
@@ -504,6 +491,7 @@ Mat process(Mat frame, Net<float> &net){
         return img;
 }
 
+/*
 int main(void){
     VideoCapture cap(0);
     //VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
@@ -520,3 +508,4 @@ int main(void){
         if(waitKey(30) >= 0) break;
     }
 }
+*/
