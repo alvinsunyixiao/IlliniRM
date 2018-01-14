@@ -5,6 +5,7 @@ import grid_detect
 import time
 from collections import Counter
 from pprint import pprint
+import gpio_num
 import os
 
 BATCHSIZE = 9
