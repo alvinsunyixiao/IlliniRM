@@ -29,7 +29,7 @@ class digit:
         assert pos < 3 and pos >= 0
         self.digit_pinout = mainboard_pinout[pos]
         for i in self.digit_pinout:
-            gpio.setup(i, GPIO.OUT)
+            gpio.setup(i, gpio.OUT)
 
     def show_num(self, num): #hints! 0 for all_off and 8 for all_on
         binary_opt = digit_display[num]
