@@ -9,7 +9,7 @@ import digit_displayer
 import buff_benchmark_comm
 
 all_image_dir = '2016_img/'
-_USE_SOCKET = True
+_USE_SOCKET = False
 
 #variables transform constants hardcoded for 3x3
 _resolution_width = 1920
@@ -17,14 +17,14 @@ _final_resolution_height = 1080
 _digit_board_height = 160
 
 #_digit_board_height = int(0.1455 * _final_resolution_height)
-_resolution_height = _final_resolution_height - _digit_board_height
+#_resolution_height = _final_resolution_height - _digit_board_height
+_resolution_height = _final_resolution_height
 _image_width = int((3 / 13.0) * _resolution_width)
-#_image_height = int((1 / 4.6) * _resolution_height)
-_image_height = int(0.451 * _image_width)
+_image_height = int((1 / 4.6) * _resolution_height)
+#_image_height = int(0.451 * _image_width)
 _horizon_black_strip_width = int(0.4 * _image_height)
 _vertical_black_strip_width = int(_image_width / 3.0)
 black_background = Image.new("RGB", (_resolution_width, _resolution_height), "black")
-pause_white_background = Image.new("RGB", (_resolution_width, _resolution_height), "white")
 all_white_background = Image.new("RGB", (_resolution_width, _final_resolution_height), "white")
 
 def image_tuple_calculator(PILimg_object, row, col): #example: image_tuple_calculator(1, 1); starts from upper left corner
@@ -87,12 +87,13 @@ def main():
                 box = image_tuple_calculator(number_image, cur_row, cur_col)
                 current_round_image.paste(number_image, box)
         current_round_buff_displayer_image = deepcopy(all_white_background)
-        current_round_buff_displayer_image.paste(current_round_image, (0, _digit_board_height, _resolution_width, _final_resolution_height))
+        current_round_buff_displayer_image.paste(current_round_image, (0, 0, _resolution_width, _final_resolution_height))
         if round_count % 5 == 0: red_board_sequence = random_sequence_generator(1, 10, 5)
-        current_round_board_image = sequence_board.generate(red_board_sequence)
-        board_width, board_height = current_round_board_image.size
-        board_left_bound = (_resolution_width - board_width) / 2
-        current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
+        pass #TODO: update sequence on digit board
+        #current_round_board_image = sequence_board.generate(red_board_sequence)
+        #board_width, board_height = current_round_board_image.size
+        #board_left_bound = (_resolution_width - board_width) / 2
+        #current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
         show(ax, current_round_buff_displayer_image)
         plt.pause(0.01)
         cur_time = time.time()
