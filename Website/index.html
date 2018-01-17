@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Home Page</title>
-</head>
+<title>Home Page</title>
 <style>
 #page{
 	background-color: white;
@@ -16,7 +15,8 @@
 	text-align: center;
 	background-color: white;
 	height: 120px;
-	width: 100%;
+	width: 1300px;
+	margin-left: 100px;
 }
 #navigation{
 	margin-top: 5px;
@@ -24,7 +24,8 @@
 	text-align: center;
 	background-color: #2E2E2E;
 	height: 30px;
-	width: 100%;
+	width: 1438px;
+	margin-left: 0px;
 }
 #navigation ul{
 	list-style-type: none;
@@ -36,8 +37,9 @@
 	font-weight: 250;
 	font-size: 13px;
 	position: absolute;
-	left: 24%;
+	left: 430px;
 	margin-top: 7px;
+	width: 800px;
 }
 #navigation ul li{
 	float: left;
@@ -52,6 +54,7 @@
 	text-align: center;
 	background-color: white;
 	height: 500px;
+	width: 1438px;
 }
 #mainBody img{
 	text-align: right;
@@ -59,8 +62,9 @@
 }
 #mainBody li1{
 	position: absolute;
-	left: 25%;
-	top: 40%;
+	left: 280px;
+	top: 280px;
+	width: 400px;
 	text-align: center;
 	font-size: 40px;
 	font-family: avenir;
@@ -68,33 +72,37 @@
 }
 #mainBody li2{
 	position: absolute;
-	left: 25%;
-	top: 47%;
+	left: 335px;
+	top: 340px;
 	text-align: left;
 	font-size: 14px;
 	font-family: avenir;
 	font-weight: 100;
-	line-height: 150%;
+	line-height: 30px;
+	width: 400px;
 }
 #mainBody li3{
 	position: absolute;
-	left: 25%;
-	top: 55%;
+	left: 215px;
+	top: 415px;
 	font-size: 13px;
 	font-family: avenir;
 	font-weight: 100;
 	color: #F9904C;
+	width: 400px;
 }
 #mainBody li4{
 	position: absolute;
-	left: 25%;
-	top: 58%;
+	left: 225px;
+	top: 435px;
 	font-size: 13px;
 	font-family: avenir;
 	font-weight: 100;
 	color: #F9904C;
+	width: 400px;
 }
 #mainText{
+	width: 1438px;
 	height: 250px;
 	background-color: #FCFCFC;
 }
@@ -102,16 +110,16 @@
 	margin-top: 0px;
 	margin-bottom: 0px;
 	float: left;
-	min-width: 0%;
-	max-width: 50%;
+	width: 719px;
 }
 #left li1{
 	position: absolute;
 	font-size: 30px;
 	font-family: avenir;
 	font-weight: 500;
-	left: 25%;
+	left: 270px;
 	margin-top: 65px;
+	width: 400px;
 }
 #left li2{
 	position: absolute;
@@ -120,32 +128,34 @@
 	font-family: avenir;
 	font-weight: 100;
 	line-height: 150%;
-	left: 21%;
+	left: 300px;
 	margin-top: 110px;
+	width: 400px;
 }
 #left li3{
 	position: absolute;
-	left: 27%;
+	left: 300px;
 	font-size: 13px;
 	font-family: avenir;
 	font-weight: 100;
 	color: #F9904C;
 	margin-top: 170px;
+	width: 400px;
 }
 #right{
 	margin-top: 0px;
 	margin-bottom: 0px;
 	float: right;
-	min-width: 50%;
-	max-width: 100%;
+	width: 1438px;
 }
 #right li1{
 	position: absolute;
 	font-size: 30px;
 	font-family: avenir;
 	font-weight: 500;
-	right: 25%;
+	left: 750px;
 	margin-top: 65px;
+	width: 400px;
 }
 #right li2{
 	position: absolute;
@@ -154,23 +164,37 @@
 	font-family: avenir;
 	font-weight: 100;
 	line-height: 150%;
-	right: 21%;
+	left: 750px;
 	margin-top: 110px;
+	width: 400px;
 }
 #right li3{
 	position: absolute;
-	right: 27%;
+	left: 750px;
 	font-size: 13px;
 	font-family: avenir;
 	font-weight: 100;
 	color: #F9904C;
 	margin-top: 170px;
+	width: 400px;
 }
 #sponsor{
 	background-color: #2E2E2E;
 	height: 160px;
-	width: 100%;
+	width: 1438px;
 	position: relative;
+}
+#sponsor img{
+	position: center;
+	margin-top: 100px;
+	margin-bottom: 0px;
+}
+#sponsor p{
+	position: center;
+	margin-top: 4px;
+	margin-bottom: 0px;
+	font-size: 9px;
+	color: #808080;
 }
 #sponsorLeft ul1{
 	list-style-type: none;
@@ -194,7 +218,6 @@
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
-	overflow: hidden;
 	color: white;
 	font-family: avenir;
 	font-weight: 100;
@@ -209,10 +232,10 @@
 	width: 110px;
 }
 </style>
-
+</head>
 <body>
 <div id="page">
-<div id="topSymbol"><center><img src="symbol.jpeg" height="118" width="118"></center></div>
+<div id="topSymbol"><img src="symbol.jpeg" height="118" width="118"></div>
 <div id="navigation">
 	<ul>
 		<li><a href="aboutus.html" style="color:white; text-decoration:none;">ABOUT US</a></li>
@@ -246,22 +269,23 @@
 <div id="sponsor">
 <div id="sponsorLeft">
 <ul1>
-<li1><a href="contactus.html" style="color:white; text-decoration:none;">Contact Us</a></li1>
-<li2><a href="robomaster.html" style="color:white; text-decoration:none;">RoboMaster Website</a></li2>
-<li3><a href="robomasterbbs." style="color:white; text-decoration:none;">RoboMaster BBS</a></li3>
-<li4><a href="uiuc." style="color:white; text-decoration:none;">University of Illinois</a></li4>
+<li1><a href="contactus.html" style="color:#C0C0C0; text-decoration:none;">Contact Us</a></li1>
+<li2><a href="robomaster.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster Website</a></li2>
+<li3><a href="robomasterbbs.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster BBS</a></li3>
+<li4><a href="uiuc.html" style="color:#C0C0C0; text-decoration:none;">University of Illinois</a></li4>
 </ul1>
 </div>
 <div id="sponsorRight">
 <ul2>
-<li1><a href="slack.html" style="color:white; text-decoration:none;">Slack</a></li1>
-<li2><a href="googledrive.html" style="color:white; text-decoration:none;">Google Drive</a></li2>
-<li3><a href="githubcs.html" style="color:white; text-decoration:none;">Github CS Repository</a></li3>
-<li4><a href="githubece.html" style="color:white; text-decoration:none;">Github ECE Repository</a></li4>
+<li1><a href="slack.html" style="color:#C0C0C0; text-decoration:none;">Slack</a></li1>
+<li2><a href="googledrive.html" style="color:#C0C0C0; text-decoration:none;">Google Drive</a></li2>
+<li3><a href="githubcs.html" style="color:#C0C0C0; text-decoration:none;">Github CS Repository</a></li3>
+<li4><a href="githubece.html" style="color:#C0C0C0; text-decoration:none;">Github ECE Repository</a></li4>
 </ul2>
 </div>
+<center><img src="Bottom_logo.svg" height=20px width=150px></center>
+<center><p>Copyright © Illini Robomaster 2017</p></center>
 </div>
 </div>
 </body>
-
 </html>
