@@ -41,7 +41,8 @@ class board:
         for i in range(4):
             if i == 3:
                 self.third_and_fourth.show_num(seq[i], seq[i+1])
-            self.main_board_digit_list[i].show_num(seq[i])
+            else:
+                self.main_board_digit_list[i].show_num(seq[i])
 
 class remote_third_and_fourth_digit:
     def __init__(self):

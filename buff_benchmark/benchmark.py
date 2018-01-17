@@ -5,12 +5,13 @@ from PIL import Image
 from copy import deepcopy
 import random
 import time
-import digit_displayer
+import gpio_num_display_main as gpio_display
 import buff_benchmark_comm
 
 all_image_dir = '2016_img/'
 _USE_SOCKET = False
 
+#TODO: 1. fix matplotlib on r pi or swtich to cv2. 2. see TODO below
 #variables transform constants hardcoded for 3x3
 _resolution_width = 1920
 _final_resolution_height = 1080
@@ -70,7 +71,7 @@ def main():
     #fig.canvas.window().statusBar().setVisible(False)
     plt.ion()
     plt.show()
-    sequence_board = digit_displayer.board(scale = 1)
+    sequence_board = gpio_display.board()
     round_count = 0
     show(ax, all_white_background)
     raw_input("Press anykey to start")
@@ -89,7 +90,7 @@ def main():
         current_round_buff_displayer_image = deepcopy(all_white_background)
         current_round_buff_displayer_image.paste(current_round_image, (0, 0, _resolution_width, _final_resolution_height))
         if round_count % 5 == 0: red_board_sequence = random_sequence_generator(1, 10, 5)
-        pass #TODO: update sequence on digit board
+        sequence_board.show_sequence(red_board_sequence)
         #current_round_board_image = sequence_board.generate(red_board_sequence)
         #board_width, board_height = current_round_board_image.size
         #board_left_bound = (_resolution_width - board_width) / 2
