@@ -1,9 +1,9 @@
 _RUN_ON_RPI = False
 
 import os
-import matplotlib.pyplot as plt
-import matplotlib as mpl
-from PIL import Image
+import sys
+import cv2
+import numpy as np
 from copy import deepcopy
 import random
 import time
@@ -28,11 +28,11 @@ _image_height = int((1 / 4.6) * _resolution_height)
 #_image_height = int(0.451 * _image_width)
 _horizon_black_strip_width = int(0.4 * _image_height)
 _vertical_black_strip_width = int(_image_width / 3.0)
-black_background = Image.new("RGB", (_resolution_width, _resolution_height), "black")
-all_white_background = Image.new("RGB", (_resolution_width, _final_resolution_height), "white")
+black_background = np.zeros((_resolution_width, _resolution_height), np.uint8)
+all_white_background = np.ones((_resolution_width, _final_resolution_height))
 
-def image_tuple_calculator(PILimg_object, row, col): #example: image_tuple_calculator(1, 1); starts from upper left corner
-    width, height = PILimg_object.size
+def image_tuple_calculator(cv_obj, row, col): #example: image_tuple_calculator(1, 1); starts from upper left corner
+    (height, width) = cv_obj.shape
     left = col * _vertical_black_strip_width + (col - 1) * _image_width
     right = left + width
     upper = row * _horizon_black_strip_width + (row - 1) * _image_height
@@ -44,8 +44,8 @@ def _sanity_check(a_tuple): #do nothing for now.
 
 def random_image_selector(desired_number, desire_width, desire_height):
     image_file_path = all_image_dir + str(desired_number) + '/' + str(random.randrange(1, 97)) + '.jpg'
-    im = Image.open(image_file_path)
-    im = im.resize((desire_width, desire_height))
+    im = cv2.imread(image_file_path, 0)
+    im = cv2.resize(im, (desire_width, desire_height), 0, 0, cv2.INTER_NEAREST)
     return im
 
 def random_sequence_generator(start, end, desired_length):
@@ -62,22 +62,9 @@ def main():
     if _USE_SOCKET:
         print "Waiting for incoming connection to start..."
         benchmark_server = buff_benchmark_comm.server()
-    mpl.rcParams['toolbar'] = 'None'
-    fig = plt.figure()
-    #fig.canvas.toolbar.pack_forget()
-    ax = fig.add_subplot(111)
-    ax.set_frame_on(False) #remove white frame
-    ax.get_xaxis().set_visible(False) # remove axis and ticks
-    ax.get_yaxis().set_visible(False)
-    plt.tight_layout(pad=0) #remove padding
-    mng = plt.get_current_fig_manager()
-    #fig.canvas.window().statusBar().setVisible(False)
-    plt.ion()
-    plt.show()
     if _RUN_ON_RPI:
         sequence_board = gpio_display.board()
     round_count = 0
-    show(ax, all_white_background)
     raw_input("Press anykey to start")
     while True:
         available_number = range(1, 10)
@@ -88,12 +75,18 @@ def main():
                 jackpot_number = random.choice(available_number)
                 available_number.remove(jackpot_number)
                 answer.append(jackpot_number)
-                number_image = random_image_selector(jackpot_number, desire_width = _image_width, desire_height = _image_height)
+                number_image = random_image_selector(jackpot_number, desire_width = _image_height, desire_height = _image_width) #reverse for cv for some reason
+                #print "_image_height" + str(_image_height)
+                #print "num_img height" + str(number_image.shape[1])
                 box = image_tuple_calculator(number_image, cur_row, cur_col)
+                #(small_width, small_height) = number_image.shape
                 print box
-                current_round_image.paste(number_image, box)
-        current_round_buff_displayer_image = deepcopy(all_white_background)
-        current_round_buff_displayer_image.paste(current_round_image, (0, 0, _resolution_width, _final_resolution_height))
+                print number_image.shape
+                current_round_image[box[1]:box[3], box[0]:box[2]] = number_image
+                #current_round_image[box[0]:box[2], box[1]:box[3]] = number_image
+        current_round_buff_displayer_image = current_round_image
+        #current_round_buff_displayer_image = deepcopy(all_white_background)
+        #current_round_buff_displayer_image.paste(current_round_image, (0, 0, _resolution_width, _final_resolution_height))
         if round_count % 5 == 0: red_board_sequence = random_sequence_generator(1, 10, 5)
         if _RUN_ON_RPI:
             sequence_board.show_sequence(red_board_sequence)
@@ -101,8 +94,9 @@ def main():
         #board_width, board_height = current_round_board_image.size
         #board_left_bound = (_resolution_width - board_width) / 2
         #current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
-        show(ax, current_round_buff_displayer_image)
-        plt.pause(0.01)
+        show(current_round_buff_displayer_image)
+        print "showing"
+        #plt.pause(0.01)
         cur_time = time.time()
         if _USE_SOCKET:
             benchmark_server.update(answer, red_board_sequence)
@@ -118,8 +112,10 @@ def main():
         #show(ax, pause_white_background)
         #plt.pause(1)
 
-def show(ax, image_object): #take a ax and an image object (can be numpy, image, plt_image, image...)
-    img = ax.imshow(image_object)
+def show(cv2_img_obj):
+    cv2.imshow('buff', cv2_img_obj)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        sys.exit(0)
 
 if __name__ == '__main__':
     main()
