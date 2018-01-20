@@ -18,8 +18,9 @@ except:
     pass
 
 # Load caffe model
-caffe.set_mode_cpu()
-#caffe.set_device(0)
+#caffe.set_mode_cpu()
+caffe.set_mode_gpu()
+caffe.set_device(0)
 
 net = caffe.Net('./model/lenet.prototxt',
                 './model/mnist_iter_200000.caffemodel',
@@ -82,8 +83,9 @@ def write_record(seq_2_write, trial_num):
     f.close()
 
 def main():
+    #cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
     while True:
         red_number_record = [[] for i in range(5)]
         white_number_record = [[] for i in range(9)]
