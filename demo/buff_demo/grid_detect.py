@@ -368,7 +368,7 @@ def process(img, net, client1 = None, pos = -1):
     return output_sequence, red_output_sequence
 
 #cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+#cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))

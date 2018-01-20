@@ -7,6 +7,7 @@ from collections import Counter
 from pprint import pprint
 import gpio_num
 import os
+from IPython import embed
 
 BATCHSIZE = 9
 
@@ -85,6 +86,7 @@ def write_record(seq_2_write, trial_num):
 def main():
     #cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+    embed()
     cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
     while True:
         red_number_record = [[] for i in range(5)]
