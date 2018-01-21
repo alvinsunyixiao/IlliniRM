@@ -234,6 +234,8 @@ def process(img, net, client1 = None, pos = -1):
                    2,cv2.LINE_AA)
     '''
     dig_ids = dig_ids[:len(contours)]
+    if len(contours) != 9:
+        return -1, -1
 
     if len(dig_ids) == 9: #TODO: data are potentially usable after rewriting rank function
         output_sequence = rank(dig_ids, contours)
