@@ -101,6 +101,11 @@ def main():
         while time.time() - timer < 0.8:
             ret, img = cap.read()
             img = cv2.resize(img, (640, 360))
+            cv2.imshow('go', img)
+            #vout.write(img)
+            #vout.write(img)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
             nine_digit_white_seq, five_digit_red_seq = grid_detect.process(img, net)
             #print nine_digit_white_seq, five_digit_red_seq
             if nine_digit_white_seq != -1:
