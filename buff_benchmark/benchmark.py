@@ -101,9 +101,9 @@ def main():
         #board_width, board_height = current_round_board_image.size
         #board_left_bound = (_resolution_width - board_width) / 2
         #current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
+        cur_time = time.time()
         show(ax, current_round_buff_displayer_image)
         plt.pause(0.01)
-        cur_time = time.time()
         if _USE_SOCKET:
             benchmark_server.update(answer, red_board_sequence)
             while time.time() - cur_time < 1.5 and not benchmark_server.is_current_round_answered():
