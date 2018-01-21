@@ -86,8 +86,8 @@ def write_record(seq_2_write, trial_num):
 def main():
     #cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
-    embed()
     cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+    gnum = gpio_num.gpio_num_output()
     while True:
         red_number_record = [[] for i in range(5)]
         white_number_record = [[] for i in range(9)]
@@ -121,7 +121,8 @@ def main():
         pprint(red_number_record)
         try:
             pos = calculate_position_2_hit(white_number_record, red_number_record, prv_red_seq, prv_hit_round)
-            print pos
+            #print pos
+            gnum.output_num(pos)
         except IndexError:
             print "IndexError. There is at least one digit that can't be recognized"
 

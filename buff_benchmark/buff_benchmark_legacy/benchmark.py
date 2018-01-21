@@ -9,7 +9,7 @@ import digit_displayer
 import buff_benchmark_comm
 
 all_image_dir = '2016_img/'
-_USE_SOCKET = False
+_USE_SOCKET = True
 
 #variables transform constants hardcoded for 3x3
 _resolution_width = 1920
