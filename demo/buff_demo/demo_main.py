@@ -100,6 +100,7 @@ def main():
         timer = time.time()
         while time.time() - timer < 0.8:
             ret, img = cap.read()
+            cv2.imwrtie("debug_5.jpg", img)
             img = cv2.resize(img, (640, 360))
             cv2.imshow('go', img)
             #vout.write(img)
