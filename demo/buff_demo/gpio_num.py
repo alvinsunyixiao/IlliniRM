@@ -26,6 +26,10 @@ class gpio_num_output:
             i.pin_mode(0)
         _WRITE_TUPLE_2_PIN(INTERRUPT)
 
+    def __del__(self):
+        for i in range(len(self.pin_output)):
+            del self.pin_output[i]
+
     def _WRITE_TUPLE_2_PIN(self, _array):
         assert len(_array) == 4
         for i in range(4):
