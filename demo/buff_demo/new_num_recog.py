@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-one_threshold = 170
+one_threshold = 230
 on_threshold = 9
 
 digit_match = {
@@ -26,9 +26,9 @@ segments = [[0, 3, 3, 4],
             [4, 14, 3, 4]]
 
 def digit_recognition(img):
-    if img.mean() > one_threshold: return 1 #too bright
-    if img.shape[0] < 6: return 1 #too slim
+    if img.shape[0] < 8: return 1 #too slim
     thresh_value, temp_thresh = cv2.threshold(img, 240, 255, cv2.THRESH_BINARY)
+    if img.mean() > one_threshold: return 1 #too bright
     u_x, u_y, width, height = cv2.boundingRect(temp_thresh)
     img = img[u_y:u_y + height, u_x:u_x + width]
     cv2.imwrite("debug_3.jpg", img)
