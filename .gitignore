@@ -9,3 +9,4 @@ Thumbs.db
 *.jpg
 *.png
 *.o
+.ipynb_checkpoints
