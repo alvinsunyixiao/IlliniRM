@@ -1,6 +1,6 @@
+import caffe
 import numpy as np
 import cv2
-import caffe
 from IPython import embed
 import os
 import sys
@@ -28,6 +28,6 @@ for i in range(1,10):
         out = net.forward()
         dig_id = out['prob'].argmax()
         if dig_id != i:
-            print(os.path.join(ip,fn))
+            print(os.path.join(ip,fn), out['prob'])
 
 
