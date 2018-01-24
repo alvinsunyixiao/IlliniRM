@@ -130,7 +130,7 @@ def four_poly_approx():
     for cnt in contours:
         epsilon = 0.05 * cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, epsilon, True)
-        if len(approx) == 4 and cv2.isContourConvex(approx):
+        if len(approx) == 4 and cv2.    :
             tmp.append(approx)
     #tmp = np.array(tmp)[:,:,0,:]
     return tmp
@@ -172,7 +172,7 @@ def pad_white_digit(contours, gray):
 '''
 Input:
     org_img - original unprocessed image
-Output:
+Output:q
     mask - red-color-binarized image
 '''
 def red_color_binarization(org_img):

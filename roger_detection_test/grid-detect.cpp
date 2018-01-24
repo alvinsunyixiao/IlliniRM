@@ -392,6 +392,8 @@ Mat process(Mat frame, Net<float> &net){
             vector<float> prob_ = vector<float>(begin, end);
             dig_ids.push_back(Argmax(prob_, 1));
         }
+        for (vector<int>::const_iterator i = dig_ids.begin(); i != dig_ids.end(); ++i)
+            cout << *i << ' ';
         /*
         for(int i = 0; i < sizeof(dig_ids); i++){
             putText(img, string(dig_ids[i]), Scalar(static_cast<int>(points[i][0,0]), static_cast<int>(points[i][0,1]-20)), FONT_HERSHEY_SIMPLEX, 0.9, Scalar(0, 255, 255), 2, LINE_AA);
