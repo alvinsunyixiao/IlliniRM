@@ -28,6 +28,9 @@ net = caffe.Net('./model/lenet.prototxt',
                caffe.TEST)
 net.blobs['data'].reshape(BATCHSIZE, 1, 28, 28)
 
+gnum = gpio_num.gpio_num_output()
+cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
+
 def read_record(RED_RECORD_PATH):
     try:
         f = open(RED_RECORD_PATH)
@@ -86,8 +89,6 @@ def write_record(seq_2_write, trial_num):
 def main():
     #cap = cv2.VideoCapture(0)
     #cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
-    cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, height=(int)360,format=(string)I420, framerate=(fraction)60/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink")
-    gnum = gpio_num.gpio_num_output()
     while True:
         red_number_record = [[] for i in range(5)]
         white_number_record = [[] for i in range(9)]
@@ -100,7 +101,7 @@ def main():
         timer = time.time()
         while time.time() - timer < 0.8:
             ret, img = cap.read()
-            cv2.imwrtie("debug_5.jpg", img)
+            cv2.imwrite("debug_5.jpg", img)
             img = cv2.resize(img, (640, 360))
             cv2.imshow('go', img)
             #vout.write(img)
@@ -128,5 +129,8 @@ def main():
             print "IndexError. There is at least one digit that can't be recognized"
 
 if __name__ == '__main__':
-    main()
-    cap.release()
+    try:
+        main()
+    except KeyboardInterrupt:
+        del gnum
+        cap.release()

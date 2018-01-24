@@ -42,5 +42,5 @@ class gpio_num_output:
             print "WRONG INPUT TO gpio_num.py !!!!!!!"
             sys.exit(0)
         self._WRITE_TUPLE_2_PIN(output)
-        time.sleep(2)
+        time.sleep(0.02)
         self._WRITE_TUPLE_2_PIN(INTERRUPT)
