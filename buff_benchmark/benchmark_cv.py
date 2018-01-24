@@ -23,13 +23,14 @@ _digit_board_height = 160
 #_digit_board_height = int(0.1455 * _final_resolution_height)
 #_resolution_height = _final_resolution_height - _digit_board_height
 _resolution_height = _final_resolution_height
-_image_width = int((3 / 13.0) * _resolution_width)
-_image_height = int((1 / 4.6) * _resolution_height)
+_image_width = int((3 / 13.0) * _resolution_width) #443
+_image_height = int((1 / 4.6) * _resolution_height) #234
 #_image_height = int(0.451 * _image_width)
-_horizon_black_strip_width = int(0.4 * _image_height)
-_vertical_black_strip_width = int(_image_width / 3.0)
-black_background = np.zeros((_resolution_width, _resolution_height), np.uint8)
-all_white_background = np.ones((_resolution_width, _final_resolution_height))
+_horizon_black_strip_width = int(0.4 * _image_height) #93
+_vertical_black_strip_width = int(_image_width / 3.0) #147
+black_background = np.zeros((_resolution_height, _resolution_width), np.uint8)
+all_white_background = np.ones((_final_resolution_height, _resolution_width), np.uint8)
+all_white_background *= 255 #for displaying
 
 def image_tuple_calculator(cv_obj, row, col): #example: image_tuple_calculator(1, 1); starts from upper left corner
     (height, width) = cv_obj.shape
@@ -45,7 +46,7 @@ def _sanity_check(a_tuple): #do nothing for now.
 def random_image_selector(desired_number, desire_width, desire_height):
     image_file_path = all_image_dir + str(desired_number) + '/' + str(random.randrange(1, 97)) + '.jpg'
     im = cv2.imread(image_file_path, 0)
-    im = cv2.resize(im, (desire_width, desire_height), 0, 0, cv2.INTER_NEAREST)
+    im = cv2.resize(im, (desire_height, desire_width), 0, 0, cv2.INTER_NEAREST)
     return im
 
 def random_sequence_generator(start, end, desired_length):
@@ -80,8 +81,9 @@ def main():
                 #print "num_img height" + str(number_image.shape[1])
                 box = image_tuple_calculator(number_image, cur_row, cur_col)
                 #(small_width, small_height) = number_image.shape
-                print box
-                print number_image.shape
+                #print box
+                #print number_image.shape
+                #cv2.imwrite("debug.jpg", number_image)
                 current_round_image[box[1]:box[3], box[0]:box[2]] = number_image
                 #current_round_image[box[0]:box[2], box[1]:box[3]] = number_image
         current_round_buff_displayer_image = current_round_image
@@ -95,7 +97,7 @@ def main():
         #board_left_bound = (_resolution_width - board_width) / 2
         #current_round_buff_displayer_image.paste(current_round_board_image, (board_left_bound, 0, board_left_bound + board_width, _digit_board_height))
         show(current_round_buff_displayer_image)
-        print "showing"
+        #print "showing"
         #plt.pause(0.01)
         cur_time = time.time()
         if _USE_SOCKET:
