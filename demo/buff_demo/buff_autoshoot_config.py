@@ -1,0 +1,12 @@
+gaussian_factor = 3
+cells_dilate_width = 7
+cells_dilate_height = 3
+width_lower_threshold = 0.1
+width_upper_threshold = 0.3
+height_lower_threshold = 0.08
+height_upper_threshold = 0.18
+config.first_lower_red_range = [0, 4, 210] #[0, 90, 70] Screen
+config.first_upper_red_range = [25, 255, 255] #[15,255,255] Screen
+config.second_lower_red_range = [155, 4, 210] #[155,90,70] Screen
+config.second_upper_red_range = [179, 255, 255] #[179,255,255] Screen
+config.red_digit_height_scaling_factor = 0.58

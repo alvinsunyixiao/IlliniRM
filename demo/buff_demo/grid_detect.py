@@ -3,6 +3,7 @@
 import caffe
 import cv2
 import numpy as np
+import grid_detect_autoshoot_config as config
 #import matplotlib.pyplot as plt
 #from scipy import stats
 #import buff_benchmark_comm
@@ -104,9 +105,9 @@ def process(img, net, client1 = None, pos = -1):
     #img = cv2.resize(img, (640, 360))
     img_cp = img.copy()
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) #TODO: mask peripheral part of the image to reduce glare influence
-    gray = cv2.GaussianBlur(gray, (3, 3), 0)
+    gray = cv2.GaussianBlur(gray, (config.gaussian_factor, config.gaussian_factor), 0)
     ret3,thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
-    kernel = np.ones((3, 7),np.uint8)
+    kernel = np.ones((config.cells_dilate_height, config.cells_dilate_width),np.uint8)
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
 
     #timer['whole_img_threshold'] = time.time() - st
@@ -116,8 +117,8 @@ def process(img, net, client1 = None, pos = -1):
     im2, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     # Filter out contours that are either too big or too small
     width, height = get_size(img)
-    img_width_range = (0.1 * width, 0.3 * width)
-    img_height_range = (0.08 * height, 0.18 * height)
+    img_width_range = (config.width_lower_threshold * width, config.width_upper_threshold * width)
+    img_height_range = (config.height_lower_threshold * height, config.height_upper_threshold * height)
     #contours = [cnt for cnt in contours if cv2.contourArea(cnt) >= 100*40 and cv2.contourArea(cnt) <= 300*150]
     if _DEBUG:
         #print "len of contours before filtering: %d" % len(contours)
@@ -249,22 +250,18 @@ def process(img, net, client1 = None, pos = -1):
 
     org_img = img_cp.copy()
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
-    lower_red = np.array([0,90,70]) #TODO: Change threshold to LED range
-    upper_red = np.array([15,255,255])
-    #lower_red = np.array([0, 4, 210])
-    #upper_red = np.array([25, 255, 255])
+    lower_red = np.array(config.first_lower_red_range)
+    upper_red = np.array(config.first_upper_red_range)
     mask = cv2.inRange(hsv_img, lower_red, upper_red)
     mask1 = cv2.inRange(hsv_img, lower_red, upper_red)
-    lower_red = np.array([155,90,70])
-    upper_red = np.array([179,255,255])
-    #lower_red = np.array([155, 4, 210])
-    #upper_red = np.array([179, 255, 255])
+    lower_red = np.array(config.second_lower_red_range)
+    upper_red = np.array(config.second_upper_red_range)
     mask2 = cv2.inRange(hsv_img, lower_red, upper_red)
     mask = np.bitwise_or(mask1, mask2)
     org_2_img = mask.copy()
 
     #dilation
-    digit_height = int(dynamic_height[len(dynamic_height) // 2] * (0.58))
+    digit_height = int(dynamic_height[len(dynamic_height) // 2] * config.red_digit_height_scaling_factor)
     kernel = np.ones((int(digit_height / 20), 1), np.uint8)
     mask = cv2.dilate(mask, kernel, iterations = 2)
     #kernel = np.ones((5, 1), np.uint8)
