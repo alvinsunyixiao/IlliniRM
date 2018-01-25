@@ -73,7 +73,7 @@ def main():
                 state = gpio.input(_COMM_PINS[0])
                 counter = 0
                 while gpio.input(_COMM_PINS[1]):
-                    if state = gpio.input(_COMM_PINS[0]): continue
+                    if state == gpio.input(_COMM_PINS[0]): continue
                     state = gpio.input(_COMM_PINS[0])
                     if state: counter += 1
                 third_digit.show_num(counter)
@@ -82,7 +82,7 @@ def main():
                     time.sleep(0.001)
                 state = gpio.input(_COMM_PINS[0])
                 while gpio.input(_COMM_PINS[2]):
-                    if state = gpio.input(_COMM_PINS[0]): continue
+                    if state == gpio.input(_COMM_PINS[0]): continue
                     state = gpio.input(_COMM_PINS[0])
                     if state: counter += 1
                 fourth_digit.show_num(counter)
