@@ -22,6 +22,8 @@
 	background-color: white;
 	text-align: center;
 	width: 100%;
+	min-width:1000px;
+	width:expression_r(document.body.clientWidth < 1000 ? "1000px": "auto" )
 	overflow: hidden;
 }
 #topSymbol{
