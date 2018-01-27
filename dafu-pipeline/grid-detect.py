@@ -9,6 +9,7 @@ import buff_benchmark_comm
 import num_recog
 import time
 from pprint import pprint
+#from IPython import embed
 
 _USE_SOCKET = False
 _DEBUG = True
@@ -351,6 +352,7 @@ while True:
     for i in range(5):
         for j in range(4):
             ret, img = cap.read()
+	    #embed()
             if _USE_SOCKET:
                 img, timer = process(img, client1 = client, pos =  i)
             else:
