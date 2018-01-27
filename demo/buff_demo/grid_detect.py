@@ -3,7 +3,7 @@
 import caffe
 import cv2
 import numpy as np
-import grid_detect_autoshoot_config as config
+import buff_autoshoot_config as config
 #import matplotlib.pyplot as plt
 #from scipy import stats
 #import buff_benchmark_comm
