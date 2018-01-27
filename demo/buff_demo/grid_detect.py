@@ -50,11 +50,12 @@ def rank(dig_ids, contours_array):
     return ret
 
 def mask_process(mask, points):
-    kernel1 = np.ones((5, 4),np.uint8)
-    kernel2 = np.ones((4, 4),np.uint8)
-    kernel3 = np.ones((3,3),np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
+    kernel1 = np.ones((4, 5),np.uint8)
+    kernel2 = np.ones((3, 3),np.uint8)
+    kernel3 = np.ones((2, 7),np.uint8)
     mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel2)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel1)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_DILATE, kernel3)
 
     y_min = min(points,key=lambda cnt: cnt[0,1])[0,1]
     y_min = int(y_min)
@@ -276,7 +277,7 @@ def process(img, net, client1 = None, pos = -1):
     im2, sct_cnts, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cv2.imwrite("debug.jpg", mask)
     rects = [cv2.boundingRect(cnt) for cnt in sct_cnts]
-    rects = [rect for rect in rects if rect[2] < rect[3]]
+    rects = [rect for rect in rects if rect[2] < rect[3] + 5]
     if len(rects) == 0:
         print "Point B"
         return output_sequence, -1
@@ -284,9 +285,9 @@ def process(img, net, client1 = None, pos = -1):
     rects = sorted(rects, key=lambda x: x[0])
     y = sorted(rects, key=lambda x: x[1])
     y = y[len(y)/2][1]
-    rects = [rect for rect in rects if rect[1] >= y * 0.7 and rect[1] <= y * 1.33]
-    print "--------"
-    print len(rects)
+    rects = [rect for rect in rects if rect[1] >= y * 0.7 and rect[1] <= y * 2.1]
+    #print "--------"
+    #print len(rects)
 
     #timer['bound_red_number'] = time.time() - st
     #st = time.time()
@@ -317,7 +318,8 @@ def process(img, net, client1 = None, pos = -1):
         else:
             secret_ids.append(new_num_recog.digit_recognition(pad_diggit(mask_w_o_dilation[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]))) #TODO: mask or mask_w_o_dilation?
 
-    print secret_ids
+    #print secret_ids
+    secret_ids = [-1, -1]
 
     if -1 in secret_ids:
         secrets = np.array([pad_diggit(org_2_img[rect[1]:rect[1]+rect[3],rect[0]:rect[0]+rect[2]]) for rect in rects], dtype='float32')
