@@ -3,6 +3,7 @@ import socket
 import time
 
 _USE_SOCKET = False
+_delay_time = 0.003
 
 gpio.setmode(gpio.BOARD)
 
@@ -68,20 +69,20 @@ class remote_third_and_fourth_digit:
             self.s.send(_send_str)
         else:
             gpio.output(_COMM_PINS[1], 1)
-            time.sleep(0.02) #may cause problem
+            time.sleep(_delay_time) #may cause problem
             for i in range(first_num):
                 gpio.output(_COMM_PINS[0], 1)
-                time.sleep(0.01)
+                time.sleep(_delay_time)
                 gpio.output(_COMM_PINS[0], 0)
-                time.sleep(0.01)
+                time.sleep(_delay_time)
             gpio.output(_COMM_PINS[1], 0) #turn off first indicator
             gpio.output(_COMM_PINS[2], 1) #turn on second digit indicator
-            time.sleep(0.02)
+            time.sleep(_delay_time)
             for i in range(second_num):
                 gpio.output(_COMM_PINS[0], 1)
-                time.sleep(0.01)
+                time.sleep(_delay_time)
                 gpio.output(_COMM_PINS[0], 0)
-                time.sleep(0.01)
+                time.sleep(_delay_time)
             gpio.output(_COMM_PINS[2], 0) #turn off second indicator
 
 class digit:

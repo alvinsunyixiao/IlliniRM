@@ -1,4 +1,4 @@
-_RUN_ON_RPI = False
+_RUN_ON_RPI = True
 
 import os
 import sys
