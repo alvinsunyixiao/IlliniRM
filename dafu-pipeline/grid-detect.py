@@ -10,6 +10,7 @@ import num_recog
 import time
 from pprint import pprint
 
+_USE_SOCKET = False
 _DEBUG = True
 BATCHSIZE = 9
 # Load caffe model
@@ -115,7 +116,7 @@ def process(img, client1 = None, pos = -1):
     ret3,thresh = cv2.threshold(gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
     kernel = np.ones((4,8),np.uint8)
     thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-    
+
     timer['whole_img_threshold'] = time.time() - st
     st = time.time()
 
@@ -137,7 +138,7 @@ def process(img, client1 = None, pos = -1):
 
     if len(tmp) == 0:
         return img, timer
-    
+
     timer['contour_approx'] = time.time() - st
     '''
     st = time.time()
@@ -229,7 +230,8 @@ def process(img, client1 = None, pos = -1):
 
     if len(contours) == 9:
         output_sequence = rank(dig_ids, contours)
-        client1.update(input_sequence = output_sequence)
+        if _USE_SOCKET:
+            client1.update(input_sequence = output_sequence)
         if _DEBUG:
             print "White: " + str(output_sequence)
 
@@ -329,7 +331,8 @@ def process(img, client1 = None, pos = -1):
     '''
     if len(secret_ids) == 5:
         red_output_sequence = [i for i in secret_ids]
-        client1.update(red_number_sequence = red_output_sequence)
+        if _USE_SOCKET:
+            client1.update(red_number_sequence = red_output_sequence)
         if _DEBUG:
             print "Red: " + str(red_output_sequence)
 
@@ -341,13 +344,17 @@ cap = cv2.VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)640, 
 
 #fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 #vout = cv2.VideoWriter('output.mp4', fourcc, 20.0, (1280,720))
-client = buff_benchmark_comm.client()
+if _USE_SOCKET:
+    client = buff_benchmark_comm.client()
 
 while True:
     for i in range(5):
         for j in range(4):
             ret, img = cap.read()
-            img, timer = process(img, client1 = client, pos =  i)
+            if _USE_SOCKET:
+                img, timer = process(img, client1 = client, pos =  i)
+            else:
+                img, timer = process(img, client1 = None, pos = i)
             if _DEBUG:
                 bnk = max(timer.items(), key=lambda x:x[1])
                 print('bottleneck: ', bnk[0], ': ', bnk[1])
@@ -359,7 +366,10 @@ while True:
                 break
         for j in range(4):
             ret, img = cap.read()
-            img, timer = process(img, client1 = client)
+            if _USE_SOCKET:
+                img, timer = process(img, client1 = client)
+            else:
+                img, itmer = process(img, client1 = None)
             cv2.imshow('go', img)
             #vout.write(img)
             #vout.write(img)
