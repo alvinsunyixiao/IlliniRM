@@ -123,7 +123,8 @@ def main():
         pprint(red_number_record)
         try:
             pos = calculate_position_2_hit(white_number_record, red_number_record, prv_red_seq, prv_hit_round)
-            #print pos
+            pos += 1
+            print "Position to hit:" + str(pos)
             gnum.output_num(pos)
         except IndexError:
             print "IndexError. There is at least one digit that can't be recognized"
