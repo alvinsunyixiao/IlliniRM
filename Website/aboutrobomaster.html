@@ -1,101 +1,99 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Cache-Control" content="no-transform" /> 
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <title>About Robomaster</title>
 <style>
-#page{
-	background-color: white;
-	text-align: center;
-	margin:0;
-	padding: 0;
-}
 #navigation{
-	margin-top: 5px;
-	margin-bottom: 0px;
-	text-align: center;
 	background-color: #2E2E2E;
-	height: 35px;
-	width: 1438px;
-	margin-left: 0px;
+	height: 2.3em;
+	width: 100%;
+	min-width: 50em;
+	overflow: hidden;
+}
+#line{
+	text-align: center;
+	margin-left: auto;
+	margin-right: auto;
+	position: relative;
+	font-family: avenir;
+	font-weight: 250;
+	font-size: 1em;
+	overflow: hidden;
 }
 #navigation ul{
 	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	overflow: hidden;
-	color: white;
-	font-family: avenir;
-	font-size: 14px;
-	position: absolute;
-	left: 430px;
-	margin-top: 7px;
-	width: 800px;
+	display: inline-block;
 }
 #navigation ul li{
 	float: left;
 }
 #navigation ul a{
 	display: block;
-	width: 110px;
-}
-#navigation img{
-	position: absolute;
-	left: 350px;
-	top: 0%;
+	width: 140px;
 }
 #Header{
 	height: 250px;
-	font-size: 38px;
-	width: 1438px;
+	font-size: 2.375em;
+	width: 100%;
 	background-color: #E8E8E8;
+	overflow: hidden;
 }
 #Header li{
 	font-family: avenir;
 	position: absolute;
-	left: 350px;
-	top: 150px;
+	left: 23%;
+	top: 16%;
 	text-decoration: none;
 	list-style-type: none;
-	width: 500px;
+	overflow: hidden;
 }
 #text1{
-	height: 225px;
-	position: absolute;
+	height: 300px;
+	position:relative;
 	background-color: #F7F7F7;
-	width: 800px;
-	left: 325px;
+	width: 60%;
+	left: 20%;
+	overflow: hidden;
 }
 #text1 li1{
 	position: absolute;
 	text-decoration: none;
 	list-style-type: none;
 	text-align: left;
-	left: 45px;
-	margin-top: 20px;
-	font-size: 14px;
+	left: 6%;
+	margin-top: 3em;
+	font-size: 0.875em;
+	width: 100%;
 }
 #text1 li2{
 	position: absolute;
 	text-decoration: none;
 	list-style-type: none;
 	text-align: left;
-	font-size: 14px;
-	left: 45px;
-	top: 135px;
+	font-size: 0.875em;
+	left: 6%;
+	margin-top: 13em;
+	width: 100%;
 }
 #video{
-	height: 800px;
+	height: 700px;
+	margin-left: 20%;
+	position: relative;
 }
 #manypics{
-	position: absolute;
-	left: 325px;
-	margin-top: 40px;
-	height: 1080px;
+	position: relative;
+	left: 20%;
+	height: 800px;
 	background-color: #F7F7F7;
-	width: 800px;
+	width: 60%;
 }
 #manypics p1{
-	position: absolute;
+	position: relative;
 	text-decoration: none;
 	list-style-type: none;
 	text-align: left;
@@ -104,19 +102,19 @@
 	font-size: 14px;
 }
 #manypics p2{
-	position: absolute;
+	position: relative;
 	text-decoration: none;
 	list-style-type: none;
 	text-align: left;
-	left: 40px;
-	margin-top: 600px;
-	font-size: 14px;
+	left: 4%;
+	margin-top: 4em;
+	font-size: 0.875em;
 }
 #manypics img{
-	position: absolute;
-	margin-top: 150px;
-	width: 700px;
-	left: 50px;
+	position: relative;
+	margin-top: 10%;
+	width: 90%;
+	left: 4%;
 }
 #manypics a{
 	position: absolute;
@@ -128,7 +126,7 @@
 #sponsor{
 	background-color: #2E2E2E;
 	height: 160px;
-	width: 1438px;
+	width: 100%;
 	position: absolute;
 	margin-top: 1080px;
 }
@@ -182,17 +180,18 @@
 </style>
 <body>
 	<div id="navigation">
-	<ul>
-		<li><a href="aboutus.html" style="color:white; text-decoration:none;">ABOUT US</a></li>
-		<li><a href="competition.html" style="color:white; text-decoration:none;">COMPETITION</a></li>
-		<li><a href="members.html" style="color:white; text-decoration:none;">MEMBERS</a></li>
-		<li><a href="sponsers.html" style="color:white; text-decoration:none;">SPONSORS</a></li>
-		<li><a href="blog.html" style="color:white; text-decoration:none;">BLOG</a></li>
-		<li><a href="opensource.html" style="color:white; text-decoration:none;">OPEN SOURCE</a></li>
-	</ul>
-	<img src="Top_logo.svg" width= 50px height=50px>
+		<div id="line">
+			<ul>
+			<li><a href="index.html" style="margin-top:2%;"><img src="Top_logo.svg" width= 49 height=19></a></li>
+			<li><a href="aboutus.html" style="color:white; text-decoration:none; margin-top:4%;">ABOUT US</a></li>
+			<li><a href="competition.html" style="color:white; text-decoration:none; margin-top:4%;">COMPETITION</a></li>
+			<li><a href="members.html" style="color:white; text-decoration:none; margin-top:4%;">MEMBERS</a></li>
+			<li><a href="sponsers.html" style="color:white; text-decoration:none; margin-top:4%;">SPONSORS</a></li>
+			<li><a href="blog.html" style="color:white; text-decoration:none; margin-top:4%;">BLOG</a></li>
+			<li><a href="opensource.html" style="color:white; text-decoration:none; margin-top:4%;">OPEN SOURCE</a></li>
+			</ul>
+		</div>
 	</div>
-
 	<div id="Header">
 		<li>About RoboMaster</li>
 	</div>
@@ -202,10 +201,9 @@
 		</li1>
 		<li2>Beyond the arena, RoboMaster is also revolutionizing the cultivation of new talent on college campuses across the world by<br>providing science and engineering students with the chance to combine theory with practice outside the classroom and<br>become the innovators of tomorrow.
 		</li2>
-		<p align="left">In the competition, each team needs to develop and operate eight robots to fight a battle on a standard arena (28 meters long and 15 meters wide). Each of the eight robots perform different tasks as different roles: Three Infantry robots, one Hero robot, one Engineer robot, one Sentry robot, one Supply robot, and one Drone. There are also different areas in the battle arena which provide opportunity of supplies for our robots. The basic rule for the game is to use our robot to protect our home and try to destroy our opponent’s home. It can be simply described as the “League of Legend” for robots but way more than that.</p>
 	</div>
-
 	<div id="video">
+		<iframe width="75%" height="100%"src="https://www.youtube.com/embed/ECr4zgK6cPA?rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 	</div>
 
 	<div id="manypics">
