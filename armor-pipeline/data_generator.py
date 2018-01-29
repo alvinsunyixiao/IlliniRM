@@ -5,6 +5,7 @@ import math
 
 _WIDTH = 100
 _HEIGHT = 100
+_THRESHOLD = 81
 counter = 0
 
 def drawRect(img, rect):
@@ -152,6 +153,7 @@ def main(video_name, color):
     frame_counter = 0
     cap = cv2.VideoCapture(video_name)
     armor = Armor()
+    f = open("/tmp/light.txt", "w")
     while True:
         ret, img = cap.read()
         frame_counter += 1
@@ -165,6 +167,8 @@ def main(video_name, color):
             desired_img_pts = np.array([[0, 0], [_HEIGHT, 0], [0, _WIDTH], [_HEIGHT, _WIDTH]], dtype = "float32")
             M = cv2.getPerspectiveTransform(pts1, desired_img_pts)
             new_img = cv2.warpPerspective(img, M, (_HEIGHT, _WIDTH))
+            if new_img.mean() > _THRESHOLD: continue
+            f.write(str(new_img.mean()) + "\n")
             cv2.imwrite("armor_board/" + str(counter) + ".jpg", new_img)
             counter += 1
 
