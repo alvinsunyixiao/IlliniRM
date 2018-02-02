@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="Cache-Control" content="no-transform" /> 
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=yes" />
+<meta charset="utf-8">
+<script>window.onload = function() {
+    if (screen.width < 1000) {
+        var mvp = document.getElementById('vp');
+        mvp.setAttribute('content','user-scalable=no,width=1000');
+    }
+}</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+<title>About Robomaster</title>
+<style>
+#Header{
+	height: auto;
+	font-size: 2.375em;
+	width: 100%;
+	background-color: #E8E8E8;
+	overflow: hidden;
+}
+#Header li{
+	font-family: avenir;
+	position: absolute;
+	text-align: center;
+	top: auto;
+	text-decoration: none;
+	list-style-type: none;
+	overflow: hidden;
+}
+#text1{
+	height: auto;
+	position:relative;
+	background-color: #F7F7F7;
+	left: 10%;
+	width: 80%;
+	overflow: hidden;
+}
+#text1 li1{
+	position: absolute;
+	text-decoration: none;
+	list-style-type: none;
+	text-align: left;
+	left: 6%;
+	margin-top: 3em;
+	font-size: 0.875em;
+	width: 100%;
+}
+#text1 li2{
+	position: absolute;
+	text-decoration: none;
+	list-style-type: none;
+	text-align: left;
+	font-size: 0.875em;
+	left: 6%;
+	margin-top: 14em;
+	width: 100%;
+}
+#video{
+	height: 700px;
+	margin-left: 20%;
+	position: relative;
+}
+#manypics{
+	position: relative;
+	left: 20%;
+	height: 800px;
+	background-color: #F7F7F7;
+	width: 60%;
+}
+#manypics p1{
+	position: relative;
+	text-decoration: none;
+	list-style-type: none;
+	text-align: left;
+	left: 6%;
+	top: 8%;
+	font-size: 0.875em;
+	width: 90%;
+}
+#manypics p2{
+	position: relative;
+	text-decoration: none;
+	list-style-type: none;
+	text-align: left;
+	left: 4%;
+	margin-top: 4em;
+	font-size: 0.875em;
+}
+#manypics img{
+	position: relative;
+	margin-top: 10%;
+	width: 90%;
+	left: 4%;
+}
+#manypics a{
+	position: absolute;
+	text-align: center;
+	left: 300px;
+
+}
+#sponsor{
+	background-color: #2E2E2E;
+	height: 160px;
+	width: 100%;
+	position: absolute;
+}
+#sponsor img{
+	position: center;
+	margin-top: 100px;
+	margin-bottom: 0px;
+}
+#sponsor p{
+	position: center;
+	margin-top: 4px;
+	margin-bottom: 0px;
+	font-size: 9px;
+	color: #808080;
+}
+#sponsorLeft ul1{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	color: white;
+	font-family: avenir;
+	font-weight: 100;
+	font-size: 10px;
+	position: absolute;
+	left: 30%;
+	margin-top: 20px;
+	line-height: 20px;
+}
+#sponsorLeft ul1 a{
+	display: block;
+	width: 110px;
+}
+#sponsorRight ul2{
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	color: white;
+	font-family: avenir;
+	font-weight: 100;
+	font-size: 10px;
+	position: absolute;
+	right: 30%;
+	margin-top: 20px;
+	line-height: 20px;
+}
+#sponsorRight ul2 a{
+	display: block;
+	width: 110px;
+}
+</style>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #e3f2fd;" role="navigation">
+	<a class="navbar-brand" href="#"></a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    	<span class="navbar-toggler-icon"></span>
+  </button>
+		
+	<div class="collapse navbar-collapse" id="navbarNav">
+	  <ul class="nav navbar-nav">
+			<li class="nav-item"><a class="nav-link" href="index.html"><img src="Top_logo.svg" width= 49 height=19></a></li>
+			<li class="nav-item"><a class="nav-link" href="aboutus.html" >ABOUT US</a></li>
+			<li class="nav-item"><a class="nav-link" href="competition.html">COMPETITION</a></li>
+			<li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
+			<li class="nav-item"><a class="nav-link" href="sponsers.html">SPONSORS</a></li>
+			<li class="nav-item"><a class="nav-link" href="blog.html">BLOG</a></li>
+			<li class="nav-item"><a class="nav-link" href="opensource.html">OPEN SOURCE</a></li>
+	  </ul>
+  	</div>
+		
+</nav>
+<div class="container-fluid" style="background-color: #E8E8E8;">
+  <div id="Header">
+	<p class="text-center"><br>About RoboMaster<br><br><br></center></p>
+	</div>
+</div>
+<div class="container-fluid" style="background-color: #F7F7F7;">
+  <div id="text1">
+	  <p class="text-center">RoboMaster is an annual robotics competition exclusively planned and operated by DJI, the world famous drone company. It is designed for teams of aspiring engineers to design and build next-generation robots for completing difficult tasks and head-to-head combat. RoboMaster has attracted close attention from hundreds of universities, nearly 1,000 high-tech enter prises and tens of thousands of fans from across the country since its debut. Through fierce competition and team-building, RoboMaster aim to provide an exciting new venue for science and engineering students to contribute their creativity and skills outside the virtual world of online gaming. In this epic battle of wits, “good enough” is not enough.</p>
+		<p class="text-center">Beyond the arena, RoboMaster is also revolutionizing the cultivation of new talent on college campuses across the world by providing science and engineering students with the chance to combine theory with practice outside the classroom and become the innovators of tomorrow.</p>
+	</div>
+</div>
+<div class="container-fluid" style="background-color: #F7F7F7;">
+	<div class="embed-responsive embed-responsive-16by9" style = "left: 10%; width: 80%;">
+  		<iframe class="embed-responsive-item" src="https://www.youtube.com/embed/ECr4zgK6cPA?rel=0"></iframe>
+	</div>
+</div>
+<div class="container-fluid" style="background-color: #F7F7F7;">
+  <p class="text-center">The RoboMaster season includes Chinese and International Regionals, a Wild Card Round, and the Final Tournament. Region-<br>
+  als advance top teams to the Final, while the Wild Card gives teams a chance to earn four remaining spots. In August 2018,<br>Shenzhen, China — DJI and RoboMaster global headquarters — will host the RoboMaster Final Tournament, where 32 teams<br>will battle for the championship.</p>
+  <img src="Timeline_with_font.svg" width:80 height:10>
+	<p class="text-center" style= "width:80%; margin-left:10%; float: left;">In the competition, each team needs to develop and operate eight robots to fight a battle on a standard arena (28 meters long and 15 meters wide). Each of the eight robots perform different tasks as different roles: Three Infantry robots, one Hero robot, one Engineer robot, one Sentry robot, one Supply robot, and one Drone. There are also different areas in the battle arena which provide opportunity of supplies for our robots. The basic rule for the game is to use our robot to protect our home and try to destroy our opponent’s home. It can be simply described as the “League of Legend” for robots but way more than that.</p>
+	<p class="text-center" style= "width:80%; margin-left:10%;"><a href="robomaster.html" style="color: #F9904C; text-decoration:none;">Go To RoboMaster's Website</a></p>
+</div>
+
+	<div id="sponsor">
+		<div id="sponsorLeft">
+			<ul1>
+				<li1><a href="contactus.html" style="color:#C0C0C0; text-decoration:none;">Contact Us</a></li1>
+				<li2><a href="robomaster.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster Website</a></li2>
+				<li3><a href="robomasterbbs.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster BBS</a></li3>
+				<li4><a href="uiuc.html" style="color:#C0C0C0; text-decoration:none;">University of Illinois</a></li4>
+			</ul1>
+		</div>
+		<div id="sponsorRight">
+			<ul2>
+				<li1><a href="slack.html" style="color:#C0C0C0; text-decoration:none;">Slack</a></li1>
+				<li2><a href="googledrive.html" style="color:#C0C0C0; text-decoration:none;">Google Drive</a></li2>
+				<li3><a href="githubcs.html" style="color:#C0C0C0; text-decoration:none;">Github CS Repository</a></li3>
+				<li4><a href="githubece.html" style="color:#C0C0C0; text-decoration:none;">Github ECE Repository</a></li4>
+			</ul2>
+		</div>
+			<center><img src="Bottom_logo.svg" height=20px width=150px></center>
+			<center><p>Copyright © Illini Robomaster 2017</p></center>
+		</div>
+</body>
+</html>
