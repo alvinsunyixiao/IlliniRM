@@ -248,8 +248,14 @@ def process(img, net, client1 = None, pos = -1):
         print "White: " + str(output_sequence)
 
     #st = time.time()
-
     org_img = img_cp.copy()
+    bgr = cv2.split(org_img).astype(int)
+    red = bgr[2] - bgr[1]
+    ret, red_mask = cv2.threshold(red, 90, 255, cv2.THRESH_BINARY)
+    org_2_img = red_mask.copy()
+    kernel = np.ones((3,3), dtype=np.uint8)
+    mask = cv2.morphologyEx(red_mask, cv2.MORPH_DILATE, kernel).astype('uint8')
+    '''
     hsv_img = cv2.cvtColor(org_img, cv2.COLOR_BGR2HSV)
     lower_red = np.array(config.first_lower_red_range)
     upper_red = np.array(config.first_upper_red_range)
@@ -268,6 +274,8 @@ def process(img, net, client1 = None, pos = -1):
     #kernel = np.ones((5, 1), np.uint8)
     #mask = cv2.dilate(mask, kernel, iterations = 1)
 
+
+    '''
     mask = mask_process(mask, points)
     mask_w_o_dilation = mask_process(org_2_img, points)
 
