@@ -190,13 +190,76 @@ typedef __packed struct
 |               | 1: 防御加成 |
 | buff_addition | 加成百分比   |
 
+## 第二类
+
 ### 0x0012 发射机构
 
 对应数据结构 `shoot_info_t`，发射机构状态信息
 
 ```
-underconstruction
+typedef __packed struct
+{
+  int16_t remain_bullets;  /* the member of remain bullets */
+  int16_t shot_bullets;    /* the member of bullets that have been shot */
+  uint8_t fric_wheel_run; /* friction run or not */
+} shoot_info_t;
 ```
+
+### 0x0013 底层错误
+对应数据结构 `infantry_err_t`，底层步兵错误信息
+
+```
+typedef __packed struct
+{
+  bottom_err_e err_sta;                 /* bottom error state */
+  bottom_err_e err[ERROR_LIST_LENGTH];  /* device error list */
+} infantry_err_t;
+```
+
+| 数据                     | 说明          |
+| ---------------------- | ----------- |
+| err_sta                | 底层设备全局状态    |
+| err[ERROR_LIST_LENGTH] | 所有设备、机构工作状态 |
+
+*备注：*
+
+底层错误信息的枚举类型 bottom_err_e 如下，如果相应设备出现错误，状态位被置为`ERROR_EXIST`
+
+```
+typedef enum
+{
+  DEVICE_NORMAL = 0,
+  ERROR_EXIST   = 1,
+  UNKNOWN_STATE = 2,
+} bottom_err_e;
+```
+
+底层错误信息的所有分类包含在 err_id_e 中，主要分 3 类。第一类是 `设备_OFFLINE` 相关的设备离线；第二类是机构运行故障，目前只有卡弹这一项；第三类是 `_CONFIG_ERR` 软件相关的配置出现错误，如配置的云台安装位置超出了底盘的物理范围等。
+
+```
+typedef enum
+{
+  BOTTOM_DEVICE        = 0,
+  GIMBAL_GYRO_OFFLINE  = 1,
+  CHASSIS_GYRO_OFFLINE = 2,
+  CHASSIS_M1_OFFLINE   = 3,
+  CHASSIS_M2_OFFLINE   = 4,
+  CHASSIS_M3_OFFLINE   = 5,
+  CHASSIS_M4_OFFLINE   = 6,
+  REMOTE_CTRL_OFFLINE  = 7,
+  JUDGE_SYS_OFFLINE    = 8,
+  GIMBAL_YAW_OFFLINE   = 9,
+  GIMBAL_PIT_OFFLINE   = 10,
+  TRIGGER_MOTO_OFFLINE = 11,
+  BULLET_JAM           = 12,
+  CHASSIS_CONFIG_ERR   = 13,
+  GIMBAL_CONFIG_ERR    = 14,
+  ERROR_LIST_LENGTH    = 15,
+} err_id_e;
+```
+
+
+## 第三类
 
 ### 0x00A0 底盘控制 
 
