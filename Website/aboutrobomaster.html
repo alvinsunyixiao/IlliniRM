@@ -3,12 +3,28 @@
 <head>
 <meta http-equiv="Cache-Control" content="no-transform" /> 
 <meta http-equiv="Cache-Control" content="no-siteapp" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=yes" />
+<meta charset="utf-8">
+<script>window.onload = function() {
+    if (screen.width < 1000) {
+        var mvp = document.getElementById('vp');
+        mvp.setAttribute('content','user-scalable=no,width=1000');
+    }
+}</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 <title>About Robomaster</title>
 <style>
-#navigation{
+#page{
+	background-color: white;
+	text-align: center;
+	width: 100%;
+	overflow: hidden;
+}
+#navbarNav{
+	margin-top: 0.3125em;
 	background-color: #2E2E2E;
 	height: 2.3em;
 	width: 100%;
@@ -16,31 +32,31 @@
 	overflow: hidden;
 }
 #line{
-	text-align: center;
 	margin-left: auto;
 	margin-right: auto;
 	position: relative;
 	font-family: avenir;
 	font-weight: 250;
 	font-size: 1em;
-	overflow: hidden;
 }
-#navigation ul{
+#navbarNav ul{
+	margin-top: 0.5em;
 	list-style-type: none;
 	display: inline-block;
 }
-#navigation ul li{
+#navbarNav ul li{
 	float: left;
 }
-#navigation ul a{
+#navbarNav a{
 	display: block;
 	width: 140px;
+	color: white;
 }
 #Header{
 	height: 250px;
 	font-size: 2.375em;
 	width: 100%;
-	background-color: #E8E8E8;
+	background-image: url("About_Us_Header.png");
 	overflow: hidden;
 }
 #Header li{
@@ -51,6 +67,7 @@
 	text-decoration: none;
 	list-style-type: none;
 	overflow: hidden;
+	color: white;
 }
 #text1{
 	height: 300px;
@@ -128,7 +145,7 @@
 	background-color: #2E2E2E;
 	height: 160px;
 	width: 100%;
-	position: absolute;
+	position: relative;
 }
 #sponsor img{
 	position: center;
@@ -179,19 +196,27 @@
 }
 </style>
 <body>
-	<div id="navigation">
-		<div id="line">
-			<ul>
-			<li><a href="index.html" style="margin-top:2%;"><img src="Top_logo.svg" width= 49 height=19></a></li>
-			<li><a href="aboutus.html" style="color:white; text-decoration:none; margin-top:4%;">ABOUT US</a></li>
-			<li><a href="competition.html" style="color:white; text-decoration:none; margin-top:4%;">COMPETITION</a></li>
-			<li><a href="members.html" style="color:white; text-decoration:none; margin-top:4%;">MEMBERS</a></li>
-			<li><a href="sponsers.html" style="color:white; text-decoration:none; margin-top:4%;">SPONSORS</a></li>
-			<li><a href="blog.html" style="color:white; text-decoration:none; margin-top:4%;">BLOG</a></li>
-			<li><a href="opensource.html" style="color:white; text-decoration:none; margin-top:4%;">OPEN SOURCE</a></li>
-			</ul>
-		</div>
-	</div>
+	<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #2E2E2E;" role="navigation" >
+	<a class="navbar-brand" href="#"></a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    	<span class="navbar-toggler-icon"></span>
+  </button>
+	<div class="collapse navbar-collapse" id="navbarNav">
+	<div id="line">
+	  <ul class="nav navbar-nav">
+	  		<li class="nav-item"><a class="nav-link" href="index.html"><img src="Top_logo.svg" width= 49 height=19></a></li>
+			<li class="nav-item"><a class="nav-link" href="aboutus.html" >ABOUT US</a></li>
+			<li class="nav-item"><a class="nav-link" href="competition.html">COMPETITION</a></li>
+			<li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
+			<li class="nav-item"><a class="nav-link" href="sponsers.html">SPONSORS</a></li>
+			<li class="nav-item"><a class="nav-link" href="blog.html">BLOG</a></li>
+			<li class="nav-item"><a class="nav-link" href="opensource.html">OPEN SOURCE</a></li>
+	  </ul>
+  	</div>
+  </div>
+
+		
+</nav>
 	<div id="Header">
 		<li>About RoboMaster</li>
 	</div>
