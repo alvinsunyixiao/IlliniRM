@@ -5,25 +5,24 @@
 <head>
 <meta http-equiv="Cache-Control" content="no-transform" /> 
 <meta http-equiv="Cache-Control" content="no-siteapp" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=yes" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1,user-scalable=yes" />
+<meta charset="utf-8">
+<script>window.onload = function() {
+    if (screen.width < 1000) {
+        var mvp = document.getElementById('vp');
+        mvp.setAttribute('content','user-scalable=no,width=1000');
+    }
+}</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
-<style type="text/css"> 
-@media(max-width:960px)
-{
-  
-}
-</style>
-</head>
 
 <style>
 #page{
 	background-color: white;
 	text-align: center;
 	width: 100%;
-	min-width:1000px;
-	width:expression_r(document.body.clientWidth < 1000 ? "1000px": "auto" )
 	overflow: hidden;
 }
 #topSymbol{
@@ -33,7 +32,7 @@
 	width: 100%;
 	overflow: hidden;
 }
-#navigation{
+#navbarNav{
 	margin-top: 0.3125em;
 	background-color: #2E2E2E;
 	height: 2.3em;
@@ -49,17 +48,18 @@
 	font-weight: 250;
 	font-size: 1em;
 }
-#navigation ul{
+#navbarNav ul{
 	margin-top: 0.5em;
 	list-style-type: none;
 	display: inline-block;
 }
-#navigation ul li{
+#navbarNav ul li{
 	float: left;
 }
-#navigation a{
+#navbarNav a{
 	display: block;
 	width: 140px;
+	color: white;
 }
 #mainBody{
 	margin-top: 0px;
@@ -184,7 +184,7 @@
 }
 #sponsor img{
 	position: center;
-	margin-top: 100px;
+	margin-top: 120px;
 	margin-bottom: 0px;
 }
 #sponsor p{
@@ -227,25 +227,34 @@
 }
 #sponsorRight ul2 a{
 	display: block;
-	width: 110px;
+	width: 130px;
 }
 </style>
 </head>
 <body>
 <div id="page">
 <div id="topSymbol"><img src="symbol.jpeg" height="118" width="118"></div>
-<div id="navigation">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #2E2E2E;" role="navigation" >
+	<a class="navbar-brand" href="#"></a>
+	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    	<span class="navbar-toggler-icon"></span>
+  </button>
+	<div class="collapse navbar-collapse" id="navbarNav">
 	<div id="line">
-		<ul>
-		<li><a href="aboutus.html" style="color:white; text-decoration:none;">ABOUT US</a></li>
-		<li><a href="competition.html" style="color:white; text-decoration:none;">COMPETITION</a></li>
-		<li><a href="members.html" style="color:white; text-decoration:none;">MEMBERS</a></li>
-		<li><a href="sponsers.html" style="color:white; text-decoration:none;">SPONSORS</a></li>
-		<li><a href="contact.html" style="color:white; text-decoration:none;">CONTACT</a></li>
-		<li><a href="download.html" style="color:white; text-decoration:none;">DOWNLOAD</a></li>
-		</ul>
-	</div>
-</div>
+	  <ul class="nav navbar-nav">
+			<li class="nav-item"><a class="nav-link" href="aboutus.html" >ABOUT US</a></li>
+			<li class="nav-item"><a class="nav-link" href="competition.html">COMPETITION</a></li>
+			<li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
+			<li class="nav-item"><a class="nav-link" href="sponsers.html">SPONSORS</a></li>
+			<li class="nav-item"><a class="nav-link" href="blog.html">BLOG</a></li>
+			<li class="nav-item"><a class="nav-link" href="opensource.html">OPEN SOURCE</a></li>
+	  </ul>
+  	</div>
+  </div>
+
+		
+</nav>
 <div id="mainBody">
 	<img src="123017-3.png" width="1085" height="500">
 	<div id="textpart">
@@ -285,7 +294,7 @@
 <li4><a href="githubece.html" style="color:#C0C0C0; text-decoration:none;">Github ECE Repository</a></li4>
 </ul2>
 </div>
-<center><img src="Bottom_logo.svg" height=20px width=150px></center>
+<center><img src="Bottom_logo.svg" height=15px width=150px></center>
 <center><p>Copyright © Illini Robomaster 2017</p></center>
 </div>
 </div>
