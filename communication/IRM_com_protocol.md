@@ -39,6 +39,7 @@ typedef enum              /* 命令码, cmdid, 2bytes */
   GAIN_BUFF_ID        = 0x0007,     /* 获取buff */
   
   SHOOT_TASK_DATA_ID  = 0x0012,     /* 发射机构 */
+  INFANTRY_ERR_ID     = 0x0013,	  	/* 底层错误 */
   
   CHASSIS_CTRL_ID     = 0x00A0,     /* 底盘控制 */
   GIMBAL_CTRL_ID      = 0x00A1,     /* 云台控制 */
@@ -47,6 +48,7 @@ typedef enum              /* 命令码, cmdid, 2bytes */
   CALI_GIMBAL_ID      = 0x00A5,     /* 云台校准 */
   
   STU_CUSTOM_DATA_ID  = 0x0100,     /* 客户端显示 */
+  ROBOT_TO_CLIENT_ID  = 0x0101,		/* 转发到服务器 */
   CLIENT_TO_ROBOT_ID  = 0x0102,     /* 转发到决策PC */
 
   SHO_MOD_SWI_ID      = 0x0700,     /* 设计模式切换 */
@@ -364,6 +366,22 @@ typedef __packed struct
 | data2 | 自定义数据2 |
 | data3 | 自定义数据3 |
 |......(underconstruction)|......(underconstruction)|
+
+### 0x0101 转发到服务器
+
+对应数据结构 user_to_server_t，透传上行数据
+
+```
+typedef __packed struct
+{
+  uint8_t data[64];
+  ......(underconstruction)
+} user_to_server_t;
+```
+
+| 数据       | 说明          |
+| -------- | ----------- |
+| data[64] | 自定义数据，最大为64 |
 
 ### 0x0102 转发到决策 PC
 
