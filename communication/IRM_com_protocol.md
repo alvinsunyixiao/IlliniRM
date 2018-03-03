@@ -389,8 +389,32 @@ typedef __packed struct
 对应数据结构 `shoot_mod_swi_t`，射击模式切换信息
 
 ```
-underconstruction
+typedef __packed struct
+{
+  uint8_t cur_shoot_mod;
+ /* the current shooting mode:
+    0x00: manual
+    0x01: auto
+    others reserved */
+  uint8_t aim_shoot_mod;
+ /* the aimed   shooting mode:
+    0x00: manual
+    0x01: auto
+    others reserved */
+} shoot_mod_swi_t;
 ```
+
+
+| 数据                      | 说明                          |
+| ----------------------- | --------------------------- |
+| `cur_shoot_mod`(当前射击模式) | 		 |
+|                         | 0x00: 手动            |
+|                         | 0x01: 自动            |
+|                         | 其他保留              |
+| `aim_shoot_mod`(目标射击模式) |              |
+|                         | 0x00: 手动            |
+|                         | 0x01: 自动            |
+|                         | 其他保留              |
 
 
 ### 0x0701 战术指令信息
