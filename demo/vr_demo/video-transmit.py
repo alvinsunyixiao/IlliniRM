@@ -3,10 +3,11 @@ import socket
 import numpy as np
 from tqdm import tqdm
 import cv2
+import time
 
-vc = VideoCamera(1,False)
+vc = VideoCamera("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420,framerate=(fraction)120/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw,format=(string)BGR ! appsink", True)
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-dest = ('192.168.1.101',5657)
+dest = ('192.168.0.111',2355)
 
 def itos(q):
     rs = ''
@@ -26,11 +27,6 @@ while True:
     while i < imlen:
         s.sendto(imdata[i:min(i+5000,imlen)], dest)
         i += 5000
+        time.sleep(0.007)
 
-cap = cv2.VideoCapture(1)
-ret, img = cap.read()
-cap.release()
-
-cv2.imshow('go', img)
-cv2.waitKey(0)
 

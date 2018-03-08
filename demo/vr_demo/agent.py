@@ -3,9 +3,11 @@ import numpy as np
 from struct import unpack
 from serial import Serial
 
+RANGE = 70
+
 def clip(ang):
-    ang = np.maximum(ang, 45)
-    ang = np.minimum(ang, 135)
+    ang = np.maximum(ang, 90 - RANGE)
+    ang = np.minimum(ang, 90 + RANGE)
     return ang
 
 class Agent:
