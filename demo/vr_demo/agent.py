@@ -3,7 +3,7 @@ import numpy as np
 from struct import unpack
 from serial import Serial
 
-RANGE = 70
+RANGE = np.array([38, 0, 25], dtype='int')
 
 def clip(ang):
     ang = np.maximum(ang, 90 - RANGE)
@@ -35,8 +35,8 @@ class Agent:
             return False
         pitch = self.ang[2]
         yaw = self.ang[0]
-        l = self.ser.write([90, pitch, yaw])
-        if l == 3:
+        l = self.ser.write([97, pitch, yaw, (97+pitch+yaw)%256])
+        if l == 4:
             return True
         else:
             return False

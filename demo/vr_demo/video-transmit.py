@@ -7,7 +7,7 @@ import time
 
 vc = VideoCamera("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720,format=(string)I420,framerate=(fraction)120/1 ! nvvidconv flip-method=0 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw,format=(string)BGR ! appsink", True)
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-dest = ('192.168.0.111',2355)
+dest = ('192.168.43.1',2350)
 
 def itos(q):
     rs = ''
