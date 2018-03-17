@@ -22,6 +22,7 @@
 	text-align: center;
 	width: 100%;
 	overflow: hidden;
+	height: 100%;
 }
 #navbarNav{
 	margin-top: 0.3125em;
@@ -57,13 +58,15 @@
 	font-size: 2.375em;
 	width: 100%;
 	background-image: url("About_Us_Header.png");
+	background-repeat: no-repeat;
+	background-position: center;
 	overflow: hidden;
 }
 #Header li{
 	font-family: avenir;
 	position: absolute;
 	left: 23%;
-	top: 16%;
+	top: 150px;
 	text-decoration: none;
 	list-style-type: none;
 	overflow: hidden;
@@ -75,12 +78,12 @@
 	width: 60%;
 	left: 20%;
 	overflow: hidden;
-	height: 1800px;
+	height: 1200px;
 	background-color: #F7F7F7;
 }
 #text1{
 	width: 100%;
-	height: 300px;
+	height: 200px;
 	position:relative;
 	background-color: #F7F7F7;
 	overflow: hidden;
@@ -91,11 +94,91 @@
 	list-style-type: none;
 	text-align: left;
 	left: 6%;
-	margin-top: 3em;
+	margin-top: 2em;
 	font-size: 0.875em;
 	width: 90%;
 }
+#parts{
+	position: relative;
+	margin-top: 20px;
+}
+#one{
+	position: absolute;
+	left: 6%;
+}
+#one img{
+	position: absolute;
+}
+#one li1{
+	position: absolute;
+	font-size: 13px;
+	left: 3.5em;
+	width: 20px;
+}
+#one li2{
+	position: absolute;
+	font-size: 10px;
+	top: 4em;
+	width: 200px;
+	margin-top: 15px;
+}
+#two{
+	position: absolute;
+	left: 38%;
+}
+#two img{
+	position: absolute;
+}
+#two li1{
+	position: absolute;
+	font-size: 13px;
+	width: 100px;
+	left: 3.5em;
+}
+#two li2{
+	position: absolute;
+	font-size: 10px;
+	top: 4em;
+	width: 200px;
+	margin-top: 15px;
+}
+#three{
+	position: absolute;
+	left: 71%;
+}
+#three img{
+	position: absolute;
+}
+#three li1{
+	position: absolute;
+	font-size: 13px;
+	left: 3.5em;
+	width: 74px;
+}
+#three li2{
+	position: absolute;
+	font-size: 10px;
+	top: 4em;
+	width: 200px;
+	margin-top: 15px;
+}
 
+#text2{
+	margin-top: 14em;
+}
+#text2 pic{
+	margin-top: 5px;
+}
+#freakingtext li1{
+	position: absolute;
+	text-decoration: none;
+	list-style-type: none;
+	text-align: left;
+	left: 6%;
+	font-size: 0.875em;
+	width: 90%;
+	margin-top: 30px;
+}
 #sponsor{
 	background-color: #2E2E2E;
 	height: 160px;
@@ -151,7 +234,7 @@
 }
 </style>
 <body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark" style="background-color: #2E2E2E;" role="navigation" >
+	<nav class="navbar navbar-expand-lg navbar-light" style="background-color: #2E2E2E;" role="navigation" >
 	<a class="navbar-brand" href="#"></a>
 	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
     	<span class="navbar-toggler-icon"></span>
@@ -159,11 +242,11 @@
 	<div class="collapse navbar-collapse" id="navbarNav">
 	<div id="line">
 	  <ul class="nav navbar-nav">
-	  		<li class="nav-item"><a class="nav-link" href="index.html"><img src="Top_logo.svg" width= 49 height=19></a></li>
+	  		<li class="nav-item"><a class="nav-link" href="index.html"><img src="./Design/Image_General/Top_logo.svg" width= 49 height=19></a></li>
 			<li class="nav-item"><a class="nav-link" href="aboutus.html" >ABOUT US</a></li>
-			<li class="nav-item"><a class="nav-link" href="competition.html">COMPETITION</a></li>
+			<li class="nav-item"><a class="nav-link" href="aboutrobomaster.html">COMPETITION</a></li>
 			<li class="nav-item"><a class="nav-link" href="members.html">MEMBERS</a></li>
-			<li class="nav-item"><a class="nav-link" href="sponsers.html">SPONSORS</a></li>
+			<li class="nav-item"><a class="nav-link" href="sponsors.html">SPONSORS</a></li>
 			<li class="nav-item"><a class="nav-link" href="blog.html">BLOG</a></li>
 			<li class="nav-item"><a class="nav-link" href="opensource.html">OPEN SOURCE</a></li>
 	  </ul>
@@ -183,74 +266,55 @@
 	</div>
 	<div id="parts">
 	<div id="one">
-		<img src="Mechanical_Design.svg" height=40px width=40px>
-		<li>MECHANICAL DESIGN</li>
-		<li>Building the body of our robot</li>
-		<li>Launching structure design</li>
-		<li>Solidwork</li>
-		<li>3D Modeling</li>
-		<li>3D Printing</li>
+		<img src="./Design/Image_About_Us/Mechanical_Design.svg" height=40px width=40px>
+		<li1>MECHANICAL DESIGN</li1>
+		<li2>Building the body of our robot</br></br>Launching structure design</br></br>Solidwork</br></br>3D Modeling</br></br>3D Printing</li2>
 	</div>
 		
 	<div id="two">
-		<img src="Hardware_Control.svg" height=40px width=40px>
-		<li>HARDWARE & CONTROL</li>
-		<li>Building the brain of our robot</li>
-		<li>PCB designing</li>
-		<li>sensor testing</li>
-		<li>embedded system</li>
+		<img src="./Design/Image_About_Us/Hardware_Control.svg" height=40px width=40px>
+		<li1>HARDWARE & CONTROL</li1>
+		<li2>Building the brain of our robot</br></br>PCB designing</br></br>sensor testing</br></br>embedded system</li2>
 	</div>
 
 	<div id="three">
-		<img src="Visual_Recognition.svg" height=40px width=40px>
-		<li>HARDWARE & CONTROL</li>
-		<li>Building the eye of our robot</li>
-		<li>Machine learning</li>
-		<li>Python</li>
-		<li>Caffe</li>
-		<li>OpenCV</li>
+		<img src="./Design/Image_About_Us/Visual_Recognition.svg" height=40px width=40px>
+		<li1>VISUAL & RECOGNITION</li1>
+		<li2>Building the eye of our robot</br></br>Machine learning</br></br>Python</br></br>Caffe</br></br>OpenCV</li2>
 	</div>
-	</div>
-
-	<div id="photo">
-		<img src="About_Us_iRM.png">
-	</div>
+</div>
+	
+	
 	<div id="text2">
-		<li1>Building a robot requires knowledge from many different fields especially areas like electrical engineering, mechanical engineering and computer science. Illini RoboMaster consists of technology department and management department. We divide up our technology team based on the area our teammates focus on: We have ECE team, CS team, and ME team. We also have professor from ECE department as our advisor. We welcome people from different engineering areas who are interested in building robotics for the future. There is no limitation for what major you are or which graduation class you are coming from. We would like to have future scientists, innovators and entrepreneurs to be part of our team.</li1>
-
-		<li2>RoboMaster is just the beginning of our journey. We will never be satisfied to be staying in one spot, but rather than that we hope one day we will build robotics to benefit our society.</li2>
-	</div>
-
-		<div id="smallicons">
-		<ul>
-			<li><a href="github.html" style="color:white; text-decoration:none;">Check Our Progress in Our Blog</a></li>
-		<ul>
-			<li><a href="joinus.html" style="color:white; text-decoration:none;">JOIN US</a></li>
-		</ul>
-		<ul>
-			<li><a href="beasponsor" style="color:white; text-decoration:none;">BE A SPONSOR</a></li>
-		</ul>
+		<div id="pic">
+		<img src="./Design/Image_About_Us/About_Us_iRM.png" width=100% height=25%>
 		</div>
+		<div id="freakingtext">
+		<li1>Building a robot requires knowledge from many different fields especially areas like electrical engineering, mechanical engineering and computer science. Illini RoboMaster consists of technology department and management department. We divide up our technology team based on the area our teammates focus on: We have ECE team, CS team, and ME team. We also have professor from ECE department as our advisor. We welcome people from different engineering areas who are interested in building robotics for the future. There is no limitation for what major you are or which graduation class you are coming from. We would like to have future scientists, innovators and entrepreneurs to be part of our team.</br></br>RoboMaster is just the beginning of our journey. We will never be satisfied to be staying in one spot, but rather than that we hope one day we will build robotics to benefit our society.</br></br></br><center><a href="blog.html" style="color: #F9904C; text-decoration:none;">Check Our Progress in Our Blog</a></center></li1>
+		</div>
+
 	</div>
+
+</div>
 
 	<div id="sponsor">
-		<div id="sponsorLeft">
-			<ul1>
-				<li1><a href="contactus.html" style="color:#C0C0C0; text-decoration:none;">Contact Us</a></li1>
-				<li2><a href="robomaster.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster Website</a></li2>
-				<li3><a href="robomasterbbs.html" style="color:#C0C0C0; text-decoration:none;">RoboMaster BBS</a></li3>
-				<li4><a href="uiuc.html" style="color:#C0C0C0; text-decoration:none;">University of Illinois</a></li4>
-			</ul1>
-		</div>
-		<div id="sponsorRight">
-			<ul2>
-				<li1><a href="slack.html" style="color:#C0C0C0; text-decoration:none;">Slack</a></li1>
-				<li2><a href="googledrive.html" style="color:#C0C0C0; text-decoration:none;">Google Drive</a></li2>
-				<li3><a href="githubcs.html" style="color:#C0C0C0; text-decoration:none;">Github CS Repository</a></li3>
-				<li4><a href="githubece.html" style="color:#C0C0C0; text-decoration:none;">Github ECE Repository</a></li4>
-			</ul2>
-		</div>
-			<center><img src="Bottom_logo.svg" height=20px width=150px></center>
+<div id="sponsorLeft">
+<ul1>
+<li1><a href="members.html" style="color:#C0C0C0; text-decoration:none;">Contact Us</a></li1>
+<li2><a href="https://www.robomaster.com/en-US" style="color:#C0C0C0; text-decoration:none;">RoboMaster Website</a></li2>
+<li3><a href="http://bbs.robomasters.com/portal.php" style="color:#C0C0C0; text-decoration:none;">RoboMaster BBS</a></li3>
+<li4><a href="http://illinois.edu" style="color:#C0C0C0; text-decoration:none;">University of Illinois</a></li4>
+</ul1>
+</div>
+<div id="sponsorRight">
+<ul2>
+<li1><a href="https://illinirm.slack.com/messages/C7Q55FM40/" style="color:#C0C0C0; text-decoration:none;">Slack</a></li1>
+<li2><a href="https://drive.google.com/open?id=0B-fs0fmWTI0uSFhUc3dCY0NBWjQ" style="color:#C0C0C0; text-decoration:none;">Google Drive</a></li2>
+<li3><a href="https://github.com/alvinsunyixiao/IlliniRM" style="color:#C0C0C0; text-decoration:none;">Github CS Repository</a></li3>
+<li4><a href="https://github.com/keeees/RM_ECE" style="color:#C0C0C0; text-decoration:none;">Github ECE Repository</a></li4>
+</ul2>
+</div>
+<center><img src="./Design/Image_General/Bottom_logo.svg" height=15px width=150px></center>
 			<center><p>Copyright © Illini Robomaster 2017</p></center>
 		</div>
 </body>

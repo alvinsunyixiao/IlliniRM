@@ -10,9 +10,9 @@ typedef __packed struct
 
 帧头数据			|占用字节				| 详细描述|
 ----------------|-------------------|-----------------------|
-irm					|    4   					| 数据的域ID，主控和裁判系统域：0xA5；主控和PC上层域：0xA0|
-data_length		| 2						|每帧内数据data的长度|
-crc8				|1						|帧头的crc校验结果|
+`irm	`				|    4   					| 数据的域ID，主控和裁判系统域：0xA5；主控和PC上层域：0xA0|
+`data_length`		| 2						|每帧内数据data的长度|
+`crc8`				|1						|帧头的crc校验结果|
 
 *备注：*
 
@@ -29,7 +29,7 @@ crc8				|1						|帧头的crc校验结果|
 
 命令码				|占用字节				|
 -----------------|-------------------|
-cmdid				|2						|
+`cmdid`				|2						|
 
 ```
 typedef enum              /* 命令码, cmdid, 2bytes */
@@ -39,6 +39,7 @@ typedef enum              /* 命令码, cmdid, 2bytes */
   GAIN_BUFF_ID        = 0x0007,     /* 获取buff */
   
   SHOOT_TASK_DATA_ID  = 0x0012,     /* 发射机构 */
+  INFANTRY_ERR_ID     = 0x0013,	  	/* 底层错误 */
   
   CHASSIS_CTRL_ID     = 0x00A0,     /* 底盘控制 */
   GIMBAL_CTRL_ID      = 0x00A1,     /* 云台控制 */
@@ -47,6 +48,7 @@ typedef enum              /* 命令码, cmdid, 2bytes */
   CALI_GIMBAL_ID      = 0x00A5,     /* 云台校准 */
   
   STU_CUSTOM_DATA_ID  = 0x0100,     /* 客户端显示 */
+  ROBOT_TO_CLIENT_ID  = 0x0101,		/* 转发到服务器 */
   CLIENT_TO_ROBOT_ID  = 0x0102,     /* 转发到决策PC */
 
   SHO_MOD_SWI_ID      = 0x0700,     /* 设计模式切换 */
@@ -118,17 +120,17 @@ typedef __packed struct     /* 0x0001 比赛进程 */
 | 数据                | 说明            |
 | ---------------- | ------------- |
 | `stage_remain_time` | 当前阶段剩余时间，单位 s |
-| game_process      | 当前比赛阶段        |
+| `game_process`      | 当前比赛阶段        |
 |                   | 0: 未开始比赛      |
 |                   | 1: 准备阶段       |
 |                   | 2: 自检阶段       |
 |                   | 3: 5s 倒计时     |
 |                   | 4: 对战中        |
 |                   | 5: 比赛结算中      |
-| reserved          | 保留位           |
-| remain_hp         | 机器人当前血量       |
-| max_hp            | 机器人满血量        |
-| position          | 位置、角度信息       |
+| `reserved`          | 保留位           |
+| `remain_hp`         | 机器人当前血量       |
+| `max_hp`            | 机器人满血量        |
+| `position`          | 位置、角度信息       |
 
 *备注：*
 
@@ -147,13 +149,13 @@ typedef __packed struct
 
 | 数据         | 说明           |
 | ---------- | ------------ |
-| valid_flag | 位置、角度信息有效标志位 |
+| `valid_flag` | 位置、角度信息有效标志位 |
 |            | 0: 无效        |
 |            | 1: 有效        |
-| x          | 位置 X 坐标值     |
-| y          | 位置 Y 坐标值     |
-| z          | 位置 Z 坐标值     |
-| yaw        | 枪口朝向角度值      |
+| `x`          | 位置 X 坐标值     |
+| `y`          | 位置 Y 坐标值     |
+| `z`          | 位置 Z 坐标值     |
+| `yaw`        | 枪口朝向角度值      |
 
 
 ### 0x0005 场地交互
@@ -169,7 +171,7 @@ typedef __packed struct
 
 | 数据        | 说明             |
 | --------- | -------------- |
-| region_idx  | 索引号，用于区分不同区域 |
+| `region_idx`  | 索引号，用于区分不同区域 |
 
 ### 0x0007 获取buff 
 
@@ -185,10 +187,10 @@ typedef __packed struct
 
 | 数据            | 说明      |
 | ------------- | ------- |
-| buff_type     | Buff类型  |
+| `buff_type`     | Buff类型  |
 |               | 0: 攻击加成 |
 |               | 1: 防御加成 |
-| buff_addition | 加成百分比   |
+| `buff_addition` | 加成百分比   |
 
 ## 第二类
 
@@ -218,12 +220,12 @@ typedef __packed struct
 
 | 数据                     | 说明          |
 | ---------------------- | ----------- |
-| err_sta                | 底层设备全局状态    |
-| err[ERROR_LIST_LENGTH] | 所有设备、机构工作状态 |
+| `err_sta`                | 底层设备全局状态    |
+| `err[ERROR_LIST_LENGTH]` | 所有设备、机构工作状态 |
 
 *备注：*
 
-底层错误信息的枚举类型 bottom_err_e 如下，如果相应设备出现错误，状态位被置为`ERROR_EXIST`
+>底层错误信息的枚举类型 `bottom_err_e` 如下，如果相应设备出现错误，状态位被置为`ERROR_EXIST`
 
 ```
 typedef enum
@@ -234,7 +236,7 @@ typedef enum
 } bottom_err_e;
 ```
 
-底层错误信息的所有分类包含在 err_id_e 中，主要分 3 类。第一类是 `设备_OFFLINE` 相关的设备离线；第二类是机构运行故障，目前只有卡弹这一项；第三类是 `_CONFIG_ERR` 软件相关的配置出现错误，如配置的云台安装位置超出了底盘的物理范围等。
+>底层错误信息的所有分类包含在 `err_id_e` 中，主要分 3 类。第一类是 `设备_OFFLINE` 相关的设备离线；第二类是机构运行故障，目前只有卡弹这一项；第三类是 `_CONFIG_ERR` 软件相关的配置出现错误，如配置的云台安装位置超出了底盘的物理范围等。
 
 ```
 typedef enum
@@ -284,8 +286,8 @@ typedef __packed struct
 
 | 数据           | 说明                        |
 | ------------ | ------------------------- |
-| pit_ref      | pitch 轴相对于中点的目标角度         |
-| yaw_ref      | yaw 轴相对于中点的目标角度           |
+| `pit_ref`      | pitch 轴相对于中点的目标角度         |
+| `yaw_ref`      | yaw 轴相对于中点的目标角度           |
 
 ### 0x00A2 发射机构控制 
 
@@ -309,7 +311,7 @@ typedef __packed struct
 
 | 数据        | 说明                      |
 | --------- | ----------------------- |
-| err_level | 主要参见 err_level_e 类型中的数据 |
+| `err_level` | 主要参见 err_level_e 类型中的数据 |
 
 *备注：*
 
@@ -360,10 +362,26 @@ typedef __packed struct
 
 | 数据    | 说明     |
 | ----- | ------ |
-| data1 | 自定义数据1 |
-| data2 | 自定义数据2 |
-| data3 | 自定义数据3 |
+| `data1` | 自定义数据1 |
+| `data2` | 自定义数据2 |
+| `data3` | 自定义数据3 |
 |......(underconstruction)|......(underconstruction)|
+
+### 0x0101 转发到服务器
+
+对应数据结构 `user_to_server_t`，透传上行数据
+
+```
+typedef __packed struct
+{
+  uint8_t data[64];
+  ......(underconstruction)
+} user_to_server_t;
+```
+
+| 数据       | 说明          |
+| -------- | ----------- |
+| `data[64]` | 自定义数据，最大为64 |
 
 ### 0x0102 转发到决策 PC
 
@@ -379,7 +397,7 @@ typedef __packed struct
 
 | 数据       | 说明          |
 | -------- | ----------- |
-| data[32] | 自定义数据，最大为32 |
+| `data[32]` | 自定义数据，最大为32 |
 |......(underconstruction)|......(underconstruction)|
 
 
@@ -389,8 +407,32 @@ typedef __packed struct
 对应数据结构 `shoot_mod_swi_t`，射击模式切换信息
 
 ```
-underconstruction
+typedef __packed struct
+{
+  uint8_t cur_shoot_mod;
+ /* the current shooting mode:
+    0x00: manual
+    0x01: auto
+    others reserved */
+  uint8_t aim_shoot_mod;
+ /* the aimed   shooting mode:
+    0x00: manual
+    0x01: auto
+    others reserved */
+} shoot_mod_swi_t;
 ```
+
+
+| 数据                      | 说明                          |
+| ----------------------- | --------------------------- |
+| `cur_shoot_mod`(当前射击模式) | 		 |
+|                         | 0x00: 手动            |
+|                         | 0x01: 自动            |
+|                         | 其他保留              |
+| `aim_shoot_mod`(目标射击模式) |              |
+|                         | 0x00: 手动            |
+|                         | 0x01: 自动            |
+|                         | 其他保留              |
 
 
 ### 0x0701 战术指令信息
