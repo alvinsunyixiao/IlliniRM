@@ -4,7 +4,7 @@ typedef __packed struct
 {
   uint32_t  irm;           /* 域ID, 主控和裁判系统域：0xA5；主控和PC上层域：0xA0 */
   uint16_t data_length;   /* 每帧内数据data的长度 */
-  uint8_t  crc8;          /* 帧头的crc校验结果 */
+  uint8_t  hash_str;       /* 帧头哈希校验结果 */
 } frame_header_t;
 ```
 
