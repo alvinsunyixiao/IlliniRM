@@ -2,7 +2,7 @@
 
 ## Wi-Fi SSID & Password 
 * 2.4G    : iRM
-* 5G      : iRM
+* 5G      : iRM-5G
 * Password: illinois
 
 ## IP Address Reservation
