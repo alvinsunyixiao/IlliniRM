@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 2.8)
 project(jetson-inference)
 
@@ -9,9 +8,9 @@ set(BUILD_DEPS "YES" CACHE BOOL "If YES, will install dependencies into sandbox.
 
 
 # Qt is used to load images (installed by ubuntu-desktop)
-find_package(Qt4 REQUIRED)
-include(${QT_USE_FILE})
-add_definitions(${QT_DEFINITIONS})
+#find_package(Qt4 REQUIRED)
+#include(${QT_USE_FILE})
+#add_definitions(${QT_DEFINITIONS})
 
 
 # setup CUDA
@@ -53,7 +52,7 @@ file(GLOB inferenceSources *.cpp *.cu util/*.cpp util/cuda/*.cu)
 file(GLOB inferenceIncludes *.h util/*.h util/cuda/*.h)
 
 cuda_add_library(jetson-inference SHARED ${inferenceSources})
-target_link_libraries(jetson-inference nvcaffe_parser nvinfer Qt4::QtGui GL GLEW gstreamer-1.0 gstapp-1.0 ${OpenCV_LIBS})		# gstreamer-0.10 gstbase-0.10 gstapp-0.10
+target_link_libraries(jetson-inference nvcaffe_parser nvinfer GL GLEW gstreamer-1.0 gstapp-1.0 ${OpenCV_LIBS})		# gstreamer-0.10 gstbase-0.10 gstapp-0.10
 
 
 # transfer all headers to the include directory
@@ -75,11 +74,6 @@ foreach(image ${imageData})
 	file(COPY ${image} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 	#configure_file(${include} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COPYONLY)
 endforeach()
-
-
-# copy tools
-file(COPY "tools/segnet-batch.sh" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
 
 # build samples & utilities
 add_subdirectory(lenet-console)
