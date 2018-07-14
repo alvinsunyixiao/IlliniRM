@@ -1,9 +1,9 @@
 # Wi-Fi Connection Guideline
 
-## Wi-Fi SSID & Password 
+## Wi-Fi SSID & Password
 * 2.4G    : iRM
 * 5G      : iRM-5G
-* Password: illinois
+* Password: 12345678
 
 ## IP Address Reservation
 1. 192.168.1.1          NETGEAR Router R8300
@@ -22,4 +22,3 @@
 ## Router settings
 * Username: admin
 * Password: illinois
-
